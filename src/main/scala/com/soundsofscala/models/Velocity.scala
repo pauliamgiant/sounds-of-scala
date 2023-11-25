@@ -10,4 +10,3 @@ enum Velocity(val midiVelocity: Int):
   case OnFull extends Velocity(127)
   case OverDrive extends Velocity(500)
   case Napalm extends Velocity(13335)
-

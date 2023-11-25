@@ -12,9 +12,9 @@ enum MusicalEvent:
     case thisRest: Rest =>
       other match
         case thatRest: Rest => Melody(thisRest, thatRest)
-        case _              => Melody(thisRest, other)
+        case _ => Melody(thisRest, other)
     case drum: DrumStroke => Melody(drum, other)
-    case melody: Melody   => Melody(melody, other)
+    case melody: Melody => Melody(melody, other)
     case harmony: Harmony => Melody(harmony, other)
 
   def printEvent(): String = this match
@@ -26,7 +26,7 @@ enum MusicalEvent:
     case DrumStroke(drum, duration, velocity) =>
       val firstSection = s"${drumVoiceToString(drum)}${velocity}_"
       durationToString(duration, firstSection)
-    case Melody(left, right)   => left.printEvent() ++ right.printEvent()
+    case Melody(left, right) => left.printEvent() ++ right.printEvent()
     case Harmony(lower, upper) => lower.printEvent() ++ upper.printEvent()
 
   // description
