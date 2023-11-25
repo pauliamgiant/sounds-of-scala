@@ -41,35 +41,31 @@ logo :=
      |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("f", "~fastOptJS / webpack", "Run fastOptJS for live updates"),
-  UsefulTask("r", "reload", "run reload"),
-  UsefulTask("cln", "clean", "run clean"),
-  UsefulTask("c", "compile", "run compile"),
-  UsefulTask("t", "test", "Run test"),
-  UsefulTask("fmt", "scalafmtAll", "Run scalafmtAll on the entire project"),
+  UsefulTask("~fastOptJS / webpack", "Run fastOptJS for live updates").alias("f"),
+  UsefulTask("reload", "run reload").alias("r"),
+  UsefulTask("clean", "run clean").alias("cln"),
+  UsefulTask("compile", "run compile").alias("c"),
+  UsefulTask("test", "Run test").alias("t"),
+  UsefulTask("scalafmtAll", "Run scalafmtAll on the entire project").alias("fmt"),
   UsefulTask(
-    "fmtchk",
     "scalafmtCheckAll",
     "Run scalafmtCheckAll on the entire project"
-  ),
-  UsefulTask("fix", "scalafixAll", "Run scalafixAll on the entire project"),
+  ).alias("fmtchk"),
+  UsefulTask("scalafixAll", "Run scalafixAll on the entire project").alias("fix"),
   UsefulTask(
-    "fixchk",
     "scalafixAll --check",
     "Run scalafixAll --check on the entire project"
-  ),
-  UsefulTask("chk", "fmtchk; fixchk", "Run fmtchk; fixchk"),
+  ).alias("fixchk"),
+  UsefulTask("fmtchk; fixchk", "Run fmtchk; fixchk").alias("chk"),
   UsefulTask(
-    "bld",
     "tc; t; chk",
     "Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
-  ),
+  ).alias("bld"),
   UsefulTask(
-    "cbld",
     "cln; tc; t; chk",
     "Clean Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
-  ),
-  UsefulTask("du", "dependencyUpdates", "Run dependencyUpdates")
+  ).alias("cbld"),
+  UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du")
 )
 
 logoColor := scala.Console.YELLOW
