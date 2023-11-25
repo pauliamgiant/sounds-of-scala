@@ -44,9 +44,7 @@ class TransformMusicalEventsTest
       (ThirtySecond, 2),
       (SixtyFourth, 1)
     ).forEvery { (duration, expected) =>
-      TransformMusicalEvents
-        .durationToString(duration, "")
-        .length shouldBe expected
+      TransformMusicalEvents.durationToString(duration, "").length shouldBe expected
     }
   }
 
@@ -57,8 +55,7 @@ class TransformMusicalEventsTest
       (Flat, "♭"),
       (Natural, "")
     ).forEvery { (accidental, expected) =>
-      TransformMusicalEvents
-        .accidentalToString(accidental) shouldBe expected
+      TransformMusicalEvents.accidentalToString(accidental) shouldBe expected
     }
   }
 }
