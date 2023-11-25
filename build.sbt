@@ -19,6 +19,7 @@ enablePlugins(ScalaJSBundlerPlugin)
 npmExtraArgs ++= Seq(
   "--registry=https://registry.npmjs.org/"
 )
+Test / requireJsDomEnv := true
 jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
 
 val monixNewtypes = "0.2.3"
