@@ -79,7 +79,7 @@ lazy val root = (project in file(".")).settings(
   libraryDependencies ++= Seq(
     "io.github.iltotore" %%% "iron" % "2.3.0",
     "org.scalactic" %%% "scalactic" % "3.2.17",
-    "org.scalatest" %% "scalatest" % "3.2.17" % Test,
+    "org.scalatest" %%% "scalatest" % "3.2.17" % Test,
     "org.typelevel" %%% "cats-core" % "2.10.0",
     "org.typelevel" %%% "cats-effect" % "3.5.2",
     "org.scalameta" %%% "munit" % "0.7.29" % Test,
