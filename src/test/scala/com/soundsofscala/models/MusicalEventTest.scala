@@ -10,7 +10,9 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class MusicalEventTest extends AnyFunSuite with Matchers {
 
-  test("testCombineMethod") {}
+  test("testCombineMethod") {
+    1 + 1 shouldBe 2
+  }
 
   test("testPrintEvent") {}
 
