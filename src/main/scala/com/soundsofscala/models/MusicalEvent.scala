@@ -55,9 +55,6 @@ enum MusicalEvent:
   case Melody(left: MusicalEvent, right: MusicalEvent) extends MusicalEvent
   case Harmony(lower: MusicalEvent, upper: MusicalEvent) extends MusicalEvent
 
-
-
-
 //  Add builder methods for Notes
 object MusicalEvent:
   def C(octave: Octave): MusicalEvent = Note(Pitch.C, Natural, Quarter, octave, OnFull)
