@@ -37,7 +37,6 @@ def buildOscillator(
 
 @main def main(): Unit =
 
-  
   val pianoCSample = "/audio/piano/C3.wav"
   val audioContext = new AudioContext()
   val gainNode = audioContext.createGain()
