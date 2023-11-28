@@ -4,7 +4,7 @@ import com.soundsofscala.models.*
 import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.MusicalEvent.*
-import com.soundsofscala.models.Pitch.*
+import com.soundsofscala.models.Pitch
 import com.soundsofscala.models.Velocity.*
 import io.github.iltotore.iron.{:|, IronType, autoRefine}
 import org.scalajs.dom
@@ -186,21 +186,21 @@ def appendH2(targetNode: dom.Node, text: String): Unit = {
 
 def threeNoteMelody(): String =
   val firstNote: MusicalEvent = MusicalEvent.Note(
-    C,
+    Pitch.C,
     Flat,
     Quarter,
     Octave(3),
     OnFull
   )
   val secondNote: MusicalEvent = MusicalEvent.Note(
-    D,
+    Pitch.D,
     Flat,
     Quarter,
     Octave(3),
     OnFull
   )
   val thirdNote: MusicalEvent = MusicalEvent.Note(
-    E,
+    Pitch.E,
     Flat,
     Quarter,
     Octave(3),
