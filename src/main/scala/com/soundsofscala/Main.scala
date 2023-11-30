@@ -6,54 +6,30 @@ import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.MusicalEvent.*
 import com.soundsofscala.models.Pitch
 import com.soundsofscala.models.Velocity.*
+import com.soundsofscala.synthesis.{Oscillator, WaveType}
+import com.soundsofscala.synthesis.WaveType.*
+import com.soundsofscala.synthesis.Oscillator.*
 import io.github.iltotore.iron.{:|, IronType, autoRefine}
 import org.scalajs.dom
-import org.scalajs.dom.html
-import org.scalajs.dom.document
-import org.scalajs.dom.{
-  AudioBuffer,
-  AudioBufferSourceNode,
-  AudioContext,
-  OscillatorNode,
-  GainNode
-}
+import org.scalajs.dom.*
+
 import scala.scalajs.js.typedarray.ArrayBuffer
-
-//def buildOscillator(audioContext: AudioContext): OscillatorNode =
-//  val oscillator =
-//  oscillator
-
-def buildOscillator(
-    audioContext: AudioContext,
-    gainNode: GainNode,
-    waveType: String,
-    frequency: Double): OscillatorNode =
-  val oscillator = audioContext.createOscillator()
-  oscillator.`type` = waveType
-  oscillator.frequency.value = frequency
-  gainNode.gain.value = -0.10 // Set volume to 25%
-  oscillator.connect(gainNode)
-  oscillator
 
 @main def main(): Unit =
 
-  val pianoCSample = "/audio/piano/C3.wav"
-  val audioContext = new AudioContext()
-  val gainNode = audioContext.createGain()
-  gainNode.gain.value = 0.1
-  gainNode.connect(audioContext.destination)
+  given audioContext: AudioContext = new AudioContext()
+
+  val pianoCSample = "resources/audio/piano/C3.wav"
 
   val startingFrequency = 220
-  val oscillator: OscillatorNode =
-    buildOscillator(audioContext, gainNode, "sine", startingFrequency)
-//  val oscillatorSaw: OscillatorNode =
-//    buildOscillator(audioContext, gainNode, "sawtooth", startingFrequency * 2)
-  val oscillatorSawLow: OscillatorNode =
-    buildOscillator(audioContext, gainNode, "sawtooth", startingFrequency / 4)
-  val oscillatorSquare: OscillatorNode =
-    buildOscillator(audioContext, gainNode, "square", startingFrequency - 3)
-//  val oscillatorTriangle: OscillatorNode =
-//    buildOscillator(audioContext, gainNode, "triangle", startingFrequency / 2)
+
+  val oscillatorSineBuilt = Oscillator(Sine, startingFrequency * 2).volume(0.5)
+
+  val oscillatorSine = SineOscillator().frequency(startingFrequency).volume(0.2)
+  val oscillatorSaw = SawtoothOscillator().frequency(startingFrequency * 2).volume(0.2)
+  val oscillatorSawLow = SawtoothOscillator().frequency(startingFrequency / 4).volume(0.2)
+  val oscillatorSquare = SquareOscillator().frequency(startingFrequency - 3).volume(0.2)
+  val oscillatorTriangle = TriangleOscillator().frequency(startingFrequency / 2).volume(0.2)
 
   document.addEventListener(
     "DOMContentLoaded",
@@ -78,50 +54,68 @@ def buildOscillator(
       pianoLabel.textContent = "Piano Sample"
       dom.document.body.appendChild(pianoLabel)
 
+      val buttonDiv1 = document.createElement("div")
+      buttonDiv1.classList.add("button-pad")
+      dom.document.body.appendChild(buttonDiv1)
+
       val button = document.createElement("button")
       button.textContent = "🎹"
-      button.addEventListener(
-        "click",
-        (e: dom.MouseEvent) => playASingleNote(pianoCSample, audioContext))
+      button.addEventListener("click", (e: dom.MouseEvent) => playASingleNote(pianoCSample))
+      buttonDiv1.appendChild(button)
 
-      dom.document.body.appendChild(button)
+      // make 3 notes
 
       val simpleLabel = document.createElement("label")
       simpleLabel.textContent = "Simple Sine Synthesizer"
       dom.document.body.appendChild(simpleLabel)
 
-      val simpleSynth = document.createElement("button")
-      simpleSynth.textContent = "∿"
-      simpleSynth.addEventListener(
-        "click",
-        (e: dom.MouseEvent) => {
-          gainNode.gain.value = -0.400 // not working
-          oscillator.start()
-        }
-      )
-      // Append the button to the document
-      dom.document.body.appendChild(simpleSynth)
+      val buttonPad = document.createElement("div")
+      buttonPad.classList.add("button-pad")
+      dom.document.body.appendChild(buttonPad)
+
+      val CButton = makeAButton(261.63, "C")
+      val DButton = makeAButton(293.66, "D")
+      val EButton = makeAButton(329.63, "E")
+      val FButton = makeAButton(349.23, "F")
+      val GButton = makeAButton(392.00, "G")
+      val AButton = makeAButton(440.00, "A")
+      val BButton = makeAButton(493.88, "B")
+      val C2Button = makeAButton(523.25, "C2")
+
+      buttonPad.appendChild(CButton)
+      buttonPad.appendChild(DButton)
+      buttonPad.appendChild(EButton)
+      buttonPad.appendChild(FButton)
+      buttonPad.appendChild(GButton)
+      buttonPad.appendChild(AButton)
+      buttonPad.appendChild(BButton)
+      buttonPad.appendChild(C2Button)
+
+      dom.document.body.appendChild(buttonPad)
 
       val compoundSynthLabel = document.createElement("label")
       compoundSynthLabel.textContent = "Compound Synth"
       dom.document.body.appendChild(compoundSynthLabel)
+
+      val buttonDiv2 = document.createElement("div")
+      buttonDiv2.classList.add("button-pad")
+      dom.document.body.appendChild(buttonDiv2)
 
       val synth = document.createElement("button")
       synth.textContent = "🔉"
       synth.addEventListener(
         "click",
         (e: dom.MouseEvent) => {
-          gainNode.gain.value = -0.400 // not working
-          oscillator.start()
-//          oscillatorSaw.start()
+          oscillatorSine.start()
+          oscillatorSaw.start()
           oscillatorSawLow.start()
           oscillatorSquare.start()
-//          oscillatorTriangle.start()
+          oscillatorTriangle.start()
 
         }
       )
       // Append the button to the document
-      dom.document.body.appendChild(synth)
+      buttonDiv2.appendChild(synth)
 
       val slider = dom.document.createElement("input").asInstanceOf[html.Input]
       slider.className = "range"
@@ -130,7 +124,7 @@ def buildOscillator(
       slider.min = "20"
       slider.max = "2000"
       slider.step = "0.01"
-      slider.value = "220"
+      slider.value = "440"
 
       slider.addEventListener(
         "input",
@@ -143,28 +137,30 @@ def buildOscillator(
       def updateFrequency(value: Double): Unit =
         val frequency =
           dom.document.getElementById("frequency").asInstanceOf[html.Input].value.toDouble
-        oscillator.frequency.value = frequency
-//        oscillatorSaw.frequency.value = frequency * 2
-        oscillatorSawLow.frequency.value = frequency / 4
-        oscillatorSquare.frequency.value = frequency - 5
-//        oscillatorTriangle.frequency.value = frequency / 2
+        oscillatorSineBuilt.updateFrequency(frequency)
+        oscillatorSine.updateFrequency(frequency)
+        oscillatorSaw.updateFrequency(frequency * 2)
+        oscillatorSawLow.updateFrequency(frequency / 4)
+        oscillatorSquare.updateFrequency(frequency - 5)
+        oscillatorTriangle.updateFrequency(frequency / 2)
 
       val stopSynth = document.createElement("button")
+      stopSynth.classList.add("stop")
       stopSynth.textContent = "🛑"
       stopSynth.addEventListener(
         "click",
         (e: dom.MouseEvent) =>
-          oscillator.stop()
-//          oscillatorSaw.stop()
+          oscillatorSine.stop()
+          oscillatorSaw.stop()
           oscillatorSquare.stop()
-//          oscillatorTriangle.stop()
+          oscillatorTriangle.stop()
           oscillatorSawLow.stop()
       )
       // Append the button to the document
       dom.document.body.appendChild(stopSynth)
   )
 
-def playASingleNote(pianoCSample: String, audioContext: AudioContext): Unit =
+def playASingleNote(pianoCSample: String)(using audioContext: AudioContext): Unit =
   loadAudioSample(
     pianoCSample,
     audioContext,
@@ -184,7 +180,23 @@ def appendH2(targetNode: dom.Node, text: String): Unit = {
   targetNode.appendChild(parNode)
 }
 
+// val testingDSL = C(5).flat.quarter + D(5).flat.quarter + E(5).flat.quarter
+
+def makeAButton(frequency: Double, note: String): AudioContext ?=> Element =
+  val button = document.createElement("button")
+  button.textContent = note
+  button.addEventListener(
+    "click",
+    (e: dom.MouseEvent) => {
+      val osc = SineOscillator().frequency(frequency).volume(0.2)
+      osc.start()
+      dom.window.setTimeout(() => osc.stop(), 700)
+    }
+  )
+  button
+
 def threeNoteMelody(): String =
+
   val firstNote: MusicalEvent = MusicalEvent.Note(
     Pitch.C,
     Flat,

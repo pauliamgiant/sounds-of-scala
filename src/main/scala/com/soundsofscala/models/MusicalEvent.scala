@@ -7,6 +7,11 @@ import com.soundsofscala.models.Velocity.*
 import com.soundsofscala.models.MusicalEvent.*
 
 import com.soundsofscala.TransformMusicalEvents.*
+import com.soundsofscala.models.Accidental.*
+import com.soundsofscala.models.Duration.*
+import com.soundsofscala.models.Pitch
+import com.soundsofscala.models.Velocity.*
+import io.github.iltotore.iron.{:|, IronType, autoRefine}
 
 import scala.annotation.targetName
 
@@ -22,7 +27,6 @@ enum MusicalEvent:
     case drum: DrumStroke => Melody(drum, other)
     case melody: Melody => Melody(melody, other)
     case harmony: Harmony => Melody(harmony, other)
-
   def printEvent(): String = this match
     case Note(pitch, accidental, duration, octave, velocity) =>
       val firstSection =
@@ -35,7 +39,7 @@ enum MusicalEvent:
     case Melody(left, right) => left.printEvent() ++ right.printEvent()
     case Harmony(lower, upper) => lower.printEvent() ++ upper.printEvent()
 
-  // description
+// description
   case Note(
       pitch: Pitch,
       accidental: Accidental,

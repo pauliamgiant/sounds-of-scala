@@ -3,6 +3,7 @@ package com.soundsofscala
 import com.soundsofscala.models.DrumVoice.{HiHatClosed, *}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.Accidental.*
 import org.scalatest.prop.TableDrivenPropertyChecks
@@ -58,4 +59,5 @@ class TransformMusicalEventsTest
       TransformMusicalEvents.accidentalToString(accidental) shouldBe expected
     }
   }
+
 }

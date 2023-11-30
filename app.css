@@ -34,9 +34,27 @@ label {
 button {
     text-align: center;
     font-size: 5em;
+    padding: 20px;
+    margin: 10px;
+    width: 2em;
+    border-radius: 10px;
+}
+.stop {
+    text-align: center;
+    font-size: 5em;
+    width: 100%;
+    border-radius: 10px;
 }
 
 .range {
     height: 10em;
+}
+
+.button-pad {
+    padding: 2em;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+
 }
 
