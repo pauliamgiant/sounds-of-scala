@@ -12,6 +12,7 @@ class MusicalEventTest extends AnyFunSuite with Matchers {
 
   test("testCombineMethod") {
     1 + 1 shouldBe 2
+    println("yay! ")
   }
 
   test("testPrintEvent") {}
