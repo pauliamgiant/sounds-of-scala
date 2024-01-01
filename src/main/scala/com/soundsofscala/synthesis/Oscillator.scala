@@ -1,6 +1,6 @@
 package com.soundsofscala.synthesis
 
-import jdk.jfr.Frequency
+import com.soundsofscala.models.Pitch
 import org.scalajs.dom.{AudioContext, GainNode, OscillatorNode}
 
 enum WaveType:
@@ -10,25 +10,53 @@ object Oscillator:
   def apply(
       waveType: WaveType,
       frequency: Double = 440,
-      volume: Double = 0.7): AudioContext ?=> Oscillator =
+      volume: Double = 0.7
+  ): AudioContext ?=> Oscillator =
     waveType match
       case WaveType.Sine => SineOscillator(frequency, volume)
       case WaveType.Square => SquareOscillator(frequency, volume)
       case WaveType.Sawtooth => SawtoothOscillator(frequency, volume)
       case WaveType.Triangle => TriangleOscillator(frequency, volume)
 
-enum Oscillator(frequency: Double, volume: Double)(using val audioContext: AudioContext):
+  def stringToWaveType(waveType: String): WaveType =
+    waveType match
+      case "Sine" => WaveType.Sine
+      case "Square" => WaveType.Square
+      case "Sawtooth" => WaveType.Sawtooth
+      case "Triangle" => WaveType.Triangle
 
-  def start(): Unit =
-    oscillatorNode.`type` = waveTypeToString(this)
-    oscillatorNode.frequency.value = frequency
-    val gainNode = audioContext.createGain()
-    gainNode.connect(audioContext.destination)
-    gainNode.gain.value = volume
-    oscillatorNode.connect(gainNode)
-    oscillatorNode.start()
+enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioContext):
+  private val oscillatorNode: OscillatorNode = audioContext.createOscillator()
+  private val amplifier = Amplifier()
+  private val bandpass = Filter()
+  oscillatorNode.frequency.value = frequency
+  oscillatorNode.`type` = this match
+    case _: SineOscillator => "sine"
+    case _: SquareOscillator => "square"
+    case _: SawtoothOscillator => "sawtooth"
+    case _: TriangleOscillator => "triangle"
+  oscillatorNode.start()
 
-  def stop(): Unit = oscillatorNode.stop()
+  def updateFilterFrequency(frequency: Double): Unit = bandpass.updateF(frequency)
+  def updateFrequency(frequency: Double): Unit = oscillatorNode.frequency.value = frequency
+  def updateFrequencyFromPitch(pitch: Pitch): Unit =
+    oscillatorNode.frequency.value = pitch match
+      case Pitch.C => pitch.calculateFrequency
+      case Pitch.D => pitch.calculateFrequency
+      case Pitch.E => pitch.calculateFrequency
+      case Pitch.F => pitch.calculateFrequency
+      case Pitch.G => pitch.calculateFrequency
+      case Pitch.A => pitch.calculateFrequency
+      case Pitch.B => pitch.calculateFrequency
+
+  def updateVolume(volume: Double): Unit = amplifier.level(volume)
+
+  def play(vol: Double = volume): Unit =
+    amplifier.level(vol)
+    amplifier.plugIn(bandpass.plugIn(oscillatorNode))
+    amplifier.plugInTo(audioContext.destination)
+
+  def stop(): Unit = amplifier.quickFade()
 
   def volume(volume: Double): Oscillator =
     this match
@@ -44,8 +72,6 @@ enum Oscillator(frequency: Double, volume: Double)(using val audioContext: Audio
       case SawtoothOscillator(_, vol) => SawtoothOscillator(newFrequency, vol)
       case TriangleOscillator(_, vol) => TriangleOscillator(newFrequency, vol)
 
-  def updateFrequency(frequency: Double): Unit = oscillatorNode.frequency.value = frequency
-
   private def waveTypeToString(oscillator: Oscillator): String =
     oscillator match
       case _: SineOscillator => "sine"
@@ -53,15 +79,14 @@ enum Oscillator(frequency: Double, volume: Double)(using val audioContext: Audio
       case _: SawtoothOscillator => "sawtooth"
       case _: TriangleOscillator => "triangle"
 
-  private val oscillatorNode: OscillatorNode = audioContext.createOscillator()
-  case SineOscillator(frequency: Double = 440, volume: Double = 0.5)(using AudioContext)
+  case SineOscillator(frequency: Double = 440, volume: Double = 0.3)(using AudioContext)
       extends Oscillator(frequency, volume)
 
-  case SquareOscillator(frequency: Double = 440, volume: Double = 0.5)(using AudioContext)
+  case SquareOscillator(frequency: Double = 440, volume: Double = 0.3)(using AudioContext)
       extends Oscillator(frequency, volume)
 
-  case SawtoothOscillator(frequency: Double = 440, volume: Double = 0.5)(using AudioContext)
+  case SawtoothOscillator(frequency: Double = 440, volume: Double = 0.3)(using AudioContext)
       extends Oscillator(frequency, volume)
 
-  case TriangleOscillator(frequency: Double = 440, volume: Double = 0.5)(using AudioContext)
+  case TriangleOscillator(frequency: Double = 440, volume: Double = 0.3)(using AudioContext)
       extends Oscillator(frequency, volume)

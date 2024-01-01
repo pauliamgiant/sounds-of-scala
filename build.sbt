@@ -13,6 +13,7 @@ ThisBuild / scalafixDependencies ++= List(
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 scalaJSUseMainModuleInitializer := true
+Compile / mainClass := Some("com.soundsofscala.Main")
 
 enablePlugins(ScalaJSPlugin)
 enablePlugins(ScalaJSBundlerPlugin)

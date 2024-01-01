@@ -1,239 +1,435 @@
 package com.soundsofscala
 
-import com.soundsofscala.models.*
+import cats.effect.{ExitCode, IO, IOApp}
 import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.MusicalEvent.*
-import com.soundsofscala.models.Pitch
 import com.soundsofscala.models.Velocity.*
-import com.soundsofscala.synthesis.{Oscillator, WaveType}
-import com.soundsofscala.synthesis.WaveType.*
+import com.soundsofscala.models.*
 import com.soundsofscala.synthesis.Oscillator.*
+import com.soundsofscala.synthesis.WaveType.*
+import com.soundsofscala.synthesis.{Oscillator, WaveType}
 import io.github.iltotore.iron.{:|, IronType, autoRefine}
 import org.scalajs.dom
 import org.scalajs.dom.*
+import org.scalajs.dom.html.Select
 
 import scala.scalajs.js.typedarray.ArrayBuffer
 
-@main def main(): Unit =
+object Main extends IOApp {
+
+  def run(args: List[String]): IO[ExitCode] = buildUI().as(ExitCode.Success)
 
   given audioContext: AudioContext = new AudioContext()
 
-  val pianoCSample = "resources/audio/piano/C3.wav"
-
-  val startingFrequency = 220
-
-  val oscillatorSineBuilt = Oscillator(Sine, startingFrequency * 2).volume(0.5)
-
-  val oscillatorSine = SineOscillator().frequency(startingFrequency).volume(0.2)
-  val oscillatorSaw = SawtoothOscillator().frequency(startingFrequency * 2).volume(0.2)
-  val oscillatorSawLow = SawtoothOscillator().frequency(startingFrequency / 4).volume(0.2)
-  val oscillatorSquare = SquareOscillator().frequency(startingFrequency - 3).volume(0.2)
-  val oscillatorTriangle = TriangleOscillator().frequency(startingFrequency / 2).volume(0.2)
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    (e: dom.Event) =>
-      val homeDiv = document.createElement("div")
-      homeDiv.classList.add("homediv")
-      document.body.appendChild(homeDiv)
-
-      val heading = document.createElement("h1")
-      heading.textContent = "Welcome to Sounds of Scala"
-      homeDiv.appendChild(heading)
-
-      val songTitle = document.createElement("h2")
-      songTitle.textContent = s"First three notes of the DSL:"
-      homeDiv.appendChild(songTitle)
-
-      val firstSong = document.createElement("h2")
-      firstSong.textContent = threeNoteMelody()
-      homeDiv.appendChild(firstSong)
-
-      val pianoLabel = document.createElement("label")
-      pianoLabel.textContent = "Piano Sample"
-      dom.document.body.appendChild(pianoLabel)
-
-      val buttonDiv1 = document.createElement("div")
-      buttonDiv1.classList.add("button-pad")
-      dom.document.body.appendChild(buttonDiv1)
-
-      val button = document.createElement("button")
-      button.textContent = "🎹"
-      button.addEventListener("click", (e: dom.MouseEvent) => playASingleNote(pianoCSample))
-      buttonDiv1.appendChild(button)
-
-      // make 3 notes
-
-      val simpleLabel = document.createElement("label")
-      simpleLabel.textContent = "Simple Sine Synthesizer"
-      dom.document.body.appendChild(simpleLabel)
-
-      val buttonPad = document.createElement("div")
-      buttonPad.classList.add("button-pad")
-      dom.document.body.appendChild(buttonPad)
-
-      val CButton = makeAButton(261.63, "C")
-      val DButton = makeAButton(293.66, "D")
-      val EButton = makeAButton(329.63, "E")
-      val FButton = makeAButton(349.23, "F")
-      val GButton = makeAButton(392.00, "G")
-      val AButton = makeAButton(440.00, "A")
-      val BButton = makeAButton(493.88, "B")
-      val C2Button = makeAButton(523.25, "C2")
-
-      buttonPad.appendChild(CButton)
-      buttonPad.appendChild(DButton)
-      buttonPad.appendChild(EButton)
-      buttonPad.appendChild(FButton)
-      buttonPad.appendChild(GButton)
-      buttonPad.appendChild(AButton)
-      buttonPad.appendChild(BButton)
-      buttonPad.appendChild(C2Button)
-
-      dom.document.body.appendChild(buttonPad)
-
-      val compoundSynthLabel = document.createElement("label")
-      compoundSynthLabel.textContent = "Compound Synth"
-      dom.document.body.appendChild(compoundSynthLabel)
-
-      val buttonDiv2 = document.createElement("div")
-      buttonDiv2.classList.add("button-pad")
-      dom.document.body.appendChild(buttonDiv2)
-
-      val synth = document.createElement("button")
-      synth.textContent = "🔉"
-      synth.addEventListener(
-        "click",
-        (e: dom.MouseEvent) => {
-          oscillatorSine.start()
-          oscillatorSaw.start()
-          oscillatorSawLow.start()
-          oscillatorSquare.start()
-          oscillatorTriangle.start()
-
-        }
-      )
-      // Append the button to the document
-      buttonDiv2.appendChild(synth)
-
-      val slider = dom.document.createElement("input").asInstanceOf[html.Input]
-      slider.className = "range"
-      slider.id = "frequency"
-      slider.`type` = "range"
-      slider.min = "20"
-      slider.max = "2000"
-      slider.step = "0.01"
-      slider.value = "440"
-
-      slider.addEventListener(
-        "input",
-        (_: dom.Event) => {
-          val value = slider.value.toDouble
-          updateFrequency(value)
-        })
-      dom.document.body.appendChild(slider)
-
-      def updateFrequency(value: Double): Unit =
-        val frequency =
-          dom.document.getElementById("frequency").asInstanceOf[html.Input].value.toDouble
-        oscillatorSineBuilt.updateFrequency(frequency)
-        oscillatorSine.updateFrequency(frequency)
-        oscillatorSaw.updateFrequency(frequency * 2)
-        oscillatorSawLow.updateFrequency(frequency / 4)
-        oscillatorSquare.updateFrequency(frequency - 5)
-        oscillatorTriangle.updateFrequency(frequency / 2)
-
-      val stopSynth = document.createElement("button")
-      stopSynth.classList.add("stop")
-      stopSynth.textContent = "🛑"
-      stopSynth.addEventListener(
-        "click",
-        (e: dom.MouseEvent) =>
-          oscillatorSine.stop()
-          oscillatorSaw.stop()
-          oscillatorSquare.stop()
-          oscillatorTriangle.stop()
-          oscillatorSawLow.stop()
-      )
-      // Append the button to the document
-      dom.document.body.appendChild(stopSynth)
+  val startingFrequency = 440
+  val startingVolume = 0.3
+  val waveTypes = List(
+    WaveType.Sine,
+    WaveType.Sawtooth,
+    WaveType.Square,
+    WaveType.Triangle
   )
 
-def playASingleNote(pianoCSample: String)(using audioContext: AudioContext): Unit =
-  loadAudioSample(
-    pianoCSample,
-    audioContext,
-    buffer => {
-      val sourceNode = audioContext.createBufferSource()
-      sourceNode.buffer = buffer
-      sourceNode.connect(audioContext.destination)
-      sourceNode.onended = (_: dom.Event) => println("Playback ended.")
-      sourceNode.start()
-    }
-  )
-  appendH2(document.body, "The sweet sounds of Scala 🎶")
+  val oscillatorSine: Oscillator = SineOscillator(startingFrequency)
+  val oscillatorSaw: Oscillator = SawtoothOscillator(startingFrequency / 4)
+  val oscillatorSquare: Oscillator = SquareOscillator(startingFrequency / 2)
+  val oscillatorTriangle: Oscillator = TriangleOscillator(startingFrequency - 3)
 
-def appendH2(targetNode: dom.Node, text: String): Unit = {
-  val parNode = document.createElement("h2")
-  parNode.textContent = text
-  targetNode.appendChild(parNode)
-}
+  private def updateSynthVolume(waveType: WaveType): Unit =
+    val volume =
+      dom
+        .document
+        .getElementById(s"${waveType.toString.toLowerCase}-volume")
+        .asInstanceOf[html.Input]
+        .value
+        .toDouble
+    waveType match
+      case WaveType.Sine =>
+        oscillatorSine.updateVolume(volume)
+      case WaveType.Sawtooth =>
+        oscillatorSaw.updateVolume(volume)
+      case WaveType.Square =>
+        oscillatorSquare.updateVolume(volume)
+      case WaveType.Triangle =>
+        oscillatorTriangle.updateVolume(volume)
+
+  private def updateSynthFilterFrequency(): Unit =
+    val frequency =
+      dom.document.getElementById("filter-frequency").asInstanceOf[html.Input].value.toDouble
+    oscillatorSaw.updateFilterFrequency(frequency)
+    oscillatorSine.updateFilterFrequency(frequency)
+    oscillatorSquare.updateFilterFrequency(frequency)
+    oscillatorTriangle.updateFilterFrequency(frequency)
+
+  private def updateSynthFrequency(): Unit =
+    val frequency =
+      dom.document.getElementById("frequency").asInstanceOf[html.Input].value.toDouble
+    oscillatorSaw.updateFrequency(frequency / 4)
+    oscillatorSine.updateFrequency(frequency)
+    oscillatorSquare.updateFrequency(frequency / 2)
+    oscillatorTriangle.updateFrequency(frequency - 3)
+
+  private def compoundSynthPlayButton(): AudioContext ?=> Element =
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+
+    val compoundSynth = document.createElement("button")
+    compoundSynth.classList.add("transport-button")
+    compoundSynth.textContent = "▶️"
+
+    compoundSynth.addEventListener(
+      "click",
+      (e: dom.MouseEvent) =>
+        def getCurrentVolume(waveType: WaveType) = dom
+          .document
+          .getElementById(s"${waveType.toString.toLowerCase}-volume")
+          .asInstanceOf[html.Input]
+          .value
+          .toDouble
+
+        oscillatorSaw.play(getCurrentVolume(Sawtooth))
+        oscillatorSine.play(getCurrentVolume(Sine))
+        oscillatorSquare.play(getCurrentVolume(Square))
+        oscillatorTriangle.play(getCurrentVolume(Triangle))
+    )
+    div.appendChild(compoundSynth)
+    div
+
+  private def buildUI(): IO[Unit] = IO {
+    document.addEventListener(
+      "DOMContentLoaded",
+      (e: dom.Event) =>
+        val homeDiv = document.createElement("div")
+        homeDiv.classList.add("home-div")
+
+        val heading = document.createElement("h1")
+        heading.textContent = "Welcome to Sounds of Scala"
+
+        val playground = document.createElement("p")
+        playground.textContent = "Feel free to use this playground page to try things out"
+
+        val songTitle = document.createElement("h2")
+        songTitle.textContent = s"Testing printing out notes of the Music DSL:"
+
+        val firstSong = document.createElement("h2")
+        firstSong.textContent = threeNoteMelody()
+
+        val pianoLabel = document.createElement("label")
+        pianoLabel.textContent = "Piano Sample"
+
+        val simpleSineSynthLabel = document.createElement("label")
+        simpleSineSynthLabel.textContent = "Simple Sine Wave Synthesizer"
+
+        // Append elements to Document
+
+        homeDiv.append(
+          heading,
+          playground,
+          songTitle,
+          firstSong,
+          pianoLabel,
+          pianoButtonDiv(),
+          simpleSineSynthLabel,
+          buildDropDownOscillatorSelecter(),
+          buttonPad(makeAButton),
+          buildCompoundSynthPanel()
+        )
+        document.body.appendChild(homeDiv)
+    )
+  }
+
+  private def buildCompoundSynthPanel() =
+    val compoundSynthContainer = document.createElement("div")
+    compoundSynthContainer.classList.add("compound-container")
+    val compoundSynthLabel = document.createElement("h1")
+    val levelsLabel = document.createElement("h2")
+    levelsLabel.textContent = "Oscillator Levels"
+    val filterLabel = document.createElement("h2")
+    filterLabel.textContent = "Lowpass Filter"
+    compoundSynthLabel.textContent = "Compound Synth"
+    val levelsContainer = document.createElement("div")
+    levelsContainer.classList.add("levels-container")
+    val levelsDiv = document.createElement("div")
+    levelsDiv.classList.add("levels")
+    val filterContainer = document.createElement("div")
+    filterContainer.classList.add("levels-container")
+    val filterDiv = document.createElement("div")
+    filterDiv.classList.add("levels")
+    val transport = document.createElement("div")
+    transport.classList.add("transport")
+    transport.append(
+      compoundSynthPlayButton(),
+      stopSynthButton()
+    )
+    filterDiv.append(
+      filterLabel,
+      buildFilterFreqSlider(10000)
+    )
+    levelsDiv.append(
+      levelsLabel,
+      buildVolumeSlider(startingVolume, Sine),
+      buildVolumeSlider(startingVolume, Sawtooth),
+      buildVolumeSlider(startingVolume * 2, Triangle),
+      buildVolumeSlider(startingVolume, Square)
+    )
+
+    filterContainer.appendChild(filterDiv)
+    levelsContainer.appendChild(levelsDiv)
+
+    compoundSynthContainer.append(
+      compoundSynthLabel,
+      transport,
+      buildPitchSlider(startingFrequency),
+      filterContainer,
+      levelsContainer,
+      buttonPad(compoundSynthButton)
+    )
+    compoundSynthContainer
+
+  def loadAudioSample(
+      localPath: String,
+      audioContext: AudioContext,
+      callback: AudioBuffer => Unit): Unit =
+    val request = new dom.XMLHttpRequest()
+    request.open("GET", localPath, true)
+    request.responseType = "arraybuffer"
+
+    request.onload = (_: dom.Event) =>
+      val data = request.response.asInstanceOf[ArrayBuffer]
+
+      audioContext.decodeAudioData(
+        data,
+        buffer => callback(buffer),
+        () => println(s"Things have gone sideways for now")
+      )
+    request.send()
+
+  def playASingleNote(pianoCSample: String)(using audioContext: AudioContext): Unit =
+    loadAudioSample(
+      pianoCSample,
+      audioContext,
+      buffer => {
+        val sourceNode = audioContext.createBufferSource()
+        sourceNode.buffer = buffer
+        sourceNode.connect(audioContext.destination)
+        sourceNode.onended = (_: dom.Event) => println("Playback ended.")
+        sourceNode.start()
+      }
+    )
+
+  def appendH2(targetNode: dom.Node, text: String): Unit = {
+    val parNode = document.createElement("h2")
+    parNode.textContent = text
+    targetNode.appendChild(parNode)
+  }
+
+  private def pianoButtonDiv(): Element =
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+
+    val pianoButton = document.createElement("button")
+    pianoButton.textContent = "🎹"
+    pianoButton.addEventListener(
+      "click",
+      (e: dom.MouseEvent) => playASingleNote("resources/audio/piano/C3.wav"))
+    div.appendChild(pianoButton)
+    div
+
+  private def buildDropDownOscillatorSelecter(): Element =
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+
+    val select = document.createElement("select").asInstanceOf[html.Select]
+    select.id = "oscillator"
+    select.classList.add("oscillator")
+    val options = waveTypes.map(waveSelectionOptions)
+    select.append(options: _*)
+    div.appendChild(select)
+    div
+
+  private def waveSelectionOptions(waveType: WaveType): Element =
+    val option = document.createElement("option")
+    option.textContent = waveType.toString
+    option
+
+  def buttonPad(f: Pitch => Element): Element =
+    val buttonPad = document.createElement("div")
+    buttonPad.classList.add("button-pad")
+
+    val buttonList = List(
+      Pitch.C,
+      Pitch.D,
+      Pitch.E,
+      Pitch.F,
+      Pitch.G,
+      Pitch.A,
+      Pitch.B
+    ).map(f)
+
+    buttonPad.append(buttonList: _*)
+    buttonPad
 
 // val testingDSL = C(5).flat.quarter + D(5).flat.quarter + E(5).flat.quarter
 
-def makeAButton(frequency: Double, note: String): AudioContext ?=> Element =
-  val button = document.createElement("button")
-  button.textContent = note
-  button.addEventListener(
-    "click",
-    (e: dom.MouseEvent) => {
-      val osc = SineOscillator().frequency(frequency).volume(0.2)
-      osc.start()
-      dom.window.setTimeout(() => osc.stop(), 700)
-    }
-  )
-  button
-
-def threeNoteMelody(): String =
-
-  val firstNote: MusicalEvent = MusicalEvent.Note(
-    Pitch.C,
-    Flat,
-    Quarter,
-    Octave(3),
-    OnFull
-  )
-  val secondNote: MusicalEvent = MusicalEvent.Note(
-    Pitch.D,
-    Flat,
-    Quarter,
-    Octave(3),
-    OnFull
-  )
-  val thirdNote: MusicalEvent = MusicalEvent.Note(
-    Pitch.E,
-    Flat,
-    Quarter,
-    Octave(3),
-    OnFull
-  )
-  (firstNote + secondNote + thirdNote).printEvent()
-
-def loadAudioSample(
-    localPath: String,
-    audioContext: AudioContext,
-    callback: AudioBuffer => Unit): Unit =
-  val request = new dom.XMLHttpRequest()
-  request.open("GET", localPath, true)
-  request.responseType = "arraybuffer"
-
-  request.onload = (_: dom.Event) =>
-    val data = request.response.asInstanceOf[ArrayBuffer]
-
-    audioContext.decodeAudioData(
-      data,
-      buffer => callback(buffer),
-      () => println(s"Things have gone sideways for now")
+  def makeAButton(pitch: Pitch): AudioContext ?=> Element =
+    val button = document.createElement("button")
+    button.textContent = pitch.toString
+    button.addEventListener(
+      "click",
+      (e: dom.MouseEvent) => {
+        val waveType = Oscillator.stringToWaveType(
+          document.getElementById("oscillator").asInstanceOf[Select].value)
+        val oscillator = Oscillator(waveType = waveType).volume(0.5)
+        oscillator.updateFrequencyFromPitch(pitch)
+        oscillator.play()
+        dom.window.setTimeout(() => oscillator.stop(), 400)
+      }
     )
-  request.send()
+    button
+
+  private def buildVolumeSlider(startingV: Double, waveType: WaveType) =
+    val div = document.createElement("div")
+    val label = document.createElement("label")
+    label.textContent = s"${waveType.toString}"
+    label.classList.add("vol-label")
+    div.appendChild(label)
+    div.classList.add("slider-pad")
+    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    slider.className = "range"
+    slider.classList.add("volume")
+    slider.id = s"${waveType.toString.toLowerCase}-volume"
+    slider.`type` = "range"
+    slider.min = "0"
+    slider.max = "1"
+    slider.step = "0.01"
+    slider.value = startingV.toString
+
+    slider.addEventListener(
+      "input",
+      (_: dom.Event) => updateSynthVolume(waveType)
+    )
+    div.appendChild(slider)
+    div
+
+  private def buildFilterFreqSlider(startingF: Int) =
+    val sliderContainer = document.createElement("div")
+    sliderContainer.classList.add("slider-container")
+    val label = document.createElement("label")
+    label.textContent = "Frequency"
+    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    slider.className = "range"
+    slider.id = "filter-frequency"
+    slider.`type` = "range"
+    slider.min = "20"
+    slider.max = "12000"
+    slider.step = "0.1"
+    slider.value = startingF.toString
+
+    slider.addEventListener(
+      "input",
+      (_: dom.Event) => updateSynthFilterFrequency()
+    )
+    sliderContainer.append(label, slider)
+    sliderContainer
+
+  private def buildPitchSlider(startingF: Int) =
+    val sliderContainer = document.createElement("div")
+    sliderContainer.classList.add("slider-container")
+    val label = document.createElement("label")
+    label.textContent = "Frequency"
+    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    slider.className = "range"
+    slider.id = "frequency"
+    slider.`type` = "range"
+    slider.min = "20"
+    slider.max = "1000"
+    slider.step = "0.01"
+    slider.value = startingF.toString
+
+    slider.addEventListener(
+      "input",
+      (_: dom.Event) => updateSynthFrequency()
+    )
+    sliderContainer.append(label, slider)
+    sliderContainer
+
+  private def stopSynthButton(): Element =
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+
+    val stopSynth = document.createElement("button")
+    stopSynth.classList.add("transport-button")
+    stopSynth.textContent = "🛑"
+    stopSynth.addEventListener(
+      "click",
+      (e: dom.MouseEvent) =>
+        oscillatorSine.stop()
+        oscillatorSaw.stop()
+        oscillatorSquare.stop()
+        oscillatorTriangle.stop()
+    )
+    div.appendChild(stopSynth)
+    div
+  def synthVolumeValue(waveType: WaveType): Double = dom
+    .document
+    .getElementById(s"${waveType.toString.toLowerCase}-volume")
+    .asInstanceOf[html.Input]
+    .value
+    .toDouble
+
+  def compoundSynthButton(pitch: Pitch): AudioContext ?=> Element =
+    val button = document.createElement("button")
+    button.textContent = pitch.toString
+    button.addEventListener(
+      "click",
+      (e: dom.MouseEvent) => {
+
+        oscillatorSine.updateFrequency(pitch.calculateFrequency)
+        oscillatorSaw.updateFrequency(pitch.calculateFrequency / 4)
+        oscillatorSquare.updateFrequency(pitch.calculateFrequency / 2)
+        oscillatorTriangle.updateFrequency(pitch.calculateFrequency - 3)
+
+        oscillatorSine.play(synthVolumeValue(Sine))
+        oscillatorSaw.play(synthVolumeValue(Sawtooth))
+        oscillatorSquare.play(synthVolumeValue(Square))
+        oscillatorTriangle.play(synthVolumeValue(Triangle))
+
+        dom
+          .window
+          .setTimeout(
+            () =>
+              oscillatorSine.stop()
+              oscillatorSaw.stop()
+              oscillatorSquare.stop()
+              oscillatorTriangle.stop()
+            ,
+            400)
+      }
+    )
+    button
+
+  def threeNoteMelody(): String =
+    val firstNote: MusicalEvent = MusicalEvent.Note(
+      Pitch.C,
+      Flat,
+      Quarter,
+      Octave(3),
+      OnFull
+    )
+    val secondNote: MusicalEvent = MusicalEvent.Note(
+      Pitch.D,
+      Flat,
+      Quarter,
+      Octave(3),
+      OnFull
+    )
+    val thirdNote: MusicalEvent = MusicalEvent.Note(
+      Pitch.E,
+      Flat,
+      Quarter,
+      Octave(3),
+      OnFull
+    )
+    (firstNote + secondNote + thirdNote).printEvent()
+}
