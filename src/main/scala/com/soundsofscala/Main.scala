@@ -14,6 +14,7 @@ import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
 
+import java.lang.Math.*
 import scala.scalajs.js.typedarray.ArrayBuffer
 
 object Main extends IOApp {
@@ -118,8 +119,8 @@ object Main extends IOApp {
         val pianoLabel = document.createElement("label")
         pianoLabel.textContent = "Piano Sample"
 
-        val simpleSineSynthLabel = document.createElement("label")
-        simpleSineSynthLabel.textContent = "Simple Sine Wave Synthesizer"
+        val simpleSineSynthLabel = document.createElement("h1")
+        simpleSineSynthLabel.textContent = "Oscillators"
 
         // Append elements to Document
 
@@ -277,14 +278,13 @@ object Main extends IOApp {
     button.textContent = pitch.toString
     button.addEventListener(
       "click",
-      (e: dom.MouseEvent) => {
+      (_: dom.MouseEvent) =>
         val waveType = Oscillator.stringToWaveType(
           document.getElementById("oscillator").asInstanceOf[Select].value)
         val oscillator = Oscillator(waveType = waveType).volume(0.5)
         oscillator.updateFrequencyFromPitch(pitch)
         oscillator.play()
-        dom.window.setTimeout(() => oscillator.stop(), 400)
-      }
+        dom.window.setTimeout(() => oscillator.stop(), 1000)
     )
     button
 

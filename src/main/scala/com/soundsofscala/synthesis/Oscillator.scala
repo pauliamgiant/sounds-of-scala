@@ -2,6 +2,7 @@ package com.soundsofscala.synthesis
 
 import com.soundsofscala.models.Pitch
 import org.scalajs.dom.{AudioContext, GainNode, OscillatorNode}
+import refined4s.*
 
 enum WaveType:
   case Sine, Square, Sawtooth, Triangle
@@ -28,7 +29,7 @@ object Oscillator:
 enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioContext):
   private val oscillatorNode: OscillatorNode = audioContext.createOscillator()
   private val amplifier = Amplifier()
-  private val bandpass = Filter()
+  private val bandpass = Filter(Frequency(1000), Bandwidth(1))
   oscillatorNode.frequency.value = frequency
   oscillatorNode.`type` = this match
     case _: SineOscillator => "sine"
