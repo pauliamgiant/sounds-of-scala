@@ -1,8 +1,7 @@
 package com.soundsofscala.synthesis
 
 import com.soundsofscala.models.Pitch
-import org.scalajs.dom.{AudioContext, GainNode, OscillatorNode}
-import refined4s.*
+import org.scalajs.dom.{AudioContext, OscillatorNode}
 
 enum WaveType:
   case Sine, Square, Sawtooth, Triangle
