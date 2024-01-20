@@ -1,15 +1,16 @@
 package com.soundsofscala
 
 import cats.effect.{ExitCode, IO, IOApp}
+import com.soundsofscala.models.*
 import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.Duration.*
-import com.soundsofscala.models.MusicalEvent.*
 import com.soundsofscala.models.Velocity.*
-import com.soundsofscala.models.*
+import com.soundsofscala.models.Voice.*
 import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.synthesis.WaveType.*
 import com.soundsofscala.synthesis.{Oscillator, WaveType}
-import io.github.iltotore.iron.{:|, IronType, autoRefine}
+import com.soundsofscala.transport.Sequencer
+import com.soundsofscala.transport.Sequencer.*
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
@@ -20,7 +21,25 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = buildUI().as(ExitCode.Success)
 
+  import cats.effect.unsafe.implicits.global
+
   given audioContext: AudioContext = new AudioContext()
+  import MusicalEvent.*
+
+  val aCrotchet = Note(Pitch.A, Natural, Eighth, Octave(3), OnFull)
+  val gMinim = Note(Pitch.G, Natural, Half, Octave(3), OnFull)
+
+  val demoMusicalEvent: MusicalEvent =
+    C() + C() + G() + G() + aCrotchet + aCrotchet + aCrotchet + aCrotchet + gMinim + F() + F() + E() + E() + D() + D() + C()
+
+  val demoSong: Song =
+    Song(
+      title = Title("A test sequencer song"),
+      swing = Swing(0),
+      voices = AllVoices(PianoChannel(demoMusicalEvent))
+    )
+  private val sequencer: Sequencer =
+    SingleVoiceSequencer(demoMusicalEvent, Tempo(200))
 
   val startingFrequency = 440
   val startingVolume = 0.3
@@ -113,13 +132,13 @@ object Main extends IOApp {
         songTitle.textContent = s"Testing printing out notes of the Music DSL:"
 
         val firstSong = document.createElement("h2")
-        firstSong.textContent = threeNoteMelody()
+        firstSong.textContent = demoMusicalEvent.toString
 
-        val pianoLabel = document.createElement("label")
-        pianoLabel.textContent = "Piano Sample"
+        val sequencerLabel = document.createElement("label")
+        sequencerLabel.textContent = "Sequencer POC"
 
-        val simpleSineSynthLabel = document.createElement("label")
-        simpleSineSynthLabel.textContent = "Simple Sine Wave Synthesizer"
+        val simpleSineSynthLabel = document.createElement("h1")
+        simpleSineSynthLabel.textContent = "Oscillators"
 
         // Append elements to Document
 
@@ -128,8 +147,8 @@ object Main extends IOApp {
           playground,
           songTitle,
           firstSong,
-          pianoLabel,
-          pianoButtonDiv(),
+          sequencerLabel,
+          sequencerButtonDiv(),
           simpleSineSynthLabel,
           buildDropDownOscillatorSelecter(),
           buttonPad(makeAButton),
@@ -205,35 +224,23 @@ object Main extends IOApp {
       )
     request.send()
 
-  def playASingleNote(pianoCSample: String)(using audioContext: AudioContext): Unit =
-    loadAudioSample(
-      pianoCSample,
-      audioContext,
-      buffer => {
-        val sourceNode = audioContext.createBufferSource()
-        sourceNode.buffer = buffer
-        sourceNode.connect(audioContext.destination)
-        sourceNode.onended = (_: dom.Event) => println("Playback ended.")
-        sourceNode.start()
-      }
-    )
-
   def appendH2(targetNode: dom.Node, text: String): Unit = {
     val parNode = document.createElement("h2")
     parNode.textContent = text
     targetNode.appendChild(parNode)
   }
 
-  private def pianoButtonDiv(): Element =
+  private def sequencerButtonDiv(): Element =
     val div = document.createElement("div")
     div.classList.add("button-pad")
 
-    val pianoButton = document.createElement("button")
-    pianoButton.textContent = "🎹"
-    pianoButton.addEventListener(
+    val sequencerButtonDiv = document.createElement("button")
+    sequencerButtonDiv.textContent = "▶️"
+    sequencerButtonDiv.addEventListener(
       "click",
-      (e: dom.MouseEvent) => playASingleNote("resources/audio/piano/C3.wav"))
-    div.appendChild(pianoButton)
+      (e: dom.MouseEvent) => sequencer.play().unsafeRunAndForget()
+    ) // 🙄
+    div.appendChild(sequencerButtonDiv)
     div
 
   private def buildDropDownOscillatorSelecter(): Element =
@@ -277,14 +284,13 @@ object Main extends IOApp {
     button.textContent = pitch.toString
     button.addEventListener(
       "click",
-      (e: dom.MouseEvent) => {
+      (_: dom.MouseEvent) =>
         val waveType = Oscillator.stringToWaveType(
           document.getElementById("oscillator").asInstanceOf[Select].value)
         val oscillator = Oscillator(waveType = waveType).volume(0.5)
         oscillator.updateFrequencyFromPitch(pitch)
         oscillator.play()
-        dom.window.setTimeout(() => oscillator.stop(), 400)
-      }
+        dom.window.setTimeout(() => oscillator.stop(), 1000)
     )
     button
 
@@ -409,27 +415,4 @@ object Main extends IOApp {
     )
     button
 
-  def threeNoteMelody(): String =
-    val firstNote: MusicalEvent = MusicalEvent.Note(
-      Pitch.C,
-      Flat,
-      Quarter,
-      Octave(3),
-      OnFull
-    )
-    val secondNote: MusicalEvent = MusicalEvent.Note(
-      Pitch.D,
-      Flat,
-      Quarter,
-      Octave(3),
-      OnFull
-    )
-    val thirdNote: MusicalEvent = MusicalEvent.Note(
-      Pitch.E,
-      Flat,
-      Quarter,
-      Octave(3),
-      OnFull
-    )
-    (firstNote + secondNote + thirdNote).printEvent()
 }
