@@ -8,7 +8,7 @@ import com.soundsofscala.models.Velocity.*
 import com.soundsofscala.models.Voice.*
 import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.synthesis.WaveType.*
-import com.soundsofscala.synthesis.{Oscillator, WaveType}
+import com.soundsofscala.synthesis.{Oscillator, ScalaSynth, WaveType}
 import com.soundsofscala.transport.Sequencer
 import com.soundsofscala.transport.Sequencer.*
 import org.scalajs.dom
@@ -39,7 +39,7 @@ object Main extends IOApp {
       voices = AllVoices(PianoChannel(demoMusicalEvent))
     )
   private val sequencer: Sequencer =
-    SingleVoiceSequencer(demoMusicalEvent, Tempo(200))
+    SingleVoiceSequencer(demoMusicalEvent, Tempo(120))
 
   val startingFrequency = 440
   val startingVolume = 0.3
@@ -119,6 +119,9 @@ object Main extends IOApp {
     document.addEventListener(
       "DOMContentLoaded",
       (e: dom.Event) =>
+
+        val scalaSynth = ScalaSynth()
+        given ScalaSynth = scalaSynth
         val homeDiv = document.createElement("div")
         homeDiv.classList.add("home-div")
 
@@ -128,11 +131,8 @@ object Main extends IOApp {
         val playground = document.createElement("p")
         playground.textContent = "Feel free to use this playground page to try things out"
 
-        val songTitle = document.createElement("h2")
-        songTitle.textContent = s"Testing printing out notes of the Music DSL:"
-
-        val firstSong = document.createElement("h2")
-        firstSong.textContent = demoMusicalEvent.toString
+        val scalaSynthTitle = document.createElement("h2")
+        scalaSynthTitle.textContent = s"ScalaSynth"
 
         val sequencerLabel = document.createElement("label")
         sequencerLabel.textContent = "Sequencer POC"
@@ -145,20 +145,20 @@ object Main extends IOApp {
         homeDiv.append(
           heading,
           playground,
-          songTitle,
-          firstSong,
+          scalaSynthTitle,
+          compoundButtonPad(compoundSynthButton)(scalaSynth),
           sequencerLabel,
-          sequencerButtonDiv(),
+          sequencerButtonDiv(scalaSynth),
           simpleSineSynthLabel,
           buildDropDownOscillatorSelecter(),
           buttonPad(makeAButton),
-          buildCompoundSynthPanel()
+          buildCompoundSynthPanel
         )
         document.body.appendChild(homeDiv)
     )
   }
 
-  private def buildCompoundSynthPanel() =
+  private def buildCompoundSynthPanel =
     val compoundSynthContainer = document.createElement("div")
     compoundSynthContainer.classList.add("compound-container")
     val compoundSynthLabel = document.createElement("h1")
@@ -201,8 +201,7 @@ object Main extends IOApp {
       transport,
       buildPitchSlider(startingFrequency),
       filterContainer,
-      levelsContainer,
-      buttonPad(compoundSynthButton)
+      levelsContainer
     )
     compoundSynthContainer
 
@@ -230,7 +229,7 @@ object Main extends IOApp {
     targetNode.appendChild(parNode)
   }
 
-  private def sequencerButtonDiv(): Element =
+  private def sequencerButtonDiv(scalaSynth: ScalaSynth): Element =
     val div = document.createElement("div")
     div.classList.add("button-pad")
 
@@ -238,7 +237,7 @@ object Main extends IOApp {
     sequencerButtonDiv.textContent = "▶️"
     sequencerButtonDiv.addEventListener(
       "click",
-      (e: dom.MouseEvent) => sequencer.play().unsafeRunAndForget()
+      (e: dom.MouseEvent) => sequencer.play(scalaSynth).unsafeRunAndForget()
     ) // 🙄
     div.appendChild(sequencerButtonDiv)
     div
@@ -260,7 +259,7 @@ object Main extends IOApp {
     option.textContent = waveType.toString
     option
 
-  def buttonPad(f: Pitch => Element): Element =
+  def buttonPad(buttonBuilder: Pitch => Element): Element =
     val buttonPad = document.createElement("div")
     buttonPad.classList.add("button-pad")
 
@@ -272,11 +271,28 @@ object Main extends IOApp {
       Pitch.G,
       Pitch.A,
       Pitch.B
-    ).map(f)
+    ).map(buttonBuilder)
 
     buttonPad.append(buttonList: _*)
     buttonPad
 
+  def compoundButtonPad(buttonBuilder: Note => Element)(scalaSynth: ScalaSynth): Element =
+    given ScalaSynth = scalaSynth
+    val buttonPad = document.createElement("div")
+    buttonPad.classList.add("button-pad")
+
+    val buttonList = List(
+      C(),
+      D(),
+      E(),
+      F(),
+      G(),
+      A(),
+      B()
+    ).map(buttonBuilder)
+
+    buttonPad.append(buttonList: _*)
+    buttonPad
 // val testingDSL = C(5).flat.quarter + D(5).flat.quarter + E(5).flat.quarter
 
   def makeAButton(pitch: Pitch): AudioContext ?=> Element =
@@ -384,34 +400,12 @@ object Main extends IOApp {
     .value
     .toDouble
 
-  def compoundSynthButton(pitch: Pitch): AudioContext ?=> Element =
+  def compoundSynthButton(note: Note)(using synth: ScalaSynth): AudioContext ?=> Element =
     val button = document.createElement("button")
-    button.textContent = pitch.toString
+    button.textContent = note.pitch.toString
     button.addEventListener(
       "click",
-      (e: dom.MouseEvent) => {
-
-        oscillatorSine.updateFrequency(pitch.calculateFrequency)
-        oscillatorSaw.updateFrequency(pitch.calculateFrequency / 4)
-        oscillatorSquare.updateFrequency(pitch.calculateFrequency / 2)
-        oscillatorTriangle.updateFrequency(pitch.calculateFrequency - 3)
-
-        oscillatorSine.play(synthVolumeValue(Sine))
-        oscillatorSaw.play(synthVolumeValue(Sawtooth))
-        oscillatorSquare.play(synthVolumeValue(Square))
-        oscillatorTriangle.play(synthVolumeValue(Triangle))
-
-        dom
-          .window
-          .setTimeout(
-            () =>
-              oscillatorSine.stop()
-              oscillatorSaw.stop()
-              oscillatorSquare.stop()
-              oscillatorTriangle.stop()
-            ,
-            400)
-      }
+      (_: dom.MouseEvent) => synth.attackRelease(note, Tempo(120)).unsafeRunAndForget()
     )
     button
 

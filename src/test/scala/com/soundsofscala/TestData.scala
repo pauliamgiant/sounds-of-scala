@@ -9,10 +9,8 @@ import models.Duration.*
 import models.Velocity.*
 import models.DrumVoice.*
 
-object TestData {
+object TestData:
   val quarterKickDrum: DrumStroke = DrumStroke(Kick, Quarter, OnFull)
   val quarterSnareDrum: DrumStroke = DrumStroke(Snare, Quarter, OnFull)
   val RockBeatOne: Any =
     quarterKickDrum + quarterSnareDrum + quarterKickDrum + quarterSnareDrum
-
-}

@@ -1,5 +1,6 @@
 package com.soundsofscala.synthesis
 
+import cats.effect.IO
 import com.soundsofscala.models.Pitch
 import org.scalajs.dom.{AudioContext, OscillatorNode}
 
@@ -55,6 +56,11 @@ enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioCont
     amplifier.level(vol)
     amplifier.plugIn(bandpass.plugIn(oscillatorNode))
     amplifier.plugInTo(audioContext.destination)
+
+  def playIO(vol: Double = volume): IO[Unit] =
+    IO(amplifier.level(vol)) >>
+      IO(amplifier.plugIn(bandpass.plugIn(oscillatorNode))) >>
+      IO(amplifier.plugInTo(audioContext.destination))
 
   def stop(): Unit = amplifier.quickFade()
 

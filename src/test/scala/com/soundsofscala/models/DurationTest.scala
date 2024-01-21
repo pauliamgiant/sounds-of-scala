@@ -7,9 +7,9 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 
 import scala.concurrent.duration.*
 
-class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks {
+class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
 
-  test("test duration to millisecond conversion") {
+  test("test duration to millisecond conversion"):
     val table = Table(
       ("note", "tempo", "expected"),
       (Whole, Tempo(60), 4000.milliseconds),
@@ -25,9 +25,5 @@ class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChe
       (Eighth, Tempo(123), 244.milliseconds),
       (Sixteenth, Tempo(126), 119.milliseconds)
     )
-    forAll(table) { (note, tempo, milliseconds) =>
+    forAll(table): (note, tempo, milliseconds) =>
       note.toTimeDuration(tempo) shouldBe milliseconds
-    }
-  }
-
-}
