@@ -73,14 +73,14 @@ import scala.scalajs.js.typedarray.ArrayBuffer
       buttonPad.classList.add("button-pad")
       dom.document.body.appendChild(buttonPad)
 
-      val CButton = makeAButton(261.63, "C")
-      val DButton = makeAButton(293.66, "D")
-      val EButton = makeAButton(329.63, "E")
-      val FButton = makeAButton(349.23, "F")
-      val GButton = makeAButton(392.00, "G")
-      val AButton = makeAButton(440.00, "A")
-      val BButton = makeAButton(493.88, "B")
-      val C2Button = makeAButton(523.25, "C2")
+      val CButton = makeAButton(Pitch.C)
+      val DButton = makeAButton(Pitch.D)
+      val EButton = makeAButton(Pitch.E)
+      val FButton = makeAButton(Pitch.F)
+      val GButton = makeAButton(Pitch.G)
+      val AButton = makeAButton(Pitch.A)
+      val BButton = makeAButton(Pitch.B)
+
 
       buttonPad.appendChild(CButton)
       buttonPad.appendChild(DButton)
@@ -89,12 +89,11 @@ import scala.scalajs.js.typedarray.ArrayBuffer
       buttonPad.appendChild(GButton)
       buttonPad.appendChild(AButton)
       buttonPad.appendChild(BButton)
-      buttonPad.appendChild(C2Button)
 
       dom.document.body.appendChild(buttonPad)
 
       val compoundSynthLabel = document.createElement("label")
-      compoundSynthLabel.textContent = "Compound Synth"
+      compoundSynthLabel.textContent = "Messy Compound Synth"
       dom.document.body.appendChild(compoundSynthLabel)
 
       val buttonDiv2 = document.createElement("div")
@@ -180,20 +179,30 @@ def appendH2(targetNode: dom.Node, text: String): Unit = {
   targetNode.appendChild(parNode)
 }
 
-// val testingDSL = C(5).flat.quarter + D(5).flat.quarter + E(5).flat.quarter
+//  val testingDSL = C(5).flat.quarter + D(5).flat.quarter + E(5).flat.quarter
 
-def makeAButton(frequency: Double, note: String): AudioContext ?=> Element =
-  val button = document.createElement("button")
-  button.textContent = note
-  button.addEventListener(
-    "click",
-    (e: dom.MouseEvent) => {
-      val osc = SineOscillator().frequency(frequency).volume(0.2)
-      osc.start()
-      dom.window.setTimeout(() => osc.stop(), 700)
-    }
-  )
-  button
+def makeAButton(pitch: Pitch): AudioContext ?=> Element =
+    val button = document.createElement("button")
+    button.textContent = pitch.toString
+    button.addEventListener(
+      "click",
+      (e: dom.MouseEvent) => {
+        val osc = SineOscillator()
+          .frequency(pitch match
+            case Pitch.C => pitch.calculateFrequency
+            case Pitch.D => pitch.calculateFrequency
+            case Pitch.E => pitch.calculateFrequency
+            case Pitch.F => pitch.calculateFrequency
+            case Pitch.G => pitch.calculateFrequency
+            case Pitch.A => pitch.calculateFrequency
+            case Pitch.B => pitch.calculateFrequency
+          )
+          .volume(0.2)
+        osc.start()
+        dom.window.setTimeout(() => osc.stop(), 700)
+      }
+    )
+    button
 
 def threeNoteMelody(): String =
 

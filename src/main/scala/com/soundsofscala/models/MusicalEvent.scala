@@ -45,8 +45,8 @@ enum MusicalEvent:
       accidental: Accidental,
       duration: Duration,
       octave: Octave,
-      velocity: Velocity
-  ) extends MusicalEvent
+      velocity: Velocity 
+  ) extends MusicalEvent 
   case Rest(duration: Duration) extends MusicalEvent
   case DrumStroke(
       drum: DrumVoice,
