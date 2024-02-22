@@ -3,7 +3,6 @@ package com.soundsofscala.transport
 import cats.effect.IO
 import com.soundsofscala.models.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
-import com.soundsofscala.types.{LookAhead, NextNoteTime, ScheduleWindow, Tempo}
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 

@@ -2,8 +2,6 @@ package com.soundsofscala.models
 
 import cats.data.NonEmptyList
 import com.soundsofscala.models.Voice
-import com.soundsofscala.types.{Swing, Tempo, Title}
-
 
 case class Song(
     title: Title,

@@ -4,12 +4,11 @@ import cats.effect.IO
 import com.soundsofscala.Main.loadAudioSample
 import com.soundsofscala.models.*
 import com.soundsofscala.synthesis.ScalaSynth
-import com.soundsofscala.types.Tempo
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import com.soundsofscala.models.AtomicMusicalEvent.*
 
-// this is POC sequencer and to be replaced using the same Lookahead structure as the metronome 
+// this is POC sequencer and to be replaced using the same Lookahead structure as the metronome
 // and the SimpleScala808DrumMachine
 enum Sequencer(tempo: Tempo):
 

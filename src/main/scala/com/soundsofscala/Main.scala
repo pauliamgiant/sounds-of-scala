@@ -4,6 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp}
 import com.soundsofscala.Instruments.SimpleScala808DrumMachine
 import com.soundsofscala.models.*
 import com.soundsofscala.models.Accidental.*
+import com.soundsofscala.models.AtomicMusicalEvent.*
 import com.soundsofscala.models.DrumVoice.*
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.Velocity.*
@@ -12,12 +13,10 @@ import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.synthesis.WaveType.*
 import com.soundsofscala.synthesis.{Oscillator, ScalaSynth, WaveType}
 import com.soundsofscala.transport.Sequencer.*
-import com.soundsofscala.transport.{Metronome, NoteScheduler, Sequencer}
-import com.soundsofscala.types.{LookAhead, Octave, ScheduleWindow, Swing, Tempo, Title}
+import com.soundsofscala.transport.{NoteScheduler, Sequencer}
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
-import com.soundsofscala.models.AtomicMusicalEvent.*
 
 import scala.scalajs.js.typedarray.ArrayBuffer
 
@@ -173,7 +172,6 @@ object Main extends IOApp {
           playground,
           scalaSynthTitle,
           compoundButtonPad(compoundSynthButton)(scalaSynth),
-          metronomeButtonDiv,
           simple808DrumMachineDiv,
           melodySequenceButtonDiv,
           sequencerLabel,
@@ -257,19 +255,6 @@ object Main extends IOApp {
     parNode.textContent = text
     targetNode.appendChild(parNode)
   }
-
-  private def metronomeButtonDiv: Element =
-    val div = document.createElement("div")
-    div.classList.add("button-pad")
-    val metronome = Metronome(Tempo(100), LookAhead(25), ScheduleWindow(0.1))
-    val sequencerButtonDiv = document.createElement("button")
-    sequencerButtonDiv.textContent = "⏱️"
-    sequencerButtonDiv.addEventListener(
-      "click",
-      (_: dom.MouseEvent) => metronome.playClick(Quarter).unsafeRunAndForget()
-    )
-    div.appendChild(sequencerButtonDiv)
-    div
 
   private def simple808DrumMachineDiv: Element =
     val div = document.createElement("div")

@@ -6,7 +6,6 @@ import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.Velocity.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
-import com.soundsofscala.types.{Octave, Tempo, TimingOffset}
 
 import scala.annotation.{tailrec, targetName}
 import scala.concurrent.duration.FiniteDuration
