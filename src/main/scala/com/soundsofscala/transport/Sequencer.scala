@@ -4,8 +4,10 @@ import cats.effect.IO
 import com.soundsofscala.Main.loadAudioSample
 import com.soundsofscala.models.*
 import com.soundsofscala.synthesis.ScalaSynth
+import com.soundsofscala.types.Tempo
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
+import com.soundsofscala.models.AtomicMusicalEvent.*
 
 enum Sequencer(tempo: Tempo):
 
@@ -14,10 +16,8 @@ enum Sequencer(tempo: Tempo):
       tempo: Tempo,
       instrument: ScalaSynth)(using audioContext: AudioContext): IO[Unit] =
     musicalEvent match
-      case Melody(head, tail) =>
+      case Sequence(head, tail) =>
         playMusicalEvent(head, tempo, instrument) >> playMusicalEvent(tail, tempo, instrument)
-      case Harmony(root, harmony) =>
-        IO.println(s"TODO: Harmony started with root: $root and harmony: $harmony")
       case event: AtomicMusicalEvent =>
         event match
           case note: Note =>
@@ -26,6 +26,7 @@ enum Sequencer(tempo: Tempo):
           case Rest(_) => IO.unit
           case DrumStroke(drum, duration, velocity) =>
             IO(println(s"Drum-stroke: $drum, $duration, $velocity"))
+          case Harmony(notes, _) => IO(println(s"Harmony: $notes"))
   case SingleVoiceSequencer(musicEvent: MusicalEvent, tempo: Tempo)
       extends Sequencer(tempo: Tempo)
 

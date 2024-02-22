@@ -2,12 +2,10 @@ package com.soundsofscala.synthesis
 
 import com.soundsofscala.Main.loadAudioSample
 import org.scalajs.dom
-import org.scalajs.dom.{AudioContext, OscillatorNode, Worker, window}
+import org.scalajs.dom.{AudioContext, window}
 
 import scala.collection.mutable
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSExportTopLevel
-import scala.scalajs.js.timers.*
 
 case class Scheduler() {
   val tempo = 100.0;
@@ -46,9 +44,6 @@ case class Scheduler() {
 
   def nextNote(noteLength: Double) = {
     val secondsPerBeat = 60.0 / tempo
-//    val sixteenthNote = 0.25 * secondsPerBeat
-//    val eighthNote = 0.5 * secondsPerBeat
-//    val quarterNote = 1.0 * secondsPerBeat
 
     nextNoteTime += noteLength * secondsPerBeat
     currentNote += 1
@@ -74,5 +69,4 @@ case class Scheduler() {
       }
     )
   }
-
 }

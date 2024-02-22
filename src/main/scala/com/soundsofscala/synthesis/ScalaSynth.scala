@@ -1,10 +1,10 @@
 package com.soundsofscala.synthesis
 
 import cats.effect.IO
-import com.soundsofscala.models.{Note, Tempo}
+import com.soundsofscala.models.AtomicMusicalEvent.*
 import com.soundsofscala.synthesis.Oscillator.*
+import com.soundsofscala.types.Tempo
 import org.scalajs.dom.AudioContext
-import concurrent.duration.DurationInt
 
 case class ScalaSynth()(using audioContext: AudioContext):
 
