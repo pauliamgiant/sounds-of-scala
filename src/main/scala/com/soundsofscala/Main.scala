@@ -36,23 +36,6 @@ object Main extends IOApp {
   val demoMusicalEvent: MusicalEvent =
     C() + C() + G() + G() + aCrotchet + aCrotchet + aCrotchet + aCrotchet + gMinim + F() + F() + E() + E() + D() + D() + C()
 
-  val drums = Sequence(
-    DrumStroke(Kick, Quarter, Loud),
-    Sequence(
-      DrumStroke(Snare, Eighth, Loud),
-      Sequence(
-        DrumStroke(Snare, Eighth, Loud),
-        Sequence(
-          DrumStroke(Snare, Quarter, Loud),
-          Sequence(
-            DrumStroke(Snare, Eighth, Loud),
-            DrumStroke(Snare, Eighth, Loud)
-          )
-        )
-      )
-    )
-  )
-
   val kick = Sequence(
     DrumStroke(Kick, Quarter, Loud),
     Sequence(
@@ -308,12 +291,12 @@ object Main extends IOApp {
 
     val div = document.createElement("div")
     div.classList.add("button-pad")
-    val drumsScheduler = NoteScheduler(Tempo(100), LookAhead(25), ScheduleWindow(0.1))
+    val noteScheduler = NoteScheduler(Tempo(100), LookAhead(25), ScheduleWindow(0.1))
     val sequencerButtonDiv = document.createElement("button")
     sequencerButtonDiv.textContent = "🎶️"
     sequencerButtonDiv.addEventListener(
       "click",
-      (_: dom.MouseEvent) => drumsScheduler.playVoice(drums).unsafeRunAndForget()
+      (_: dom.MouseEvent) => noteScheduler.playVoice(demoMusicalEvent).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
     div

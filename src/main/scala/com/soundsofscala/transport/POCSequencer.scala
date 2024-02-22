@@ -9,6 +9,8 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import com.soundsofscala.models.AtomicMusicalEvent.*
 
+// this is POC sequencer and to be replaced using the same Lookahead structure as the metronome 
+// and the SimpleScala808DrumMachine
 enum Sequencer(tempo: Tempo):
 
   private def playMusicalEvent(
@@ -21,7 +23,6 @@ enum Sequencer(tempo: Tempo):
       case event: AtomicMusicalEvent =>
         event match
           case note: Note =>
-//            Sequencer.playASingleNote(note) >>
             Sequencer.playSynth(note, tempo, instrument)
           case Rest(_) => IO.unit
           case DrumStroke(drum, duration, velocity) =>
@@ -60,7 +61,6 @@ object Sequencer:
             sourceNode.buffer = buffer
             sourceNode.connect(gainNode)
             gainNode.connect(audioContext.destination)
-//            sourceNode.onended = (_: dom.Event) => println("Playback ended.")
             sourceNode.start()
           }
         ))

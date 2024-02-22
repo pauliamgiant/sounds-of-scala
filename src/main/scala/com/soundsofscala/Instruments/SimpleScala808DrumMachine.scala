@@ -32,43 +32,39 @@ case class SimpleScala808DrumMachine(
   def playGroove(musicalEvent: MusicalEvent)(using audioContext: AudioContext): IO[Unit] = {
     val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
     audioContext.resume()
-    scheduler(musicalEvent, initialNextNoteValue) >> IO.println("And we're done!")
+    scheduler(musicalEvent, initialNextNoteValue) >> IO.println("Sequence finished")
 
   }
 
   def scheduler(musicalEvent: MusicalEvent, nextNoteTime: NextNoteTime)(
       using audioContext: AudioContext): IO[Unit] = {
+    musicalEvent match
+      case Sequence(head, tail) =>
+        ScheduleState(nextNoteTime) match
+          case ScheduleState.Ready =>
+            for {
+              _ <- scheduler(head, nextNoteTime)
+              _ <- scheduler(
+                tail,
+                NextNoteTime(nextNoteTime.value + head.durationToSeconds(tempo)))
+            } yield IO.unit
+          case ScheduleState.Waiting =>
+            IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime)
 
-    def loop(musicalEvent: MusicalEvent, nextNoteTime: NextNoteTime): IO[Unit] =
-      musicalEvent match
-        case Sequence(head, tail) =>
-          ScheduleState(nextNoteTime) match
-            case ScheduleState.Ready =>
-              for {
-                _ <- scheduler(head, nextNoteTime)
-                _ <- loop(
-                  tail,
-                  NextNoteTime(nextNoteTime.value + head.durationToSeconds(tempo)))
-              } yield IO.unit
-            case ScheduleState.Waiting =>
-              IO.sleep(lookAheadMs.value.millis) >> loop(musicalEvent, nextNoteTime)
+      case event: AtomicMusicalEvent =>
+        ScheduleState(nextNoteTime) match
+          case ScheduleState.Ready =>
+            event match
+              case drumStroke: AtomicMusicalEvent.DrumStroke =>
+                for {
+                  _ <- scheduleNote(nextNoteTime.value, drumStroke)
 
-        case event: AtomicMusicalEvent =>
-          ScheduleState(nextNoteTime) match
-            case ScheduleState.Ready =>
-              event match
-                case drumStroke: AtomicMusicalEvent.DrumStroke =>
-                  for {
-                    _ <- scheduleNote(nextNoteTime.value, drumStroke)
-
-                  } yield IO.unit
-                case AtomicMusicalEvent.Rest(_) =>
-                  IO.unit
-                case _ => IO.raiseError(new RuntimeException("Must be a drum stroke!"))
-            case ScheduleState.Waiting =>
-              IO.sleep(lookAheadMs.value.millis) >> loop(musicalEvent, nextNoteTime)
-
-    loop(musicalEvent, nextNoteTime)
+                } yield IO.unit
+              case AtomicMusicalEvent.Rest(_) =>
+                IO.unit
+              case _ => IO.raiseError(new RuntimeException("Must be a drum stroke!"))
+          case ScheduleState.Waiting =>
+            IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime)
 
   }
 
