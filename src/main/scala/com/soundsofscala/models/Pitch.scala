@@ -6,7 +6,9 @@ enum Pitch(steps: Int):
   // val ratio: Double = Math.pow(2, 1.0 / 12.0) // Ratio between semitones
   // def calculateFrequency(steps: Int) : Double = referenceFrequency * Math.pow(ratio, steps)
 
-  def calculateFrequency: Double = referenceFrequency * Math.pow(2, this.steps / 12.0)
+  def calculateFrequency: Double =
+    val result = referenceFrequency * Math.pow(2, this.steps / 12.0)
+    BigDecimal(result).setScale(3, BigDecimal.RoundingMode.HALF_UP).toDouble
 
   // A = 440 * 2 power of (0 / 12)
   // A = 440 * 2 power of 0

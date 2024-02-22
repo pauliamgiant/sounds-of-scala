@@ -1,8 +1,6 @@
 package com.soundsofscala.models
 
 import scala.concurrent.duration.*
-import com.soundsofscala.types.*
-
 enum Duration:
   case Whole, Half, Quarter, Eighth, Sixteenth, ThirtySecond, SixtyFourth
 

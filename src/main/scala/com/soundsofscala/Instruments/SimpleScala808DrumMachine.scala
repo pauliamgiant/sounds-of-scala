@@ -4,7 +4,7 @@ import cats.effect.IO
 import com.soundsofscala.models
 import com.soundsofscala.models.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
-import com.soundsofscala.types.{LookAhead, NextNoteTime, ScheduleWindow, Tempo}
+import com.soundsofscala.transport.NoteScheduler
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 
@@ -69,35 +69,37 @@ case class SimpleScala808DrumMachine(
   }
 
   def scheduleNote(time: Double, drumStroke: DrumStroke)(
-      using audioContext: AudioContext): IO[Unit] = {
-    println(s"Playing drum at $time")
-    val filePath = drumStroke.drum match
-      case models.DrumVoice.Kick => "resources/audio/drums-808/Kick808.wav"
-      case models.DrumVoice.Snare => "resources/audio/drums-808/Snare808.wav"
-      case models.DrumVoice.HiHatClosed => "resources/audio/drums-808/Hats808.wav"
-      case models.DrumVoice.Clap => "resources/audio/drums-808/Clap808.wav"
-      case _ => "resources/audio/drums-808/G.wav"
-
-    val request = new dom.XMLHttpRequest()
-    request.open("GET", filePath, true)
-    request.responseType = "arraybuffer"
-
-    request.onload = (_: dom.Event) =>
-      val data = request.response.asInstanceOf[ArrayBuffer]
-
-      audioContext.decodeAudioData(
-        data,
-        buffer => {
-          val gainNode = audioContext.createGain()
-          gainNode.gain.value = drumStroke.velocity.getNormalisedVelocity
-          val sourceNode = audioContext.createBufferSource()
-          sourceNode.buffer = buffer
-          sourceNode.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-          sourceNode.start(time)
-        },
-        () => println(s"Things have gone sideways for now")
-      )
-    IO.delay(request.send())
-  }
+      using audioContext: AudioContext): IO[Unit] =
+    NoteScheduler.playDrum(time, drumStroke)
+//
+//
+//    println(s"Playing drum at $time")
+//    val filePath = drumStroke.drum match
+//      case models.DrumVoice.Kick => "resources/audio/drums-808/Kick808.wav"
+//      case models.DrumVoice.Snare => "resources/audio/drums-808/Snare808.wav"
+//      case models.DrumVoice.HiHatClosed => "resources/audio/drums-808/Hats808.wav"
+//      case models.DrumVoice.Clap => "resources/audio/drums-808/Clap808.wav"
+//      case _ => "resources/audio/drums-808/G.wav"
+//
+//    val request = new dom.XMLHttpRequest()
+//    request.open("GET", filePath, true)
+//    request.responseType = "arraybuffer"
+//
+//    request.onload = (_: dom.Event) =>
+//      val data = request.response.asInstanceOf[ArrayBuffer]
+//
+//      audioContext.decodeAudioData(
+//        data,
+//        buffer => {
+//          val gainNode = audioContext.createGain()
+//          gainNode.gain.value = drumStroke.velocity.getNormalisedVelocity
+//          val sourceNode = audioContext.createBufferSource()
+//          sourceNode.buffer = buffer
+//          sourceNode.connect(gainNode)
+//          gainNode.connect(audioContext.destination)
+//          sourceNode.start(time)
+//        },
+//        () => println(s"Things have gone sideways for now")
+//      )
+//    IO.delay(request.send())
 }

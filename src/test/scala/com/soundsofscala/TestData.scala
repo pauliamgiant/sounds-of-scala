@@ -1,13 +1,10 @@
 package com.soundsofscala
 
-import com.soundsofscala.models.MusicalEvent.*
-import models.*
-import models.MusicalEvent.*
-import models.Accidental.*
-import models.Pitch.*
-import models.Duration.*
-import models.Velocity.*
-import models.DrumVoice.*
+import com.soundsofscala.models.*
+import com.soundsofscala.models.AtomicMusicalEvent.*
+import com.soundsofscala.models.DrumVoice.*
+import com.soundsofscala.models.Duration.*
+import com.soundsofscala.models.Velocity.*
 
 object TestData {
   val quarterKickDrum: DrumStroke = DrumStroke(Kick, Quarter, OnFull)

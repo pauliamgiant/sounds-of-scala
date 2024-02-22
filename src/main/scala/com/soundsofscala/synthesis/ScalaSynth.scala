@@ -2,8 +2,8 @@ package com.soundsofscala.synthesis
 
 import cats.effect.IO
 import com.soundsofscala.models.AtomicMusicalEvent.*
+import com.soundsofscala.models.*
 import com.soundsofscala.synthesis.Oscillator.*
-import com.soundsofscala.types.Tempo
 import org.scalajs.dom.AudioContext
 
 case class ScalaSynth()(using audioContext: AudioContext):
