@@ -1,6 +1,8 @@
 package com.soundsofscala.models
 
 enum Velocity(val midiVelocity: Int):
+  def getNormalisedVelocity: Double =
+    (1.0 / 127) * this.midiVelocity
   case TheSilentTreatment extends Velocity(0)
   case Softest extends Velocity(10)
   case Soft extends Velocity(50)

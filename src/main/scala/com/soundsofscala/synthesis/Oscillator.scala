@@ -52,6 +52,7 @@ enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioCont
   def updateVolume(volume: Double): Unit = amplifier.level(volume)
 
   def play(vol: Double = volume): Unit =
+
     amplifier.level(vol)
     amplifier.plugIn(bandpass.plugIn(oscillatorNode))
     amplifier.plugInTo(audioContext.destination)
