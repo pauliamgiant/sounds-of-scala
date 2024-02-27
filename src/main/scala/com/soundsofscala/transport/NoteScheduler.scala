@@ -1,6 +1,7 @@
 package com.soundsofscala.transport
 
 import cats.effect.IO
+import com.soundsofscala.Instruments.Instrument
 import com.soundsofscala.models
 import com.soundsofscala.models.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
@@ -8,7 +9,7 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 
 import scala.concurrent.duration.DurationDouble
-import scala.scalajs.js.typedarray.ArrayBuffer
+import cats.effect.unsafe.implicits.global
 
 case class NoteScheduler(
     tempo: Tempo,
@@ -25,24 +26,31 @@ case class NoteScheduler(
         Ready
       else Waiting
 
-  def playVoice(musicalEvent: MusicalEvent)(using audioContext: AudioContext): IO[Unit] =
+  def scheduleInstrument(musicalEvent: MusicalEvent, instrument: Instrument)(
+      using audioContext: AudioContext): IO[Unit] =
     val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
-    scheduler(musicalEvent, initialNextNoteValue) >> IO.println("Sequence finished")
+    IO.println(s"Playing instrument: $instrument") >>
+      scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println(
+        "Sequence finished")
 
-  def scheduler(musicalEvent: MusicalEvent, nextNoteTime: NextNoteTime)(
+  def scheduler(musicalEvent: MusicalEvent, nextNoteTime: NextNoteTime, instrument: Instrument)(
       using audioContext: AudioContext): IO[Unit] =
     musicalEvent match
       case Sequence(head, tail) =>
         ScheduleState(nextNoteTime) match
           case ScheduleState.Ready =>
             for
-              _ <- scheduler(head, nextNoteTime)
+              _ <- scheduler(head, nextNoteTime, instrument)
               _ <- scheduler(
                 tail,
-                NextNoteTime(nextNoteTime.value + head.durationToSeconds(tempo)))
+                NextNoteTime(nextNoteTime.value + head.durationToSeconds(tempo)),
+                instrument)
             yield IO.unit
           case ScheduleState.Waiting =>
-            IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime)
+            IO.sleep(lookAheadMs.value.millis) >> scheduler(
+              musicalEvent,
+              nextNoteTime,
+              instrument)
 
       case event: AtomicMusicalEvent =>
         ScheduleState(nextNoteTime) match
@@ -50,11 +58,11 @@ case class NoteScheduler(
             event match
               case note: AtomicMusicalEvent.Note =>
                 for {
-                  _ <- scheduleNote(nextNoteTime.value, note)
+                  _ <- instrument.play(note, nextNoteTime.value, 0, Release(0.9), tempo)
                 } yield IO.unit
               case drumStroke: AtomicMusicalEvent.DrumStroke =>
                 for {
-                  _ <- scheduleDrum(nextNoteTime.value, drumStroke)
+                  _ <- instrument.play(drumStroke, nextNoteTime.value, 0, Release(0.9), tempo)
                 } yield IO.unit
               case AtomicMusicalEvent.Rest(_) =>
                 IO.unit
@@ -62,75 +70,7 @@ case class NoteScheduler(
               case AtomicMusicalEvent.Harmony(_, _) =>
                 IO.unit
           case ScheduleState.Waiting =>
-            IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime)
-
-  def scheduleNote(time: Double, musicEvent: Note)(using audioContext: AudioContext): IO[Unit] =
-    println(s"${audioContext.currentTime}: Scheduling note to play at $time")
-    playNote(time, musicEvent)
-
-  def scheduleDrum(time: Double, musicEvent: DrumStroke)(
-      using audioContext: AudioContext): IO[Unit] =
-    println(s"${audioContext.currentTime}: Scheduling drum to play at $time")
-    NoteScheduler.playDrum(time, musicEvent)
-
-  def playNote(time: Double, note: Note)(using audioContext: AudioContext): IO[Unit] =
-    println(s"Playing note at $time")
-    val octave = note.octave.value
-    val pitch: String = note.pitch.toString
-    val filePath = s"resources/audio/piano/$pitch$octave.wav"
-
-    val request = new dom.XMLHttpRequest()
-    request.open("GET", filePath, true)
-    request.responseType = "arraybuffer"
-
-    request.onload = (_: dom.Event) =>
-      val data = request.response.asInstanceOf[ArrayBuffer]
-
-      audioContext.decodeAudioData(
-        data,
-        buffer =>
-          val gainNode = audioContext.createGain()
-          gainNode.gain.value = 0.5
-          val sourceNode = audioContext.createBufferSource()
-          sourceNode.buffer = buffer
-          sourceNode.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-          sourceNode.start(time)
-        ,
-        () => println(s"Things have gone sideways for now")
-      )
-    IO.delay(request.send())
-
-object NoteScheduler:
-  def playDrum(time: Double, drumStroke: DrumStroke)(
-      using audioContext: AudioContext): IO[Unit] = {
-    println(s"Playing drum at $time")
-    val filePath = drumStroke.drum match
-      case models.DrumVoice.Kick => "resources/audio/drums-808/Kick808.wav"
-      case models.DrumVoice.Snare => "resources/audio/drums-808/Snare808.wav"
-      case models.DrumVoice.HiHatClosed => "resources/audio/drums-808/Hats808.wav"
-      case models.DrumVoice.Clap => "resources/audio/drums-808/Clap808.wav"
-      case _ => "resources/audio/drums-808/G.wav"
-
-    val request = new dom.XMLHttpRequest()
-    request.open("GET", filePath, true)
-    request.responseType = "arraybuffer"
-
-    request.onload = (_: dom.Event) =>
-      val data = request.response.asInstanceOf[ArrayBuffer]
-
-      audioContext.decodeAudioData(
-        data,
-        buffer => {
-          val gainNode = audioContext.createGain()
-          gainNode.gain.value = drumStroke.velocity.getNormalisedVelocity
-          val sourceNode = audioContext.createBufferSource()
-          sourceNode.buffer = buffer
-          sourceNode.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-          sourceNode.start(time)
-        },
-        () => println(s"Things have gone sideways for now")
-      )
-    IO.delay(request.send())
-  }
+            IO.sleep(lookAheadMs.value.millis) >> scheduler(
+              musicalEvent,
+              nextNoteTime,
+              instrument)

@@ -1,20 +1,20 @@
 package com.soundsofscala.models
 
 import cats.data.NonEmptyList
-import com.soundsofscala.models.Voice
+import com.soundsofscala.Instruments.Instrument
 
 case class Song(
     title: Title,
     tempo: Tempo = Tempo(120),
     swing: Swing = Swing(0),
-    voices: AllVoices
+    mixer: Mixer
 )
 
-//case class Voice(voice: ChannelVoices)
+case class Track(title: Title, musicalEvent: MusicalEvent, instrument: Instrument)
 
-case class AllVoices(voices: NonEmptyList[Voice])
-object AllVoices {
-  def apply(voices: Voice*): AllVoices = AllVoices(
-    NonEmptyList(voices.head, voices.tail.toList)
+case class Mixer(tracks: NonEmptyList[Track])
+object Mixer {
+  def apply(tracks: Track*): Mixer = Mixer(
+    NonEmptyList(tracks.head, tracks.tail.toList)
   )
 }

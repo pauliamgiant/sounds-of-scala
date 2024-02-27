@@ -1,14 +1,14 @@
 package com.soundsofscala.models
 
-enum Velocity(val midiVelocity: Int):
+import com.soundsofscala.models.Octave.MidiVelocity
+
+enum Velocity(val midiVelocity: MidiVelocity):
   def getNormalisedVelocity: Double =
-    (1.0 / 127) * this.midiVelocity
-  case TheSilentTreatment extends Velocity(0)
-  case Softest extends Velocity(10)
-  case Soft extends Velocity(50)
-  case Medium extends Velocity(80)
-  case Assertively extends Velocity(100)
-  case Loud extends Velocity(115)
-  case OnFull extends Velocity(127)
-  case OverDrive extends Velocity(500)
-  case Napalm extends Velocity(13335)
+    (1.0 / 127) * this.midiVelocity.value
+  case TheSilentTreatment extends Velocity(MidiVelocity(0))
+  case Softest extends Velocity(MidiVelocity(10))
+  case Soft extends Velocity(MidiVelocity(50))
+  case Medium extends Velocity(MidiVelocity(80))
+  case Assertively extends Velocity(MidiVelocity(100))
+  case Loud extends Velocity(MidiVelocity(115))
+  case OnFull extends Velocity(MidiVelocity(127))

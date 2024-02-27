@@ -42,6 +42,25 @@ object Octave extends Refined[Int]:
   override inline def predicate(a: Int): Boolean =
     a >= -2 && a <= 10
 
+  type MidiVelocity = MidiVelocity.Type
+
+  object MidiVelocity extends Refined[Int]:
+    override inline def invalidReason(a: Int): String =
+      expectedMessage(
+        "Midi velocity is an Int between 0-127.. 7 bits of a byte.. Don't blame me.. this dates back to 1983.")
+
+    override inline def predicate(a: Int): Boolean =
+      a >= 0 && a <= 127
+
+type Release = Release.Type
+
+object Release extends Refined[Double]:
+  override inline def invalidReason(lookahead: Double): String =
+    expectedMessage("Release is a percentage between 0.01 and 1")
+
+  override inline def predicate(lookahead: Double): Boolean =
+    0.01 <= lookahead && lookahead <= 1
+
 // Determines interval of how often to look ahead
 type LookAhead = LookAhead.Type
 
