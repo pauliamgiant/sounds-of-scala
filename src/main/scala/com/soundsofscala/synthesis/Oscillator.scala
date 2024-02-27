@@ -35,7 +35,6 @@ enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioCont
     case _: SquareOscillator => "square"
     case _: SawtoothOscillator => "sawtooth"
     case _: TriangleOscillator => "triangle"
-  oscillatorNode.start()
 
   def updateFilterFrequency(frequency: Double): Unit = bandpass.updateF(frequency)
   def updateFrequency(frequency: Double): Unit = oscillatorNode.frequency.value = frequency
@@ -51,13 +50,15 @@ enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioCont
 
   def updateVolume(volume: Double): Unit = amplifier.level(volume)
 
-  def play(vol: Double = volume): Unit =
-
+  def play(when: Double, vol: Double = volume): Unit =
     amplifier.level(vol)
     amplifier.plugIn(bandpass.plugIn(oscillatorNode))
     amplifier.plugInTo(audioContext.destination)
+    oscillatorNode.start(when)
 
-  def stop(): Unit = amplifier.quickFade()
+  def stop(when: Double): Unit =
+    amplifier.quickFade(when: Double)
+    oscillatorNode.stop(when)
 
   def volume(volume: Double): Oscillator =
     this match

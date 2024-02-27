@@ -1,18 +1,14 @@
 package com.soundsofscala
 
 import cats.effect.{ExitCode, IO, IOApp}
-import com.soundsofscala.Instruments.SimpleScala808DrumMachine
+import com.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import com.soundsofscala.models.*
-import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
-import com.soundsofscala.models.DrumVoice.*
-import com.soundsofscala.models.Duration.*
-import com.soundsofscala.models.Velocity.*
-import com.soundsofscala.models.Voice.*
+import com.soundsofscala.songs.TestSong1
 import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.synthesis.WaveType.*
-import com.soundsofscala.synthesis.{Oscillator, ScalaSynth, WaveType}
-import com.soundsofscala.transport.NoteScheduler
+import com.soundsofscala.synthesis.{Oscillator, WaveType}
+import com.soundsofscala.transport.Sequencer
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
@@ -27,58 +23,6 @@ object Main extends IOApp {
 
   given audioContext: AudioContext = new AudioContext()
   import MusicalEvent.*
-
-  val aCrotchet = Note(Pitch.A, Natural, Eighth, Octave(3), OnFull)
-  val gMinim = Note(Pitch.G, Natural, Half, Octave(3), OnFull)
-
-  val demoMusicalEvent: MusicalEvent =
-    C() + C() + G() + G() + aCrotchet + aCrotchet + aCrotchet + aCrotchet + gMinim + F() + F() + E() + E() + D() + D() + C()
-
-  val bassLine: MusicalEvent =
-    val F = Note(Pitch.F, Natural, Whole, Octave(2), OnFull)
-    val G = Note(Pitch.G, Natural, Whole, Octave(2), OnFull)
-    val A = Note(Pitch.A, Natural, Whole, Octave(2), OnFull)
-    (G + G + A + F).repeat(4)
-
-  val piano =
-    val C = Note(Pitch.C, Natural, Eighth, Octave(3), OnFull)
-    val D = Note(Pitch.D, Natural, Eighth, Octave(3), OnFull)
-    val B = Note(Pitch.B, Sharp, Eighth, Octave(2), OnFull)
-    val phrase1 = (Rest(Eighth) + C) repeat 4
-    val phrase2 = (Rest(Eighth) + D) repeat 4
-    val phrase3 = (Rest(Eighth) + B) repeat 4
-    val section1 = (phrase1 repeat 3) + phrase2
-    val section2 = (phrase3 repeat 2) + phrase1 + phrase2
-    section1 + section2
-
-  val kick = Sequence(
-    DrumStroke(Kick, Quarter, Loud),
-    Sequence(
-      Rest(Eighth),
-      Sequence(
-        Rest(Sixteenth),
-        Sequence(
-          DrumStroke(Kick, Sixteenth, Soft),
-          Sequence(DrumStroke(Kick, Quarter, Loud), Rest(Quarter)))))
-  ).repeat(10)
-
-  val snare = Sequence(
-    Rest(Quarter),
-    Sequence(
-      DrumStroke(Snare, Quarter, Loud),
-      Sequence(DrumStroke(Kick, Quarter, Loud), DrumStroke(Snare, Quarter, Loud)))).repeat(10)
-
-  val hats =
-    Sequence(DrumStroke(HiHatClosed, Eighth, Loud), DrumStroke(HiHatClosed, Eighth, Soft))
-      .repeat(4)
-      .repeat(10)
-
-  val demoSong: Song =
-    Song(
-      title = Title("A test sequencer song"),
-      swing = Swing(0),
-      voices = AllVoices(PianoChannel(demoMusicalEvent))
-    )
 
   val startingFrequency = 440
   val startingVolume = 0.3
@@ -177,7 +121,7 @@ object Main extends IOApp {
         drumMachineLabel.textContent = "SimpleScala808DrumMachine"
 
         val sequencerLabel = document.createElement("label")
-        sequencerLabel.textContent = "Sequencer POC"
+        sequencerLabel.textContent = "Song Sequencer"
 
         val simpleSineSynthLabel = document.createElement("h1")
         simpleSineSynthLabel.textContent = "Oscillators"
@@ -192,7 +136,7 @@ object Main extends IOApp {
           drumMachineLabel,
           simple808DrumMachineDiv,
           sequencerLabel,
-          melodySequenceButtonDiv,
+          playSong,
           simpleSineSynthLabel,
           buildDropDownOscillatorSelecter(),
           buttonPad(makeAButton),
@@ -282,28 +226,23 @@ object Main extends IOApp {
     sequencerButtonDiv.addEventListener(
       "click",
       (_: dom.MouseEvent) =>
-        drumMachine.playGroove(kick).unsafeRunAndForget()
-        drumMachine.playGroove(snare).unsafeRunAndForget()
-        drumMachine.playGroove(hats).unsafeRunAndForget()
+        drumMachine
+          .playGroove(TestSong1.kick, TestSong1.snare, TestSong1.hats, TestSong1.clap)
+          .unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
     div
 
-  private def melodySequenceButtonDiv: Element =
+  private def playSong: Element =
     val div = document.createElement("div")
     div.classList.add("button-pad")
-    val drumMachine = SimpleScala808DrumMachine(Tempo(100), LookAhead(25), ScheduleWindow(0.1))
-    val noteScheduler = NoteScheduler(Tempo(100), LookAhead(25), ScheduleWindow(0.1))
     val sequencerButtonDiv = document.createElement("button")
-    sequencerButtonDiv.textContent = "🎶️"
+    sequencerButtonDiv.textContent = "️🎼"
     sequencerButtonDiv.addEventListener(
       "click",
       (_: dom.MouseEvent) =>
-        drumMachine.playGroove(kick).unsafeRunAndForget()
-        drumMachine.playGroove(snare).unsafeRunAndForget()
-        drumMachine.playGroove(hats).unsafeRunAndForget()
-        noteScheduler.playVoice(bassLine).unsafeRunAndForget()
-        noteScheduler.playVoice(piano).unsafeRunAndForget()
+        val sequencer = Sequencer()
+        sequencer.playSong(TestSong1.demoSong()).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
     div
@@ -371,8 +310,8 @@ object Main extends IOApp {
           document.getElementById("oscillator").asInstanceOf[Select].value)
         val oscillator = Oscillator(waveType = waveType).volume(0.5)
         oscillator.updateFrequencyFromPitch(pitch)
-        oscillator.play()
-        dom.window.setTimeout(() => oscillator.stop(), 1000)
+        oscillator.play(0)
+        dom.window.setTimeout(() => oscillator.stop(.1), 1000)
     )
     button
 
@@ -452,10 +391,10 @@ object Main extends IOApp {
     stopSynth.addEventListener(
       "click",
       (e: dom.MouseEvent) =>
-        oscillatorSine.stop()
-        oscillatorSaw.stop()
-        oscillatorSquare.stop()
-        oscillatorTriangle.stop()
+        oscillatorSine.stop(1)
+        oscillatorSaw.stop(1)
+        oscillatorSquare.stop(1)
+        oscillatorTriangle.stop(1)
     )
     div.appendChild(stopSynth)
     div
@@ -466,12 +405,14 @@ object Main extends IOApp {
     .value
     .toDouble
 
-  def compoundSynthButton(note: Note)(using synth: ScalaSynth): AudioContext ?=> Element =
+  def compoundSynthButton(note: Note)(using synth: ScalaSynth)(
+      using ac: AudioContext): Element =
     val button = document.createElement("button")
     button.textContent = note.pitch.toString
     button.addEventListener(
       "click",
-      (_: dom.MouseEvent) => synth.attackRelease(note, Tempo(120)).unsafeRunAndForget()
+      (_: dom.MouseEvent) =>
+        synth.attackRelease(ac.currentTime, note, Tempo(120)).unsafeRunAndForget()
     )
     button
 
