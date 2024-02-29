@@ -4,6 +4,7 @@ import cats.effect.IO
 import com.soundsofscala.models
 import com.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Note}
 import com.soundsofscala.models.{AtomicMusicalEvent, Release, Tempo}
+import com.soundsofscala.synthesis.DrumGeneration
 import com.soundsofscala.synthesis.Oscillator.{
   SawtoothOscillator,
   SquareOscillator,
@@ -32,6 +33,19 @@ sealed trait Instrument:
           case note: AtomicMusicalEvent.Note =>
             scalaSynth.attackRelease(when, note, tempo, release)
           case _ => IO.unit
+      case SimpleDrumSynth() =>
+        musicEvent match
+          case drumStroke: DrumStroke =>
+            drumStroke.drum match
+              case models.DrumVoice.Kick =>
+                DrumGeneration.generateKick808(drumStroke, when)
+              case models.DrumVoice.Snare =>
+                DrumGeneration.generateSnare808(drumStroke, when)
+              case models.DrumVoice.HiHatClosed =>
+                DrumGeneration.generateHats808(drumStroke, when)
+              case models.DrumVoice.Clap =>
+                DrumGeneration.generateClap808(drumStroke, when)
+              case _ => DrumGeneration.generateKick808(drumStroke, when)
 
       case SimpleDrums() =>
         musicEvent match
@@ -47,6 +61,7 @@ sealed trait Instrument:
 
 final case class SimplePiano() extends Instrument
 final case class SimpleDrums() extends Instrument
+final case class SimpleDrumSynth() extends Instrument
 final case class ScalaSynth()(using audioContext: AudioContext) extends Instrument {
   def attackRelease(
       when: Double,
