@@ -4,7 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp}
 import com.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import com.soundsofscala.models.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
-import com.soundsofscala.songs.TestSong1
+import com.soundsofscala.songs.{TestSong1, TestSong2}
 import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.synthesis.WaveType.*
 import com.soundsofscala.synthesis.{Oscillator, WaveType}
@@ -123,6 +123,9 @@ object Main extends IOApp {
         val sequencerLabel = document.createElement("label")
         sequencerLabel.textContent = "Song Sequencer"
 
+        val drumSynth = document.createElement("label")
+        drumSynth.textContent = "Drum Synth"
+
         val simpleSineSynthLabel = document.createElement("h1")
         simpleSineSynthLabel.textContent = "Oscillators"
 
@@ -137,6 +140,8 @@ object Main extends IOApp {
           simple808DrumMachineDiv,
           sequencerLabel,
           playSong,
+          drumSynth,
+          synthDrums,
           simpleSineSynthLabel,
           buildDropDownOscillatorSelecter(),
           buttonPad(makeAButton),
@@ -243,6 +248,20 @@ object Main extends IOApp {
       (_: dom.MouseEvent) =>
         val sequencer = Sequencer()
         sequencer.playSong(TestSong1.demoSong()).unsafeRunAndForget()
+    )
+    div.appendChild(sequencerButtonDiv)
+    div
+
+  private def synthDrums: Element =
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+    val sequencerButtonDiv = document.createElement("button")
+    sequencerButtonDiv.textContent = "️🛢️"
+    sequencerButtonDiv.addEventListener(
+      "click",
+      (_: dom.MouseEvent) =>
+        val sequencer = Sequencer()
+        sequencer.playSong(TestSong2.drumSynthSong()).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
     div
