@@ -34,7 +34,7 @@ jobs:
       - name: Format check
         shell: bash
         run: |
-          sbt -v scalafmtCheckAll
+          sbt -v scalafmtCheckAll ; sbt scalafixEnable; sbt fixchk
 
       - name: Build and test
         run: sbt -v +test

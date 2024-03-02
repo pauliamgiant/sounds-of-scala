@@ -1,17 +1,17 @@
-ThisBuild / organization := "com.soundsofscala"
+inThisBuild(
+  List(
+    organization := "org.soundsofscala",
+    version := "0.1.0-SNAPSHOT",
+    scalaVersion := "3.3.1",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalafixDependencies ++= List(
+      "com.github.xuwei-k" %% "scalafix-rules" % "0.3.0"
+    ),
+    resolvers +=
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  ))
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
-ThisBuild / scalaVersion := "3.3.1"
-
-ThisBuild / resolvers +=
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-
-ThisBuild / scalafixDependencies ++= List(
-  "com.github.xuwei-k" %% "scalafix-rules" % "0.3.0"
-)
-
-ThisBuild / scalafixScalaBinaryVersion := "2.13"
 scalaJSUseMainModuleInitializer := true
 Compile / mainClass := Some("com.soundsofscala.Main")
 

@@ -1,12 +1,11 @@
 package com.soundsofscala.songs
 
-import com.soundsofscala.Instruments.{ScalaSynth, SimpleDrumSynth, SimpleDrums, SimplePiano}
+import com.soundsofscala.Instruments.*
 import com.soundsofscala.models.*
 import com.soundsofscala.models.Accidental.*
-import com.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Note, Rest}
+import com.soundsofscala.models.AtomicMusicalEvent.*
 import com.soundsofscala.models.DrumVoice.*
 import com.soundsofscala.models.Duration.*
-import com.soundsofscala.models.MusicalEvent.FourBarRest
 import com.soundsofscala.models.Velocity.*
 import org.scalajs.dom.AudioContext
 

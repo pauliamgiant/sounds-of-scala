@@ -9,8 +9,8 @@ enum WaveType:
 object Oscillator:
   def apply(
       waveType: WaveType,
-      frequency: Double = 440,
-      volume: Double = 0.7
+      frequency: Double,
+      volume: Double
   ): AudioContext ?=> Oscillator =
     waveType match
       case WaveType.Sine => SineOscillator(frequency, volume)
@@ -48,17 +48,18 @@ enum Oscillator(frequency: Double, volume: Double)(using audioContext: AudioCont
       case Pitch.A => pitch.calculateFrequency
       case Pitch.B => pitch.calculateFrequency
 
-  def updateVolume(volume: Double): Unit = amplifier.level(volume)
+  def updateVolume(volume: Double): Unit = amplifier.level(volume, audioContext.currentTime)
 
-  def play(when: Double, vol: Double = volume): Unit =
-    amplifier.level(vol)
+  def play(when: Double): Unit =
+
+    amplifier.level(volume, when)
     amplifier.plugIn(bandpass.plugIn(oscillatorNode))
     amplifier.plugInTo(audioContext.destination)
     oscillatorNode.start(when)
 
   def stop(when: Double): Unit =
     amplifier.quickFade(when: Double)
-    oscillatorNode.stop(when)
+    oscillatorNode.stop(when + 10)
 
   def volume(volume: Double): Oscillator =
     this match
