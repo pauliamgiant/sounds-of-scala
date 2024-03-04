@@ -88,7 +88,6 @@ lazy val root = (project in file(".")).settings(
     "org.scala-js" %%% "scalajs-dom" % "2.8.0",
     "io.kevinlee" %%% "refined4s-core" % "0.11.0",
     "io.kevinlee" %%% "refined4s-cats" % "0.11.0",
-    "io.kevinlee" %%% "refined4s-pureconfig" % "0.11.0",
-    "org.creativescala" %%% "krop-core" % "0.7.0"
+    "io.kevinlee" %%% "refined4s-pureconfig" % "0.11.0"
   )
 )
