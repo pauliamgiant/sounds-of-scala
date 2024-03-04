@@ -12,8 +12,7 @@ import com.soundsofscala.transport.Sequencer
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
-
-import scala.scalajs.js.typedarray.ArrayBuffer
+import com.soundsofscala.syntax.all.*
 
 object Main extends IOApp {
 
@@ -22,8 +21,6 @@ object Main extends IOApp {
   import cats.effect.unsafe.implicits.global
 
   given audioContext: AudioContext = new AudioContext()
-  import MusicalEvent.*
-
   val startingFrequency = 440
   val startingVolume = 0.3
   val waveTypes = List(
@@ -39,13 +36,7 @@ object Main extends IOApp {
   val oscillatorTriangle: Oscillator = TriangleOscillator(startingFrequency - 3)
 
   private def updateSynthVolume(waveType: WaveType): Unit =
-    val volume =
-      dom
-        .document
-        .getElementById(s"${waveType.toString.toLowerCase}-volume")
-        .asInstanceOf[html.Input]
-        .value
-        .toDouble
+    val volume = retrieveValueFromInputNode(s"${waveType.toString.toLowerCase}-volume")
     waveType match
       case WaveType.Sine =>
         oscillatorSine.updateVolume(volume)
@@ -57,16 +48,14 @@ object Main extends IOApp {
         oscillatorTriangle.updateVolume(volume)
 
   private def updateSynthFilterFrequency(): Unit =
-    val frequency =
-      dom.document.getElementById("filter-frequency").asInstanceOf[html.Input].value.toDouble
+    val frequency = retrieveValueFromInputNode("filter-frequency")
     oscillatorSaw.updateFilterFrequency(frequency)
     oscillatorSine.updateFilterFrequency(frequency)
     oscillatorSquare.updateFilterFrequency(frequency)
     oscillatorTriangle.updateFilterFrequency(frequency)
 
   private def updateSynthFrequency(): Unit =
-    val frequency =
-      dom.document.getElementById("frequency").asInstanceOf[html.Input].value.toDouble
+    val frequency = retrieveValueFromInputNode("frequency")
     oscillatorSaw.updateFrequency(frequency / 4)
     oscillatorSine.updateFrequency(frequency)
     oscillatorSquare.updateFrequency(frequency / 2)
@@ -83,13 +72,9 @@ object Main extends IOApp {
     compoundSynth.addEventListener(
       "click",
       (e: dom.MouseEvent) =>
-        def getCurrentVolume(waveType: WaveType) = dom
-          .document
-          .getElementById(s"${waveType.toString.toLowerCase}-volume")
-          .asInstanceOf[html.Input]
-          .value
-          .toDouble
 
+        def getCurrentVolume(waveType: WaveType) =
+          retrieveValueFromInputNode(s"${waveType.toString.toLowerCase}-volume")
         oscillatorSaw.play(getCurrentVolume(Sawtooth))
         oscillatorSine.play(getCurrentVolume(Sine))
         oscillatorSquare.play(getCurrentVolume(Square))
@@ -115,13 +100,13 @@ object Main extends IOApp {
         playground.textContent = "Feel free to use this playground page to try things out"
 
         val scalaSynthTitle = document.createElement("h2")
-        scalaSynthTitle.textContent = s"ScalaSynth"
+        scalaSynthTitle.textContent = "ScalaSynth"
 
         val drumMachineLabel = document.createElement("label")
         drumMachineLabel.textContent = "SimpleScala808DrumMachine"
 
         val sequencerLabel = document.createElement("label")
-        sequencerLabel.textContent = "Song Sequencer"
+        sequencerLabel.textContent = "Sequencer/Scheduler Example Song"
 
         val drumSynth = document.createElement("label")
         drumSynth.textContent = "Drum Synth"
@@ -198,24 +183,6 @@ object Main extends IOApp {
     )
     compoundSynthContainer
 
-  def loadAudioSample(
-      localPath: String,
-      audioContext: AudioContext,
-      callback: AudioBuffer => Unit): Unit =
-    val request = new dom.XMLHttpRequest()
-    request.open("GET", localPath, true)
-    request.responseType = "arraybuffer"
-
-    request.onload = (_: dom.Event) =>
-      val data = request.response.asInstanceOf[ArrayBuffer]
-
-      audioContext.decodeAudioData(
-        data,
-        buffer => callback(buffer),
-        () => println(s"Things have gone sideways for now")
-      )
-    request.send()
-
   def appendH2(targetNode: dom.Node, text: String): Unit = {
     val parNode = document.createElement("h2")
     parNode.textContent = text
@@ -270,7 +237,9 @@ object Main extends IOApp {
     val div = document.createElement("div")
     div.classList.add("button-pad")
 
-    val select = document.createElement("select").asInstanceOf[html.Select]
+    val select: html.Select = document.createElement("select") match {
+      case selectElement: html.Select => selectElement
+    }
     select.id = "oscillator"
     select.classList.add("oscillator")
     val options = waveTypes.map(waveSelectionOptions)
@@ -300,19 +269,27 @@ object Main extends IOApp {
     buttonPad.append(buttonList*)
     buttonPad
 
+  private def retrieveValueFromInputNode(elementId: String): Double =
+    dom.document.getElementById(elementId) match
+      case input: html.Input => input.value.toDouble
+      case _ => 0.0
+
+  private def getSlider(id: String) = dom.document.createElement(id) match
+    case sliderElement: html.Input => sliderElement
+
   def compoundButtonPad(buttonBuilder: Note => Element)(scalaSynth: ScalaSynth): Element =
     given ScalaSynth = scalaSynth
     val buttonPad = document.createElement("div")
     buttonPad.classList.add("button-pad")
 
     val buttonList = List(
-      C(),
-      D(),
-      E(),
-      F(),
-      G(),
-      A(),
-      B()
+      C3,
+      D3,
+      E3,
+      F3,
+      G3,
+      A3,
+      B3
     ).map(buttonBuilder)
 
     buttonPad.append(buttonList: _*)
@@ -326,11 +303,13 @@ object Main extends IOApp {
       "click",
       (_: dom.MouseEvent) =>
         val waveType = Oscillator.stringToWaveType(
-          document.getElementById("oscillator").asInstanceOf[Select].value)
-        val oscillator = Oscillator(waveType = waveType).volume(0.5)
+          document.getElementById("oscillator") match
+            case select: Select => select.value
+        )
+        val oscillator = Oscillator(waveType = waveType, frequency = 440, volume = 0.5)
         oscillator.updateFrequencyFromPitch(pitch)
-        oscillator.play(0)
-        dom.window.setTimeout(() => oscillator.stop(.1), 1000)
+        oscillator.play(audioContext.currentTime)
+        oscillator.stop(audioContext.currentTime + 0.5)
     )
     button
 
@@ -341,7 +320,7 @@ object Main extends IOApp {
     label.classList.add("vol-label")
     div.appendChild(label)
     div.classList.add("slider-pad")
-    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    val slider: html.Input = getSlider("input")
     slider.className = "range"
     slider.classList.add("volume")
     slider.id = s"${waveType.toString.toLowerCase}-volume"
@@ -363,7 +342,7 @@ object Main extends IOApp {
     sliderContainer.classList.add("slider-container")
     val label = document.createElement("label")
     label.textContent = "Frequency"
-    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    val slider = getSlider("input")
     slider.className = "range"
     slider.id = "filter-frequency"
     slider.`type` = "range"
@@ -384,7 +363,7 @@ object Main extends IOApp {
     sliderContainer.classList.add("slider-container")
     val label = document.createElement("label")
     label.textContent = "Frequency"
-    val slider = dom.document.createElement("input").asInstanceOf[html.Input]
+    val slider = getSlider("input")
     slider.className = "range"
     slider.id = "frequency"
     slider.`type` = "range"
@@ -417,12 +396,6 @@ object Main extends IOApp {
     )
     div.appendChild(stopSynth)
     div
-  def synthVolumeValue(waveType: WaveType): Double = dom
-    .document
-    .getElementById(s"${waveType.toString.toLowerCase}-volume")
-    .asInstanceOf[html.Input]
-    .value
-    .toDouble
 
   def compoundSynthButton(note: Note)(using synth: ScalaSynth)(
       using ac: AudioContext): Element =
@@ -431,7 +404,7 @@ object Main extends IOApp {
     button.addEventListener(
       "click",
       (_: dom.MouseEvent) =>
-        synth.attackRelease(ac.currentTime, note, Tempo(120)).unsafeRunAndForget()
+        synth.attackRelease(ac.currentTime, note, Tempo(120), Release(1)).unsafeRunAndForget()
     )
     button
 

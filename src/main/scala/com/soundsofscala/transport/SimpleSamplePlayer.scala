@@ -3,32 +3,42 @@ package com.soundsofscala.transport
 import cats.effect.IO
 import com.soundsofscala.models.{AtomicMusicalEvent, MusicalEvent}
 import org.scalajs.dom
-import org.scalajs.dom.AudioContext
+import org.scalajs.dom.{AudioContext, XMLHttpRequest}
 
 import scala.scalajs.js.typedarray.ArrayBuffer
 
-case class SimpleSamplePlayer()(using audioContext: AudioContext) {
+case class SimpleSamplePlayer()(using audioContext: AudioContext):
+
   def playSample(filePath: String, musicEvent: AtomicMusicalEvent, when: Double): IO[Unit] =
-    println(s"PLAYING $filePath at $when")
-    val request = new dom.XMLHttpRequest()
-    request.open("GET", filePath, true)
-    request.responseType = "arraybuffer"
+    for {
+      _ <- IO.println(s"PLAYING $filePath at $when")
+      request <- IO(dom.XMLHttpRequest())
+      _ <- IO(request.open("GET", filePath, true))
+      _ <- IO(request.responseType = "arraybuffer")
+      _ <- loadAndPlaySample(request, musicEvent, when)
+      _ <- IO.delay(request.send())
+    } yield IO.unit
 
-    request.onload = (_: dom.Event) =>
-      val data = request.response.asInstanceOf[ArrayBuffer]
-
-      audioContext.decodeAudioData(
-        data,
-        buffer => {
-          val gainNode = audioContext.createGain()
-          gainNode.gain.value = musicEvent.normalizedVelocity
-          val sourceNode = audioContext.createBufferSource()
-          sourceNode.buffer = buffer
-          sourceNode.connect(gainNode)
-          gainNode.connect(audioContext.destination)
-          sourceNode.start(when)
-        },
-        () => println(s"Things have gone sideways for now")
-      )
-    IO.delay(request.send())
-}
+  private def loadAndPlaySample(
+      request: XMLHttpRequest,
+      musicalEvent: AtomicMusicalEvent,
+      when: Double): IO[Unit] =
+    for {
+      gainNode <- IO(audioContext.createGain())
+      sourceNode <- IO(audioContext.createBufferSource())
+      _ <- IO(gainNode.gain.value = musicalEvent.normalizedVelocity)
+      _ <- IO(gainNode.connect(audioContext.destination))
+      _ <- IO(sourceNode.connect(gainNode))
+      _ <- IO(request.onload = (_: dom.Event) => {
+        val arrayBuffer: ArrayBuffer = request.response match
+          case ab: ArrayBuffer => ab
+        audioContext.decodeAudioData(
+          arrayBuffer,
+          buffer => {
+            sourceNode.buffer = buffer
+            sourceNode.start(when)
+          },
+          () => IO.raiseError(RuntimeException("Error decoding audio data"))
+        )
+      })
+    } yield IO.unit

@@ -5,11 +5,7 @@ import com.soundsofscala.models
 import com.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Note}
 import com.soundsofscala.models.{AtomicMusicalEvent, Release, Tempo}
 import com.soundsofscala.synthesis.DrumGeneration
-import com.soundsofscala.synthesis.Oscillator.{
-  SawtoothOscillator,
-  SquareOscillator,
-  TriangleOscillator
-}
+import com.soundsofscala.synthesis.Oscillator.*
 import com.soundsofscala.transport.SimpleSamplePlayer
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
@@ -35,7 +31,7 @@ sealed trait Instrument:
           case _ => IO.unit
       case SimpleDrumSynth() =>
         musicEvent match
-          case drumStroke: DrumStroke =>
+          case drumStroke: AtomicMusicalEvent.DrumStroke =>
             drumStroke.drum match
               case models.DrumVoice.Kick =>
                 DrumGeneration.generateKick808(drumStroke, when)
@@ -46,7 +42,7 @@ sealed trait Instrument:
               case models.DrumVoice.Clap =>
                 DrumGeneration.generateClap808(drumStroke, when)
               case _ => DrumGeneration.generateKick808(drumStroke, when)
-
+          case _ => IO.unit
       case SimpleDrums() =>
         musicEvent match
           case drumStroke: DrumStroke =>
@@ -63,22 +59,18 @@ final case class SimplePiano() extends Instrument
 final case class SimpleDrums() extends Instrument
 final case class SimpleDrumSynth() extends Instrument
 final case class ScalaSynth()(using audioContext: AudioContext) extends Instrument {
-  def attackRelease(
-      when: Double,
-      note: Note,
-      tempo: Tempo,
-      release: Release = Release(1)): IO[Unit] = {
+  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] = {
     IO.delay {
       val keyNote = note.pitch.calculateFrequency
-      val velocity = note.velocity.getNormalisedVelocity / 3
+      val velocity = note.velocity.getNormalisedVelocity / 2
       val oscillators = Seq(
-        SawtoothOscillator(keyNote / 4, velocity),
-        SquareOscillator(keyNote / 4, velocity),
-        TriangleOscillator(keyNote / 2 - 3, velocity)
+        SineOscillator(keyNote / 4, velocity),
+//        SquareOscillator(keyNote / 4, velocity),
+        TriangleOscillator(keyNote / 4, velocity * 0.5)
       )
       oscillators.foreach { osc =>
         osc.play(when)
-        osc.stop(when + (note.durationToSeconds(tempo) * release.value))
+        osc.stop(when + note.durationToSeconds(tempo))
       }
     }
   }

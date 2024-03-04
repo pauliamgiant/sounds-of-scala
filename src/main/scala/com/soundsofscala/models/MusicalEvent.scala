@@ -2,7 +2,6 @@ package com.soundsofscala.models
 
 import cats.data.NonEmptyList
 import com.soundsofscala.TransformMusicalEvents.*
-import com.soundsofscala.models.Accidental.*
 import com.soundsofscala.models.AtomicMusicalEvent.*
 import com.soundsofscala.models.Duration.*
 import com.soundsofscala.models.Velocity.*
@@ -11,7 +10,7 @@ import scala.annotation.{tailrec, targetName}
 
 sealed trait MusicalEvent:
 
-  def repeat(repetitions: Int = 2): MusicalEvent = {
+  def repeat(repetitions: Int): MusicalEvent = {
     if (repetitions == 1) this
     else {
       @tailrec
@@ -21,6 +20,10 @@ sealed trait MusicalEvent:
       loop(repetitions - 1, this + this)
     }
   }
+  def repeat: MusicalEvent = repeat(2)
+
+  @targetName("repeatMusicEvents")
+  def *(repetitions: Int): MusicalEvent = repeat(repetitions)
 
   @targetName("combineMusicEventsBetweenBars")
   def |(other: MusicalEvent): MusicalEvent =
@@ -59,6 +62,45 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
       durationToString(duration, firstSection)
     case Harmony(notes, duration) =>
       notes.map(_.note.printAtomicEvent()).toList.mkString(" ") + s"_$duration"
+  def withVelocity(newVelocity: Velocity): AtomicMusicalEvent = this match
+    case note: Note => note.copy(velocity = newVelocity)
+    case rest: Rest => rest
+    case drum: DrumStroke => drum.copy(velocity = newVelocity)
+    case harmony: Harmony =>
+      harmony.copy(notes = harmony
+        .notes
+        .map(harmTiming =>
+          harmTiming.copy(note = harmTiming.note.copy(velocity = newVelocity))))
+  def withDuration(newDuration: Duration): AtomicMusicalEvent = this match
+    case note: Note => note.copy(duration = newDuration)
+    case rest: Rest => rest.copy(duration = newDuration)
+    case drum: DrumStroke => drum.copy(duration = newDuration)
+    case harmony: Harmony => harmony.copy(duration = newDuration)
+  // timing
+  def whole: AtomicMusicalEvent = this.withDuration(Duration.Whole)
+  def half: AtomicMusicalEvent = this.withDuration(Half)
+  def quarter: AtomicMusicalEvent = this.withDuration(Quarter)
+  def eighth: AtomicMusicalEvent = this.withDuration(Eighth)
+  def sixteenth: AtomicMusicalEvent = this.withDuration(Sixteenth)
+  def thirtySecond: AtomicMusicalEvent = this.withDuration(ThirtySecond)
+  // velocity
+  def ppp: AtomicMusicalEvent = this.withVelocity(Pianississimo)
+  def pp: AtomicMusicalEvent = this.withVelocity(Pianissimo)
+  def p: AtomicMusicalEvent = this.withVelocity(Piano)
+  def mp: AtomicMusicalEvent = this.withVelocity(MezzoPiano)
+  def mf: AtomicMusicalEvent = this.withVelocity(MezzoForte)
+  def f: AtomicMusicalEvent = this.withVelocity(Forte)
+  def ff: AtomicMusicalEvent = this.withVelocity(Fortissimo)
+  def fff: AtomicMusicalEvent = this.withVelocity(Fortississimo)
+  def muted: AtomicMusicalEvent = this.withVelocity(TheSilentTreatment)
+  def softest: AtomicMusicalEvent = this.withVelocity(Softest)
+  def soft: AtomicMusicalEvent = this.withVelocity(Soft)
+  def medium: AtomicMusicalEvent = this.withVelocity(Medium)
+  def assertively: AtomicMusicalEvent = this.withVelocity(Assertively)
+  def loud: AtomicMusicalEvent = this.withVelocity(Loud)
+  def onFull: AtomicMusicalEvent = this.withVelocity(OnFull)
+
+  // pitch
 
   case Note(
       pitch: Pitch,
@@ -78,32 +120,3 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
 
 final case class HarmonyTiming(note: Note, timingOffset: TimingOffset)
 //  Add builder methods for Notes
-object MusicalEvent:
-
-  // start of DSL
-  def C(octave: Octave = Octave(3)): Note = Note(Pitch.C, Natural, Quarter, octave, OnFull)
-  def D(octave: Octave = Octave(3)): Note = Note(Pitch.D, Natural, Quarter, octave, OnFull)
-  def E(octave: Octave = Octave(3)): Note = Note(Pitch.E, Natural, Quarter, octave, OnFull)
-  def F(octave: Octave = Octave(3)): Note = Note(Pitch.F, Natural, Quarter, octave, OnFull)
-  def G(octave: Octave = Octave(3)): Note = Note(Pitch.G, Natural, Quarter, octave, OnFull)
-  def A(octave: Octave = Octave(2)): Note = Note(Pitch.A, Natural, Quarter, octave, OnFull)
-  def B(octave: Octave = Octave(2)): Note = Note(Pitch.B, Natural, Quarter, octave, OnFull)
-  val A: Note = A()
-  val B: Note = B()
-  val C: Note = C()
-  val D: Note = D()
-  val E: Note = E()
-  val F: Note = F()
-  val G: Note = G()
-
-  val RestWhole: Rest = Rest(Duration.Whole)
-  val RestHalf: Rest = Rest(Half)
-  val RestQuarter: Rest = Rest(Quarter)
-  val RestEighth: Rest = Rest(Eighth)
-  val RestSixteenth: Rest = Rest(Sixteenth)
-  val RestThirtySecondth: Rest = Rest(ThirtySecond)
-  val OneBarRest: MusicalEvent =
-    RestWhole
-  val TwoBarRest: MusicalEvent = OneBarRest + OneBarRest
-  val FourBarRest: MusicalEvent = TwoBarRest + TwoBarRest
-  val EightBarRest: MusicalEvent = FourBarRest + FourBarRest
