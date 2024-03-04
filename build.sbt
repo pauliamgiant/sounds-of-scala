@@ -2,7 +2,7 @@ inThisBuild(
   List(
     organization := "org.soundsofscala",
     version := "0.1.0-SNAPSHOT",
-    scalaVersion := "3.3.1",
+    scalaVersion := "3.3.3",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalafixDependencies ++= List(
@@ -13,7 +13,7 @@ inThisBuild(
   ))
 
 scalaJSUseMainModuleInitializer := true
-Compile / mainClass := Some("com.soundsofscala.Main")
+Compile / mainClass := Some("org.soundsofscala.Main")
 
 enablePlugins(ScalaJSPlugin)
 enablePlugins(ScalaJSBundlerPlugin)
