@@ -17,8 +17,3 @@ Start by entering ```f``` which is a shortcut for ```~fastOptJS / webpack``` and
     sbt:sounds-of-scala> f
 
 Once this has completed [click here](http://localhost:63342/sounds-of-scala/index.html?_ijt=3t0bdj8qmmfh26b84rp3remja&_ij_reload=RELOAD_ON_SAVE) or locate the index.html file in the root folder and open with your browser.
-
-
-
-
-
