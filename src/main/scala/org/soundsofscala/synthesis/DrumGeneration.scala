@@ -8,13 +8,17 @@ import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.{AtomicMusicalEvent, Release, Tempo}
 import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 
-object DrumGeneration {
+/**
+ * This is a POC of creating drum sounds using the Web Audio API. The sounds are based on the
+ * 808 drum machine. TODO: Refactor this to use a Synth API
+ */
+object DrumGeneration:
 
   def generateKick808(
       drumStroke: DrumStroke,
       when: Double
-  )(using audioContext: AudioContext): IO[Unit] = {
-    IO.delay {
+  )(using audioContext: AudioContext): IO[Unit] =
+    IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity
       val osc = audioContext.createOscillator()
       osc.`type` = "sine"
@@ -37,24 +41,20 @@ object DrumGeneration {
       osc.start(when)
       osc.stop(when + 0.9)
 
-    }
-  }
-
   def generateClap808(
       drumStroke: DrumStroke,
       when: Double
-  )(using audioContext: AudioContext): IO[Unit] = {
-    IO.delay {
+  )(using audioContext: AudioContext): IO[Unit] =
+    IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity
 
-      def createNoiseBuffer(audioContext: dom.AudioContext): dom.AudioBuffer = {
+      def createNoiseBuffer(audioContext: dom.AudioContext): dom.AudioBuffer =
         val bufferSize = audioContext.sampleRate.toFloat // 1 second of audio
         val buffer =
           audioContext.createBuffer(1, bufferSize.toInt, audioContext.sampleRate.toInt)
         val output = buffer.getChannelData(0)
         (0 until output.length).foreach(i => output(i) = (math.random() * 2 - 1).toFloat)
         buffer
-      }
 
       val noiseBuffer = createNoiseBuffer(audioContext)
       val noiseSource = audioContext.createBufferSource()
@@ -81,14 +81,12 @@ object DrumGeneration {
 
       noiseSource.start(when)
       noiseSource.stop(when + 0.2)
-    }
-  }
 
   def generateHats808(
       drumStroke: DrumStroke,
       when: Double
-  )(using audioContext: AudioContext): IO[Unit] = {
-    IO.delay {
+  )(using audioContext: AudioContext): IO[Unit] =
+    IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity
       val bufferSize = audioContext.sampleRate * 2.0
       val noiseBuffer =
@@ -116,12 +114,9 @@ object DrumGeneration {
       noise.start(when)
       noise.stop(when + 0.05)
 
-    }
-  }
-
   def generateSnare808(drumStroke: DrumStroke, when: Double)(
-      using audioContext: AudioContext): IO[Unit] = {
-    IO.delay {
+      using audioContext: AudioContext): IO[Unit] =
+    IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity
 
       val bodyOsc = audioContext.createOscillator()
@@ -162,7 +157,3 @@ object DrumGeneration {
 
       bodyOsc.stop(when + 0.3)
       noise.stop(when + 0.3)
-
-    }
-  }
-}

@@ -28,16 +28,15 @@ import scala.annotation.{tailrec, targetName}
 
 sealed trait MusicalEvent:
 
-  def repeat(repetitions: Int): MusicalEvent = {
+  def repeat(repetitions: Int): MusicalEvent =
     if (repetitions == 1) this
-    else {
+    else
       @tailrec
       def loop(count: Int, accum: MusicalEvent): MusicalEvent =
         if (count <= 1) accum
         else loop(count - 1, this + accum)
       loop(repetitions - 1, this + this)
-    }
-  }
+
   def repeat: MusicalEvent = repeat(2)
 
   @targetName("repeatMusicEvents")
@@ -137,4 +136,3 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
       extends AtomicMusicalEvent(duration, OnFull)
 
 final case class HarmonyTiming(note: Note, timingOffset: TimingOffset)
-//  Add builder methods for Notes

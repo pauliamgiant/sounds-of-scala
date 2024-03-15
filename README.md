@@ -21,6 +21,7 @@ In the time since the talk there has been enthusiasm to develop this Music libra
 
 Here is a link to my ScalaDays Madrid talk: [Sounds of Structure](https://www.youtube.com/watch?v=L4rf_QUD7nw&t=253s)
 
+To run the Demo App follow the steps in the [DEVELOPING.md](./DEVELOPING.md) file.
 
 ### Examples of Web Audio Apps
 

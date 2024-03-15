@@ -10,15 +10,16 @@ import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.{LookAhead, MusicalEvent, ScheduleWindow, Tempo}
 import org.soundsofscala.transport.NoteScheduler
 
-case class SimpleScala808DrumMachine(
-    tempo: Tempo,
-    lookAheadMs: LookAhead,
-    scheduleAheadTimeSeconds: ScheduleWindow):
+/**
+ * Simplest possible drum machine that plays a sequence of drum events
+ * @param tempo
+ *   takes the speed of the music in beats per minute
+ */
+case class SimpleScala808DrumMachine(tempo: Tempo):
   def playGroove(
       drumMusicalEvents: MusicalEvent*
   )(using audioContext: AudioContext): IO[Unit] =
     drumMusicalEvents.parTraverse { drumMusicalEvent =>
-      NoteScheduler(tempo, lookAheadMs, scheduleAheadTimeSeconds).scheduleInstrument(
-        drumMusicalEvent,
-        SimpleDrums())
+      NoteScheduler(tempo, LookAhead(25), ScheduleWindow(0.1))
+        .scheduleInstrument(drumMusicalEvent, SimpleDrums())
     }.void

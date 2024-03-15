@@ -16,19 +16,19 @@ package object syntax {
   object all {
 
     // start of DSL
-    def C(octave: Octave): Note = Note(Pitch.C, Natural, Quarter, octave, OnFull)
+    def C(octave: Octave): Note = Note(Pitch.C, Natural, Quarter, octave, Medium)
 
-    def D(octave: Octave): Note = Note(Pitch.D, Natural, Quarter, octave, OnFull)
+    def D(octave: Octave): Note = Note(Pitch.D, Natural, Quarter, octave, Medium)
 
-    def E(octave: Octave): Note = Note(Pitch.E, Natural, Quarter, octave, OnFull)
+    def E(octave: Octave): Note = Note(Pitch.E, Natural, Quarter, octave, Medium)
 
-    def F(octave: Octave): Note = Note(Pitch.F, Natural, Quarter, octave, OnFull)
+    def F(octave: Octave): Note = Note(Pitch.F, Natural, Quarter, octave, Medium)
 
-    def G(octave: Octave): Note = Note(Pitch.G, Natural, Quarter, octave, OnFull)
+    def G(octave: Octave): Note = Note(Pitch.G, Natural, Quarter, octave, Medium)
 
-    def A(octave: Octave): Note = Note(Pitch.A, Natural, Quarter, octave, OnFull)
+    def A(octave: Octave): Note = Note(Pitch.A, Natural, Quarter, octave, Medium)
 
-    def B(octave: Octave): Note = Note(Pitch.B, Natural, Quarter, octave, OnFull)
+    def B(octave: Octave): Note = Note(Pitch.B, Natural, Quarter, octave, Medium)
 
     val `A-2`: Note = A(Octave(-2))
     val `B-2`: Note = B(Octave(-2))

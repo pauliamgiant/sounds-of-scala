@@ -13,8 +13,7 @@ case class Song(
 case class Track(title: Title, musicalEvent: MusicalEvent, instrument: Instrument)
 
 case class Mixer(tracks: NonEmptyList[Track])
-object Mixer {
+object Mixer:
   def apply(tracks: Track*): Mixer = Mixer(
     NonEmptyList(tracks.head, tracks.tail.toList)
   )
-}

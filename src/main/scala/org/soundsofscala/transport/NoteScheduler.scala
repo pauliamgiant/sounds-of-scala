@@ -10,16 +10,7 @@ import org.scalajs.dom.AudioContext
 import scala.concurrent.duration.DurationDouble
 import cats.effect.unsafe.implicits.global
 import org.soundsofscala.Instruments.Instrument
-import org.soundsofscala.models.{
-  AtomicMusicalEvent,
-  LookAhead,
-  MusicalEvent,
-  NextNoteTime,
-  Release,
-  ScheduleWindow,
-  Sequence,
-  Tempo
-}
+import org.soundsofscala.models.*
 
 case class NoteScheduler(
     tempo: Tempo,
@@ -67,13 +58,21 @@ case class NoteScheduler(
           case ScheduleState.Ready =>
             event match
               case note: AtomicMusicalEvent.Note =>
-                for {
-                  _ <- instrument.play(note, nextNoteTime.value, 0, Release(0.9), tempo)
-                } yield IO.unit
+                for _ <- instrument.play(
+                    note,
+                    nextNoteTime.value,
+                    Attack(0),
+                    Release(0.9),
+                    tempo)
+                yield IO.unit
               case drumStroke: AtomicMusicalEvent.DrumStroke =>
-                for {
-                  _ <- instrument.play(drumStroke, nextNoteTime.value, 0, Release(0.9), tempo)
-                } yield IO.unit
+                for _ <- instrument.play(
+                    drumStroke,
+                    nextNoteTime.value,
+                    Attack(0),
+                    Release(0.9),
+                    tempo)
+                yield IO.unit
               case AtomicMusicalEvent.Rest(_) =>
                 IO.unit
               // TODO implement Chords

@@ -4,11 +4,10 @@ enum Pitch(steps: Int):
 
   private val referenceFrequency: Double = 440.0 // A4 frequency in Hz
 
+  // TODO: factor octave into calculation
   def calculateFrequency: Double =
     val result = referenceFrequency * Math.pow(2, this.steps / 12.0)
     BigDecimal(result).setScale(3, BigDecimal.RoundingMode.HALF_UP).toDouble
-
-  // for now we are ignoring octaves: C4-B4
 
   case C extends Pitch(-9)
   case D extends Pitch(-7)
