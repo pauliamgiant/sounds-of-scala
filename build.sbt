@@ -61,12 +61,12 @@ usefulTasks := Seq(
   ).alias("fixchk"),
   UsefulTask("fmtchk; fixchk", "Run fmtchk; fixchk").alias("chk"),
   UsefulTask(
-    "tc; t; chk",
-    "Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
+    "c; t; chk",
+    "Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("bld"),
   UsefulTask(
-    "cln; tc; t; chk",
-    "Clean Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
+    "cln; c; t; chk",
+    "Clean Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("cbld"),
   UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du")
 )
