@@ -27,16 +27,17 @@ val monixNewtypes = "0.2.3"
 
 scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
 import sbtwelcome.*
+
+// Generated from http://patorjk.com/software/taag/#p=display&f=Stronger%20Than%20All&t=Sounds%20of%20Scala
 logo :=
-  s"""
-     |
-     |.________._______  .____     .______  .______  .________     ._______  ._______     .________._______ .______  .___    .______  
-     ||    ___/: .___  \\ |    |___ :      \\ :_ _   \\ |    ___/     : .___  \\ :_ ____/     |    ___/:_.  ___\\:      \\ |   |   :      \\ 
-     ||___    \\| :   |  ||    |   ||       ||   |   ||___    \\     | :   |  ||   _/       |___    \\|  : |/\\ |   .   ||   |   |   .   |
-     ||       /|     :  ||    :   ||   |   || . |   ||       /     |     :  ||   |        |       /|    /  \\|   :   ||   |/\\ |   :   |
-     ||__:___/  \\_. ___/ |        ||___|   ||. ____/ |__:___/       \\_. ___/ |_. |        |__:___/ |. _____/|___|   ||   /  \\|___|   |
+  raw"""
+     |.________._______  .____     .______  .______  .________     ._______  ._______     .________._______ .______  .___    .______
+     ||    ___/: .___  \ |    |___ :      \ :_ _   \ |    ___/     : .___  \ :_ ____/     |    ___/:_.  ___\:      \ |   |   :      \
+     ||___    \| :   |  ||    |   ||       ||   |   ||___    \     | :   |  ||   _/       |___    \|  : |/\ |   .   ||   |   |   .   |
+     ||       /|     :  ||    :   ||   |   || . |   ||       /     |     :  ||   |        |       /|    /  \|   :   ||   |/\ |   :   |
+     ||__:___/  \_. ___/ |        ||___|   ||. ____/ |__:___/       \_. ___/ |_. |        |__:___/ |. _____/|___|   ||   /  \|___|   |
      |   :        :/     |. _____/     |___| :/         :             :/       :/            :      :/          |___||______/    |___|
-     |            :       :/                 :                        :        :                    :                                 
+     |            :       :/                 :                        :        :                    :
      |                    :
      |${scala.Console.YELLOW}Scala ${scalaVersion.value}${scala.Console.RESET}
      |
@@ -60,12 +61,12 @@ usefulTasks := Seq(
   ).alias("fixchk"),
   UsefulTask("fmtchk; fixchk", "Run fmtchk; fixchk").alias("chk"),
   UsefulTask(
-    "tc; t; chk",
-    "Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
+    "c; t; chk",
+    "Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("bld"),
   UsefulTask(
-    "cln; tc; t; chk",
-    "Clean Build - Run Test/compile; test; scalafmtCheckAll; scalafixAll --check"
+    "cln; c; t; chk",
+    "Clean Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("cbld"),
   UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du")
 )
