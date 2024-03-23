@@ -37,6 +37,7 @@ h1 {
 h2 {
     text-align: center;
     font-size: xx-large;
+
 }
 
 hr {
@@ -53,6 +54,7 @@ label {
     text-align: center;
     font-size: xx-large;
     padding: 2em;
+
 }
 
 p {
@@ -78,6 +80,7 @@ button {
 
 .range {
     height: 10em;
+    margin-top: 4em;
 }
 
 .transport {
@@ -95,9 +98,9 @@ button {
     align-content: center;
     justify-content: center;
     flex-direction: column;
-    padding: 2em;
-    margin-left: 10em;
-    margin-right: 10em;
+    padding: 1em;
+    margin-left: 5em;
+    margin-right: 5em;
     border: none;
     color: whitesmoke;
 }
@@ -118,11 +121,91 @@ button {
     justify-content: center;
 }
 
+.osc-button {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    font-size: 5em;
+    padding: 40px;
+    margin: 10px;
+    width: 10em;
+    height: 2.5em;
+    border-radius: 10px;
+}
+
+.wav-button-pad {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.start-button-stopped {
+    position: relative;
+    padding: 2em;
+    height: 1em;
+    width:150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #ff0f0f, rgb(98, 3, 3));
+    text-decoration: none;
+    transition: .1s;
+    border-color: black;
+    overflow: hidden;
+    content: '';
+    text-align: center;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+
+    font-size: 2em;
+    color: white;
+    border-radius: 10px;
+    transform: translate(-1px, -1px);
+}
+
+.play-stop-pad {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+    height: 100px;
+    margin-left: 10em;
+    margin-right: 10em;
+    margin-bottom: 5em;
+    border: none;
+    color: whitesmoke;
+}
+
+.start-button-playing {
+    position: relative;
+    padding: 2em;
+    height: 1em;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #19f532, rgb(1, 124, 19));
+    text-decoration: none;
+    transition: .2s;
+    border-color: lightgrey;
+    border-width: 1px; /* Note: 'border-size' is not a valid CSS property. Assuming you meant 'border-width'. */
+    border-style: solid; /* Assuming a border style is needed as 'border-color' and 'border-width' are specified */
+    overflow: hidden;
+    content: '';
+    text-align: center;
+    box-shadow: 0 0 1px #02fc20, 0 0 5px rgb(1, 124, 19), 0 0 40px #19f532;
+    font-size: 2em;
+    border-radius: 10px;
+}
+
+
 .slider-pad {
     padding-left: 2em;
     display: flex;
     align-content: center;
     justify-content: left;
+    align-items: center;
+    flex-direction: row;
     text-align: left;
     margin-left: 10%;
 }
@@ -138,16 +221,17 @@ text-align: left;
     align-content: center;
     justify-content: center;
     flex-direction: column;
+    /*background-size: cover;*/
+    /*background-repeat: no-repeat;*/
+    background-image: linear-gradient(to bottom right, rgba(100, 100, 100, 0.6), rgba(0, 0, 0, 0.5)), url('/resources/images/oscillators-bg.webp');
     padding: 2em;
     margin: 10em;
     border-radius: 10px;
-    background: darkslategrey;
+    /*background: darkslategrey;*/
     box-shadow: 0 0 10px rgba(0,0,0,1);
     color: whitesmoke;
 }
-.volume {
-    width: 25%;
-}
+
 
 .transport-button {
     background-color: #2a3e3e;
@@ -164,12 +248,82 @@ text-align: left;
 }
 
 .levels {
-    width: 50%;
-    background-color: #2a3e3e;
+    width: 75%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(to bottom right, rgba(100, 100, 100, 0.6), rgba(0, 0, 0, 0.7)), url('/resources/images/brushed-metal-bg.jpeg');
     text-align: center;
     border-radius: 10px;
+    padding: 5em;
     box-shadow: 0 0 10px rgba(0,0,0,1);
+    margin-bottom: 2em;
 
 }
+
+#filter-frequency {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 12px;
+    background: lightgrey;
+    outline: none; /* Removes the outline on focus */
+    border-radius: 20px;
+    box-shadow: 0 0 8px 1px #ff2828;
+}
+.volume {
+    width: 40%;
+    -webkit-appearance: none;
+    height: 8px;
+    background: lightgrey;
+    outline: none; /* Removes the outline on focus */
+    border-radius: 20px;
+    box-shadow: 0 0 8px 1px #00FF00;
+}
+
+
+.range {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 8px;
+    background: lightgrey;
+    outline: none; /* Removes the outline on focus */
+    border-radius: 20px;
+    box-shadow: 0 0 8px 1px #11ffff;
+}
+
+/*#sine-volume {*/
+/*    -webkit-appearance: none;*/
+/*    height: 8px;*/
+/*    background: lightgrey;*/
+/*    outline: none; !* Removes the outline on focus *!*/
+/*    border-radius: 20px;*/
+/*    box-shadow: 0 0 8px 1px #00FF00;*/
+/*}*/
+
+.slider-thumb::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 80px;
+    height: 40px;
+    cursor: pointer;
+    background-image: url('/resources/images/slider.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    border: none;
+}
+
+.logo-container {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+    padding: 2em;
+    margin: 2em;
+}
+
+
+
+/*#sine-volume::-webkit-slider-runnable-track {*/
+/*    -webkit-appearance: none;*/
+/*    height: 10px;*/
+/*}*/
 
 

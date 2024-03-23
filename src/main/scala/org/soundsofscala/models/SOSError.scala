@@ -5,6 +5,5 @@ sealed abstract class SOSError(val message: String, cause: Option[Throwable] = N
 
 final case class FileLoadingError(original: String)
     extends SOSError(s"The was a file loading error: $original", None)
-object SOSError {
-  // TODO - Add more error types
-}
+
+// TODO - Add more error types

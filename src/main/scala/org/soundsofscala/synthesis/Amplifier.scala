@@ -1,15 +1,21 @@
 package org.soundsofscala.synthesis
 
 import org.scalajs.dom.{AudioContext, AudioNode, GainNode}
+import org.soundsofscala.models.Volume
 
+/**
+ * An amplifier that can be used to control the volume of a signal.
+ * @param audioContext
+ *   The audio context to use for creating the gain node.
+ */
 case class Amplifier()(using audioContext: AudioContext):
   private val gainNode: GainNode = audioContext.createGain()
   def plugInTo(node: AudioNode): Unit = gainNode.connect(node)
   def plugIn(node: AudioNode): Unit = node.connect(gainNode)
-  def level(vol: Double, when: Double): Unit =
+  def setLevelIndiscriminately(vol: Volume): Unit = gainNode.gain.value = vol.value
+  def level(vol: Volume, when: Double): Unit =
     gainNode.gain.value = 0
-    gainNode.gain.linearRampToValueAtTime(vol, when + 0.1)
-//    gainNode.gain.exponentialRampToValueAtTime(vol, when + 0.2)
+    gainNode.gain.linearRampToValueAtTime(vol.value, when + 0.1)
 
   def quickFade(stopTime: Double): Unit =
-    gainNode.gain.linearRampToValueAtTime(0.001, Math.max(stopTime + 0.2, stopTime))
+    gainNode.gain.linearRampToValueAtTime(0.0001, Math.max(stopTime + 0.2, stopTime))

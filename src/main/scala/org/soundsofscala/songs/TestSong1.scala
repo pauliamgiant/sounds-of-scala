@@ -68,24 +68,24 @@ object TestSong1 {
         Sequence(
           DrumStroke(Kick, Sixteenth, Soft),
           Sequence(DrumStroke(Kick, Quarter, Medium), Rest(Quarter)))))
-  ).repeat(20)
+  ).repeat(40)
 
   val snare = Sequence(
     Rest(Quarter),
     Sequence(
       DrumStroke(Snare, Quarter, Medium),
-      Sequence(Rest(Quarter), DrumStroke(Snare, Quarter, Loud)))).repeat(20)
+      Sequence(Rest(Quarter), DrumStroke(Snare, Quarter, Loud)))).repeat(40)
 
   val clap =
     Sequence(Rest(Half), Sequence(Rest(Quarter), DrumStroke(Clap, Quarter, Assertively)))
-      .repeat(20)
+      .repeat(40)
 
   val hats =
     Sequence(
       DrumStroke(HiHatClosed, Eighth, Loud),
       Sequence(
         DrumStroke(HiHatClosed, Sixteenth, Medium),
-        DrumStroke(HiHatClosed, Sixteenth, Softest))).repeat(4).repeat(20)
+        DrumStroke(HiHatClosed, Sixteenth, Softest))).repeat(4).repeat(40)
 
   def demoSong(): AudioContext ?=> Song =
     Song(

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="620" height="130" font-family="DejaVu Sans" font-size="16" font-stretch="condensed" text-anchor="middle">
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+		<path d="m10 60c15-20 30-40 50-40 40 0 60 80 100 80s60-80 100-80 60 80 100 80 60-80 100-80 60 80 100 80c20 0 35-20 50-40" stroke="#f00"/>
+	</g>
+</svg>

@@ -2,6 +2,18 @@ package org.soundsofscala.models
 
 import refined4s.{Newtype, Refined}
 
+type Frequency = Frequency.Type
+
+object Frequency extends Newtype[Double]
+
+type Volume = Volume.Type
+
+object Volume extends Newtype[Double]
+
+type Bandwidth = Bandwidth.Type
+
+object Bandwidth extends Newtype[Double]
+
 type Title = Title.Type
 
 object Title extends Newtype[String]
@@ -52,16 +64,26 @@ object Octave extends Refined[Int]:
     override inline def predicate(a: Int): Boolean =
       a >= 0 && a <= 127
 
+type Attack = Attack.Type
+object Attack extends Refined[Double]:
+  override inline def invalidReason(attack: Double): String =
+    expectedMessage("Attack is a percentage between 0 and 1")
+
+  override inline def predicate(attack: Double): Boolean =
+    0.0 <= attack && attack <= 1
+
 type Release = Release.Type
 
 object Release extends Refined[Double]:
-  override inline def invalidReason(lookahead: Double): String =
+  override inline def invalidReason(release: Double): String =
     expectedMessage("Release is a percentage between 0.01 and 1")
 
-  override inline def predicate(lookahead: Double): Boolean =
-    0.01 <= lookahead && lookahead <= 1
+  override inline def predicate(release: Double): Boolean =
+    0.01 <= release && release <= 1
 
-// Determines interval of how often to look ahead
+/**
+ * Determines interval of how often to look ahead for the next note in milliseconds
+ */
 type LookAhead = LookAhead.Type
 
 object LookAhead extends Refined[Double]:
@@ -71,7 +93,9 @@ object LookAhead extends Refined[Double]:
   override inline def predicate(lookahead: Double): Boolean =
     0 <= lookahead && lookahead <= 1000
 
-// sets the size of the lookahead window in seconds
+/**
+ * Determines size of the window in which to schedule notes in milliseconds
+ */
 type ScheduleWindow = ScheduleWindow.Type
 
 object ScheduleWindow extends Refined[Double]:
