@@ -1,6 +1,5 @@
 package org.soundsofscala.synthesis
 
-import Oscillator.SawtoothOscillator
 import org.scalajs.dom.AudioContext
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite

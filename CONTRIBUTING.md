@@ -49,13 +49,13 @@ each commit must build and pass all tests.
 
 ### First line of the commit message
 
-The first line should start with the ticket number followed by a descriptive sentence about what the commit is
+The first line should start with 'SOS-<TICKET NUMBER>' followed by a descriptive sentence about what the commit is
 doing, written using the imperative style, e.g., "Change this.", and should
 not exceed 70 characters.
 It should be possible to fully understand what the commit does by just
 reading this single line.
 Example:
-SS-000001: Add triplets to DSL.
+SOS-16: Add triplets to DSL.
 
 
 ### Body of the commit message

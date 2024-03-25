@@ -1,20 +1,9 @@
 package org.soundsofscala.models
 
-import Duration.*
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.soundsofscala.models.Duration.{
-  Eighth,
-  Half,
-  Quarter,
-  Sixteenth,
-  SixtyFourth,
-  ThirtySecond,
-  Whole
-}
-
-import scala.concurrent.duration.*
+import org.soundsofscala.models.Duration.*
 
 class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks {
 

@@ -1,36 +1,11 @@
 package org.soundsofscala
 
-import org.soundsofscala.models.DrumVoice.{HiHatClosed, *}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.soundsofscala.models.Duration.*
-import org.soundsofscala.models.Accidental.*
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.soundsofscala.models.Accidental.{Flat, Natural, Sharp}
-import org.soundsofscala.models.DrumVoice.{
-  Clap,
-  Cowbell,
-  Crash,
-  HiHatClosed,
-  HiHatOpen,
-  Kick,
-  Ride,
-  Rimshot,
-  Snare,
-  Tambourine,
-  TomHigh,
-  TomLow,
-  TomMid
-}
-import org.soundsofscala.models.Duration.{
-  Eighth,
-  Half,
-  Quarter,
-  Sixteenth,
-  SixtyFourth,
-  ThirtySecond,
-  Whole
-}
+import org.soundsofscala.models.DrumVoice.*
+import org.soundsofscala.models.Duration.*
 
 class TransformMusicalEventsTest
     extends AnyFunSuite

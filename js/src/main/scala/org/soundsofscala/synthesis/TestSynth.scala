@@ -11,7 +11,7 @@ case class TestSynth()(using audioContext: AudioContext):
     SineOscillator(Frequency(440)),
     SawtoothOscillator(Frequency(startingF / 8)),
     SquareOscillator().frequency(Frequency(startingF / 4)),
-    TriangleOscillator() frequency (Frequency(startingF - 3))
+    TriangleOscillator().frequency(Frequency(startingF - 3))
   )
 
   def play(time: Double): Unit =
@@ -23,7 +23,7 @@ case class TestSynth()(using audioContext: AudioContext):
       SineOscillator(Frequency(440)),
       SawtoothOscillator(Frequency(startingF / 8)),
       SquareOscillator().frequency(Frequency(startingF / 4)),
-      TriangleOscillator() frequency (Frequency(startingF - 3))
+      TriangleOscillator().frequency(Frequency(startingF - 3))
     )
 
   def updateFilterFrequency(f: Double): Unit =
