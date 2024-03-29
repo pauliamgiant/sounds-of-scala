@@ -2,8 +2,8 @@ package org.soundsofscala
 
 import cats.effect.{ExitCode, IO, IOApp}
 import org.scalajs.dom
-import org.scalajs.dom.html.Select
 import org.scalajs.dom.*
+import org.scalajs.dom.html.Select
 import org.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
@@ -18,13 +18,13 @@ import org.soundsofscala.transport.Sequencer
 import scala.concurrent.duration.DurationDouble
 import scala.scalajs.js.timers.setTimeout
 
-object Main extends IOApp {
+object Main extends IOApp:
 
   def run(args: List[String]): IO[ExitCode] = buildUI().as(ExitCode.Success)
 
   import cats.effect.unsafe.implicits.global
 
-  private def buildUI(): IO[Unit] = IO {
+  private def buildUI(): IO[Unit] = IO:
 
     document.addEventListener(
       "DOMContentLoaded",
@@ -33,6 +33,7 @@ object Main extends IOApp {
         given audioContext: AudioContext = new AudioContext()
 
         // allows you to play notes on the keyboard asdfghjkl -> abcdefgab
+
         dom.document.addEventListener("keydown", key => handleKeyPress(key, TestSynth()))
 
         given ScalaSynth = ScalaSynth()
@@ -83,41 +84,44 @@ object Main extends IOApp {
 
         // Append elements to Document
 
-        homeDiv.append(
-          heading,
-          logoContainer,
-          exampleWebAppLabel,
-          document.createElement("hr"),
-          scalaSynthTitle,
-          scalaSynthDescription,
-          scalaSynthButtonStrip(scalaSynthButton),
-          document.createElement("hr"),
-          sequencerLabel,
-          playSong,
-          document.createElement("hr"),
-          drumSynthLabel,
-          drumSynthDescription,
-          synthDrums,
-          document.createElement("hr"),
-          simpleSineSynthLabel,
-          buildDropDownOscillatorSelecter(),
-          startStopOsc(),
-          document.createElement("hr"),
-          drumMachineLabel,
-          drumMachineDescription,
-          simple808DrumMachineDiv,
-          document.createElement("hr"),
-          CompoundSynthPanel.buildCompoundSynthPanel()
-        )
+        CompoundSynthPanel
+          .buildCompoundSynthPanel()
+          .map { synthPanel =>
+            homeDiv.append(
+              heading,
+              logoContainer,
+              exampleWebAppLabel,
+              document.createElement("hr"),
+              scalaSynthTitle,
+              scalaSynthDescription,
+              scalaSynthButtonStrip(scalaSynthButton),
+              document.createElement("hr"),
+              sequencerLabel,
+              playSong,
+              document.createElement("hr"),
+              drumSynthLabel,
+              drumSynthDescription,
+              synthDrums,
+              document.createElement("hr"),
+              simpleSineSynthLabel,
+              buildDropDownOscillatorSelecter(),
+              startStopOsc(),
+              document.createElement("hr"),
+              drumMachineLabel,
+              drumMachineDescription,
+              simple808DrumMachineDiv,
+              document.createElement("hr"),
+              synthPanel
+            )
+          }
+          .unsafeRunAndForget()
         document.body.appendChild(homeDiv)
     )
-  }
 
-  def appendH2(targetNode: dom.Node, text: String): Unit = {
+  def appendH2(targetNode: dom.Node, text: String): Unit =
     val parNode = document.createElement("h2")
     parNode.textContent = text
     targetNode.appendChild(parNode)
-  }
 
   private def simple808DrumMachineDiv: AudioContext ?=> Element =
     val div = document.createElement("div")
@@ -174,9 +178,9 @@ object Main extends IOApp {
     val div = document.createElement("div")
     div.classList.add("button-pad")
 
-    val select: html.Select = document.createElement("select") match {
+    val select: html.Select = document.createElement("select") match
       case selectElement: html.Select => selectElement
-    }
+
     select.addEventListener(
       "change",
       (_: dom.Event) =>
@@ -256,10 +260,8 @@ object Main extends IOApp {
         oscillator.connect(gain)
         oscillator.start()
         gain.connect(audioContext.destination)
-        setTimeout(1.second) {
-          oscillator.stop()
-
-        }
+        setTimeout(1.second)
+        oscillator.stop()
     )
     div.appendChild(button)
     div
@@ -294,14 +296,14 @@ object Main extends IOApp {
   )
 
   private def handleKeyPress(keyEvent: KeyboardEvent, testSynth: TestSynth)(
-      using audioContext: AudioContext): Unit = {
+      using audioContext: AudioContext): Unit =
 
     val offsetFromReference: Option[Int] = keyToSemitoneOffset.get(keyEvent.key.toLowerCase())
-    offsetFromReference.foreach { offset =>
+    offsetFromReference.foreach: offset =>
       val frequency = 220 * Math.pow(2, offset / 12.0)
       testSynth.updatePitchFrequency(frequency)
       CompoundSynthPanel.playAGnarlySynthNote(testSynth).unsafeRunAndForget()
-    }
+
     keyEvent.key match
       case " " =>
         val button: HTMLButtonElement =
@@ -309,5 +311,3 @@ object Main extends IOApp {
             case but: HTMLButtonElement => but
         button.click()
       case _ => ()
-  }
-}

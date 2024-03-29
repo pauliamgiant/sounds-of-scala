@@ -2,31 +2,24 @@ package org.soundsofscala.models
 
 import cats.data.NonEmptyList
 import org.soundsofscala.TransformMusicalEvents.*
-import AtomicMusicalEvent.*
-import Duration.*
-import Velocity.*
-import org.soundsofscala.models.Duration.{Eighth, Half, Quarter, Sixteenth, ThirtySecond}
-import org.soundsofscala.models.Velocity.{
-  Assertively,
-  Forte,
-  Fortissimo,
-  Fortississimo,
-  Loud,
-  Medium,
-  MezzoForte,
-  MezzoPiano,
-  OnFull,
-  Pianissimo,
-  Pianississimo,
-  Piano,
-  Soft,
-  Softest,
-  TheSilentTreatment
-}
+import org.soundsofscala.models.AtomicMusicalEvent.*
+import org.soundsofscala.models.Duration.*
+import org.soundsofscala.models.Velocity.*
 
 import scala.annotation.{tailrec, targetName}
 
 sealed trait MusicalEvent:
+
+  def reverse(): MusicalEvent =
+    @tailrec
+    def loop(current: MusicalEvent, accumulator: MusicalEvent): MusicalEvent =
+      current match
+        case Sequence(head, tail) => loop(tail, Sequence(head, accumulator))
+        case event: AtomicMusicalEvent => Sequence(event, accumulator)
+
+    this match
+      case Sequence(head, tail) => loop(tail, head)
+      case event: AtomicMusicalEvent => event
 
   def repeat(repetitions: Int): MusicalEvent =
     if (repetitions == 1) this
@@ -47,28 +40,33 @@ sealed trait MusicalEvent:
     this + other
 
   @targetName("combineMusicEvents")
-  def +(other: MusicalEvent): MusicalEvent = this match
-    case note: Note => Sequence(note, other)
-    case thisRest: Rest =>
-      other match
-        case thatRest: Rest => Sequence(thisRest, thatRest)
-        case _ => Sequence(thisRest, other)
-    case drum: DrumStroke => Sequence(drum, other)
-    case Sequence(head, tail) => Sequence(head, tail + other)
-    // fix this with combine
-    case chord: Harmony => Sequence(chord, other)
-
-  override def toString: String = this match
-    case Sequence(head, tail) => head.printAtomicEvent() + tail.toString
-    case event: AtomicMusicalEvent => event.printAtomicEvent()
+  def +(other: MusicalEvent): MusicalEvent =
+    val thisReversed = this.reverse()
+    @tailrec
+    def loop(current: MusicalEvent, accumulator: MusicalEvent): MusicalEvent =
+      current match
+        case Sequence(head, tail) => loop(tail, Sequence(head, accumulator))
+        case event: AtomicMusicalEvent => Sequence(event, accumulator)
+    loop(other, thisReversed).reverse()
 
 final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 
 enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalEvent:
   def durationToSeconds(tempo: Tempo): Double =
     this.duration.toSeconds(tempo)
+
   def normalizedVelocity: Double = this.velocity.getNormalisedVelocity
-  def printAtomicEvent(): String = this match
+
+  override def toString: String =
+    @tailrec
+    def loop(current: MusicalEvent, accumulator: String): String = current match {
+      case Sequence(head, tail) => loop(tail, accumulator + head.printAtomicEvent())
+      case event: AtomicMusicalEvent => accumulator + event.printAtomicEvent()
+    }
+
+    loop(this, "")
+
+  private def printAtomicEvent(): String = this match
     case Note(pitch, accidental, duration, octave, velocity) =>
       val firstSection =
         s"$pitch${accidentalToString(accidental)}${octave.value}${velocity}_"
@@ -77,8 +75,9 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
     case DrumStroke(drum, duration, velocity) =>
       val firstSection = s"${drumVoiceToString(drum)}${velocity}_"
       durationToString(duration, firstSection)
-    case Harmony(notes, duration) =>
-      notes.map(_.note.printAtomicEvent()).toList.mkString(" ") + s"_$duration"
+    // TODO: Implement Harmony printing
+    case Harmony(_, _) => "Implement Harmony printing"
+
   def withVelocity(newVelocity: Velocity): AtomicMusicalEvent = this match
     case note: Note => note.copy(velocity = newVelocity)
     case rest: Rest => rest
@@ -88,11 +87,13 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
         .notes
         .map(harmTiming =>
           harmTiming.copy(note = harmTiming.note.copy(velocity = newVelocity))))
+
   def withDuration(newDuration: Duration): AtomicMusicalEvent = this match
     case note: Note => note.copy(duration = newDuration)
     case rest: Rest => rest.copy(duration = newDuration)
     case drum: DrumStroke => drum.copy(duration = newDuration)
     case harmony: Harmony => harmony.copy(duration = newDuration)
+
   // timing
   def whole: AtomicMusicalEvent = this.withDuration(Duration.Whole)
   def half: AtomicMusicalEvent = this.withDuration(Half)

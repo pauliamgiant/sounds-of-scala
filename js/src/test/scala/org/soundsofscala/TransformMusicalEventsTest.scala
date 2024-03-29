@@ -10,9 +10,9 @@ import org.soundsofscala.models.Duration.*
 class TransformMusicalEventsTest
     extends AnyFunSuite
     with Matchers
-    with TableDrivenPropertyChecks {
+    with TableDrivenPropertyChecks:
 
-  test("testDrumVoiceToString") {
+  test("testDrumVoiceToString"):
     Table(
       ("drumVoice", "expected"),
       (Kick, "Doob"),
@@ -28,12 +28,10 @@ class TransformMusicalEventsTest
       (Clap, "Clap"),
       (Cowbell, "Ding"),
       (Tambourine, "Chinka")
-    ).forEvery { (drumVoice, expected) =>
+    ).forEvery: (drumVoice, expected) =>
       TransformMusicalEvents.drumVoiceToString(drumVoice) shouldBe expected
-    }
-  }
 
-  test("testDurationToString") {
+  test("testDurationToString"):
     Table(
       ("duration", "expected"),
       (Whole, 64),
@@ -43,20 +41,14 @@ class TransformMusicalEventsTest
       (Sixteenth, 4),
       (ThirtySecond, 2),
       (SixtyFourth, 1)
-    ).forEvery { (duration, expected) =>
+    ).forEvery: (duration, expected) =>
       TransformMusicalEvents.durationToString(duration, "").length shouldBe expected
-    }
-  }
 
-  test("testAccidentalToString") {
+  test("testAccidentalToString"):
     Table(
       ("accidental", "expected"),
       (Sharp, "#"),
       (Flat, "♭"),
       (Natural, "")
-    ).forEvery { (accidental, expected) =>
+    ).forEvery: (accidental, expected) =>
       TransformMusicalEvents.accidentalToString(accidental) shouldBe expected
-    }
-  }
-
-}

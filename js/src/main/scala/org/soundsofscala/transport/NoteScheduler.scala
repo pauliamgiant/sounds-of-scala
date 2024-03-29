@@ -1,16 +1,14 @@
 package org.soundsofscala.transport
 
 import cats.effect.IO
+import org.scalajs.dom
+import org.scalajs.dom.AudioContext
+import org.soundsofscala.Instruments.Instrument
 import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
-import org.scalajs.dom
-import org.scalajs.dom.AudioContext
 
 import scala.concurrent.duration.DurationDouble
-import cats.effect.unsafe.implicits.global
-import org.soundsofscala.Instruments.Instrument
-import org.soundsofscala.models.*
 
 case class NoteScheduler(
     tempo: Tempo,
@@ -34,52 +32,31 @@ case class NoteScheduler(
       scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println(
         "Sequence finished")
 
-  def scheduler(musicalEvent: MusicalEvent, nextNoteTime: NextNoteTime, instrument: Instrument)(
-      using audioContext: AudioContext): IO[Unit] =
-    musicalEvent match
-      case Sequence(head, tail) =>
-        ScheduleState(nextNoteTime) match
-          case ScheduleState.Ready =>
-            for
-              _ <- scheduler(head, nextNoteTime, instrument)
-              _ <- scheduler(
-                tail,
-                NextNoteTime(nextNoteTime.value + head.durationToSeconds(tempo)),
-                instrument)
-            yield IO.unit
-          case ScheduleState.Waiting =>
-            IO.sleep(lookAheadMs.value.millis) >> scheduler(
-              musicalEvent,
-              nextNoteTime,
-              instrument)
+  private def scheduler(
+      musicalEvent: MusicalEvent,
+      nextNoteTime: NextNoteTime,
+      instrument: Instrument): AudioContext ?=> IO[Unit] =
+    ScheduleState(nextNoteTime) match
+      case ScheduleState.Ready =>
+        musicalEvent match
+          case sequence: Sequence =>
+            val time = NextNoteTime(nextNoteTime.value + sequence.head.durationToSeconds(tempo))
+            scheduleAtomicEvent(sequence.head, nextNoteTime, instrument) >>
+              scheduler(sequence.tail, time, instrument)
+          case atomicEvent: AtomicMusicalEvent =>
+            scheduleAtomicEvent(atomicEvent, nextNoteTime, instrument)
+      case ScheduleState.Waiting =>
+        IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime, instrument)
 
-      case event: AtomicMusicalEvent =>
-        ScheduleState(nextNoteTime) match
-          case ScheduleState.Ready =>
-            event match
-              case note: AtomicMusicalEvent.Note =>
-                for _ <- instrument.play(
-                    note,
-                    nextNoteTime.value,
-                    Attack(0),
-                    Release(0.9),
-                    tempo)
-                yield IO.unit
-              case drumStroke: AtomicMusicalEvent.DrumStroke =>
-                for _ <- instrument.play(
-                    drumStroke,
-                    nextNoteTime.value,
-                    Attack(0),
-                    Release(0.9),
-                    tempo)
-                yield IO.unit
-              case AtomicMusicalEvent.Rest(_) =>
-                IO.unit
-              // TODO implement Chords
-              case AtomicMusicalEvent.Harmony(_, _) =>
-                IO.unit
-          case ScheduleState.Waiting =>
-            IO.sleep(lookAheadMs.value.millis) >> scheduler(
-              musicalEvent,
-              nextNoteTime,
-              instrument)
+  private def scheduleAtomicEvent(
+      musicalEvent: AtomicMusicalEvent,
+      nextNoteTime: NextNoteTime,
+      instrument: Instrument): AudioContext ?=> IO[Unit] =
+    musicalEvent match
+      case note: Note =>
+        instrument.play(note, nextNoteTime.value, Attack(0), Release(0.9), tempo)
+      case drumStroke: DrumStroke =>
+        instrument.play(drumStroke, nextNoteTime.value, Attack(0), Release(0.9), tempo)
+      case Rest(_) => IO.unit
+      // TODO implement Chords
+      case Harmony(_, _) => IO.unit

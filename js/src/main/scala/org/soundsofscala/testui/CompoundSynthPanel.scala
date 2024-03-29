@@ -1,6 +1,6 @@
 package org.soundsofscala.testui
 
-import cats.effect.IO
+import cats.effect.{IO, Ref}
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, Element, document, html}
 import org.soundsofscala.synthesis.WaveType.*
@@ -8,10 +8,12 @@ import org.soundsofscala.synthesis.{TestSynth, WaveType}
 import org.soundsofscala.models.Volume
 
 import scala.concurrent.duration.DurationInt
+import cats.effect.unsafe.implicits.global
+import org.soundsofscala.testui.CompoundSynthPanel.TestSynthState.*
 
 object CompoundSynthPanel:
 
-  def buildCompoundSynthPanel(): AudioContext ?=> Element =
+  def buildCompoundSynthPanel(): AudioContext ?=> IO[Element] =
     val synth = TestSynth()
     val compoundSynthContainer = document.createElement("div")
     compoundSynthContainer.classList.add("compound-container")
@@ -37,9 +39,7 @@ object CompoundSynthPanel:
     filterDiv.classList.add("levels")
     val transport = document.createElement("div")
     transport.classList.add("transport")
-    transport.append(
-      compoundSynthPlayButton(synth)
-    )
+
     pitchFilterDiv.append(
       pitcherLabel,
       buildPitchSlider(440, synth)
@@ -67,35 +67,45 @@ object CompoundSynthPanel:
       lowPassContainer,
       levelsContainer
     )
-    compoundSynthContainer
+    for
+      playingRef <- Ref.of[IO, TestSynthState](Stopped)
+      buttonElement <- compoundSynthPlayButton(synth, playingRef)
+      _ = transport.append(buttonElement)
+    yield compoundSynthContainer
 
-  private def compoundSynthPlayButton(synth: TestSynth)(
-      using audioContext: AudioContext): Element =
+  enum TestSynthState:
+    case Playing, Stopped
+
+  private def compoundSynthPlayButton(synth: TestSynth, playingRef: Ref[IO, TestSynthState])(
+      using audioContext: AudioContext): IO[Element] = IO:
     val div = document.createElement("div")
     div.classList.add("play-stop-pad")
     val compoundSynthButton = document.createElement("button")
     compoundSynthButton.id = "compound-synth-start-stop"
     compoundSynthButton.classList.add("start-button-stopped")
-    compoundSynthButton.textContent = "️►"
-    var playing = false
+    compoundSynthButton.textContent = "►"
 
     compoundSynthButton.addEventListener(
       "click",
-      (e: dom.MouseEvent) =>
-        compoundSynthButton.classList.toggle("start-button-playing")
-        if playing then
-          synth.stop()
-          compoundSynthButton.textContent = "►"
-          playing = false
-        else
-          compoundSynthButton.textContent = "️◼︎"
-          playing = true
-          println("Playing")
-          updateSynthVolume(Sine, synth)
-          updateSynthVolume(Sawtooth, synth)
-          updateSynthVolume(Square, synth)
-          updateSynthVolume(Triangle, synth)
-          synth.play(audioContext.currentTime)
+      (_: dom.MouseEvent) =>
+        (for
+          currentState <- playingRef.get
+          _ <- currentState match
+            case Playing =>
+              playingRef.set(Stopped) >> IO:
+                synth.stop()
+                compoundSynthButton.textContent = "►"
+                compoundSynthButton.classList.remove("start-button-playing")
+            case Stopped =>
+              playingRef.set(Playing) >> IO:
+                synth.play(audioContext.currentTime)
+                compoundSynthButton.textContent = "◼︎"
+                compoundSynthButton.classList.add("start-button-playing")
+                updateSynthVolume(WaveType.Sine, synth)
+                updateSynthVolume(WaveType.Sawtooth, synth)
+                updateSynthVolume(WaveType.Square, synth)
+                updateSynthVolume(WaveType.Triangle, synth)
+        yield IO.unit).unsafeRunAndForget()
     )
     div.appendChild(compoundSynthButton)
     div
