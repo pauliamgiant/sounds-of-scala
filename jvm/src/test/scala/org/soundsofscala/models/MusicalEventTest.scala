@@ -8,6 +8,18 @@ import scala.util.Random
 
 class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
 
+  test("Large song doesn't cause a stack overflow"):
+    val notes = Seq[MusicalEvent](A1, B1, C1, D1, E1, F1, G1)
+    Table(
+      ("size", "count"),
+      (1000, 1001),
+      (10000, 10001),
+      (50000, 50001)
+    ).forEvery: (count, expected) =>
+      val testSong =
+        (1 to count).foldLeft[MusicalEvent](C2)((acc, _) => acc.+(notes(Random.nextInt(7))))
+      testSong.noteCount() shouldBe expected
+
   test("testCombineMethod"):
     Table(
       ("sequence1", "sequence2", "expected"),

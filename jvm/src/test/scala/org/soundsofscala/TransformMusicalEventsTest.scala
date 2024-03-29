@@ -3,9 +3,9 @@ package org.soundsofscala
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.soundsofscala.models.Accidental.{Flat, Natural, Sharp}
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
+import org.soundsofscala.models.Accidental.*
 
 class TransformMusicalEventsTest
     extends AnyFunSuite

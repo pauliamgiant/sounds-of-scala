@@ -1,6 +1,6 @@
 package org.soundsofscala.models
 
-import Octave.MidiVelocity
+import org.soundsofscala.models.Octave.MidiVelocity
 
 enum Velocity(val midiVelocity: MidiVelocity):
   def getNormalisedVelocity: Double =

@@ -1,27 +1,14 @@
 package org.soundsofscala.songs
 
+import org.scalajs.dom.AudioContext
+import org.soundsofscala
+import org.soundsofscala.Instruments.*
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Rest}
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
-import org.scalajs.dom.AudioContext
-import org.soundsofscala.Instruments.{ScalaSynth, SimpleDrums, SimplePiano}
-import org.soundsofscala.syntax.all.{G2, *}
-import org.soundsofscala.models.DrumVoice.{Clap, HiHatClosed, Kick, Snare}
-import org.soundsofscala.models.Duration.{Eighth, Half, Quarter, Sixteenth}
-import org.soundsofscala.models.{
-  Mixer,
-  MusicalEvent,
-  Octave,
-  Sequence,
-  Song,
-  Swing,
-  Tempo,
-  Title,
-  Track
-}
-import org.soundsofscala.models.Velocity.{Assertively, Loud, Medium, Soft, Softest}
+import org.soundsofscala.syntax.all.*
 
 object TestSong1 {
 

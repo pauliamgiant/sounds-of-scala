@@ -8,7 +8,6 @@ import org.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.songs.{TestSong1, TestSong2}
-import org.soundsofscala.syntax.all.*
 import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.synthesis.WaveType.{Sawtooth, Sine, Square, Triangle}
 import org.soundsofscala.synthesis.{Oscillator, TestSynth, WaveType}
@@ -17,15 +16,14 @@ import org.soundsofscala.transport.Sequencer
 
 import scala.concurrent.duration.DurationDouble
 import scala.scalajs.js.timers.setTimeout
+import cats.effect.unsafe.implicits.global
 
-object Main extends IOApp:
+import org.soundsofscala.syntax.all.*
 
-  def run(args: List[String]): IO[ExitCode] = buildUI().as(ExitCode.Success)
+object Main extends App:
 
-  import cats.effect.unsafe.implicits.global
-
-  private def buildUI(): IO[Unit] = IO:
-
+  buildUI()
+  private def buildUI(): Unit =
     document.addEventListener(
       "DOMContentLoaded",
       (e: dom.Event) =>
@@ -205,23 +203,6 @@ object Main extends IOApp:
     option.textContent = waveType.toString
     option
 
-  def buttonPad(buttonBuilder: Pitch => Element): Element =
-    val buttonPad = document.createElement("div")
-    buttonPad.classList.add("button-pad")
-
-    val buttonList = List(
-      Pitch.C,
-      Pitch.D,
-      Pitch.E,
-      Pitch.F,
-      Pitch.G,
-      Pitch.A,
-      Pitch.B
-    ).map(buttonBuilder)
-
-    buttonPad.append(buttonList*)
-    buttonPad
-
   def scalaSynthButtonStrip(buttonBuilder: Note => Element): Element =
     val buttonPad = document.createElement("div")
     buttonPad.classList.add("button-pad")
@@ -260,8 +241,8 @@ object Main extends IOApp:
         oscillator.connect(gain)
         oscillator.start()
         gain.connect(audioContext.destination)
-        setTimeout(1.second)
-        oscillator.stop()
+        window.setTimeout(() => oscillator.stop(), 1000)
+//
     )
     div.appendChild(button)
     div
