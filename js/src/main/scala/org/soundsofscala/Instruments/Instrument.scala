@@ -70,12 +70,12 @@ final case class ScalaSynth()(using audioContext: AudioContext) extends Instrume
     IO:
       val keyNote = note.pitch.calculateFrequency
       val sineVelocity = note.velocity.getNormalisedVelocity
-      val sawVelocity = note.velocity.getNormalisedVelocity / 10
+//      val sawVelocity = note.velocity.getNormalisedVelocity / 10
       val triangleVelocity = note.velocity.getNormalisedVelocity / 8
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote / 4), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote / 2), Volume(triangleVelocity)),
-        SineOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
+        SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
+        TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
+//        SquareOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

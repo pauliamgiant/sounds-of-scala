@@ -12,8 +12,8 @@ import org.soundsofscala.models.Duration.{Eighth, Half, Quarter, Sixteenth, Thir
 import org.soundsofscala.models.{MusicalEvent, Octave, Pitch}
 import org.soundsofscala.models.Velocity.OnFull
 
-package object syntax {
-  object all {
+package object syntax:
+  object all:
 
     // start of DSL
     def C(octave: Octave): Note = Note(Pitch.C, Natural, Quarter, octave, Medium)
@@ -130,5 +130,17 @@ package object syntax {
     val FourBarRest: MusicalEvent = TwoBarRest + TwoBarRest
     val EightBarRest: MusicalEvent = FourBarRest + FourBarRest
 
-  }
-}
+    /*
+
+# Back in Black Drum Beat
+
+## Introduction
+Tempo: 94 BPM
+Time Signature: 4/4
+
+1 e & a | 2 e & a | 3 e & a | 4 e & a |
+---------------------------------------
+Bass Drum | x       | x       | x       |
+Snare     | x   x   | x   x   | x   x   |
+Hi-Hat    | x x x x | x x x x | x x x x |
+     */
