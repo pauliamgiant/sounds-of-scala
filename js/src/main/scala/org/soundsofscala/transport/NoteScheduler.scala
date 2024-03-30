@@ -59,4 +59,4 @@ case class NoteScheduler(
         instrument.play(drumStroke, nextNoteTime.value, Attack(0), Release(0.9), tempo)
       case Rest(_) => IO.unit
       // TODO implement Chords
-      case Harmony(_, _) => IO.unit
+      case AtomicMusicalEvent.Harmony(_, _) => IO.unit
