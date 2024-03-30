@@ -25,9 +25,19 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
     name := "sounds-of-scala",
-    version := "0.1.0-SNAPSHOT"
+    version := "0.1.0-SNAPSHOT",
+    libraryDependencies ++= Seq(
+      "org.scalactic" %%% "scalactic" % "3.2.17",
+      "org.scalatest" %%% "scalatest" % "3.2.17" % Test,
+      "org.typelevel" %%% "cats-core" % "2.10.0",
+      "org.typelevel" %%% "cats-effect" % "3.5.2",
+      "io.kevinlee" %%% "refined4s-core" % "0.11.0",
+      "io.kevinlee" %%% "refined4s-cats" % "0.11.0",
+      "io.kevinlee" %%% "refined4s-pureconfig" % "0.11.0"
+    )
   )
   .jvmSettings(
+    libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"
   )
   .jsSettings(
     scalaJSUseMainModuleInitializer := true,
@@ -35,20 +45,9 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     Compile / mainClass := Some("org.soundsofscala.Main"),
     Test / requireJsDomEnv := true,
     jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "2.8.0"),
     npmExtraArgs ++= Seq(
       "--registry=https://registry.npmjs.org/"
-    ),
-    libraryDependencies ++= Seq(
-      "org.scalactic" %%% "scalactic" % "3.2.17",
-      "org.scalatest" %%% "scalatest" % "3.2.17" % Test,
-      "org.typelevel" %%% "cats-core" % "2.10.0",
-      "org.typelevel" %%% "cats-effect" % "3.5.2",
-      "org.scalameta" %%% "munit" % "0.7.29" % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test,
-      "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-      "io.kevinlee" %%% "refined4s-core" % "0.11.0",
-      "io.kevinlee" %%% "refined4s-cats" % "0.11.0",
-      "io.kevinlee" %%% "refined4s-pureconfig" % "0.11.0"
     )
   )
   .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))

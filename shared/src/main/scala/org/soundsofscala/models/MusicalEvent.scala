@@ -21,6 +21,13 @@ sealed trait MusicalEvent:
       case Sequence(head, tail) => loop(tail, head)
       case event: AtomicMusicalEvent => event
 
+  def noteCount(): Int =
+    def loop(acc: Int, tail: MusicalEvent): Int =
+      tail match
+        case Sequence(_, tail) => loop(1 + acc, tail)
+        case _: AtomicMusicalEvent => acc + 1
+    loop(0, this)
+
   def repeat(repetitions: Int): MusicalEvent =
     if (repetitions == 1) this
     else

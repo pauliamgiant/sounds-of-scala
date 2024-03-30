@@ -1,15 +1,13 @@
 package org.soundsofscala.songs
 
-import org.soundsofscala.Instruments.*
-import org.soundsofscala.models.*
-import org.soundsofscala.models.Accidental.*
+import org.scalajs.dom.AudioContext
+import org.soundsofscala
+import org.soundsofscala.Instruments.SimpleDrumSynth
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
-import org.scalajs.dom.AudioContext
-import org.soundsofscala.Instruments.SimpleDrumSynth
-import org.soundsofscala.models.{Mixer, Sequence, Song, Swing, Tempo, Title, Track}
+import org.soundsofscala.models.*
 
 object TestSong2 {
 

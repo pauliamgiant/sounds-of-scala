@@ -1,9 +1,9 @@
 package org.soundsofscala
 
-import models.*
-import models.Accidental.*
-import models.DrumVoice.*
-import models.Duration.*
+import org.soundsofscala.models.*
+import org.soundsofscala.models.Accidental.*
+import org.soundsofscala.models.DrumVoice.*
+import org.soundsofscala.models.Duration.*
 
 object TransformMusicalEvents:
   def accidentalToString(accidental: Accidental): String = accidental match

@@ -1,16 +1,10 @@
 package org.soundsofscala
 
-import org.soundsofscala.models.*
-import org.soundsofscala.models.Velocity.*
-import org.soundsofscala.models.Accidental.*
-import org.soundsofscala.models.AtomicMusicalEvent.*
-import org.soundsofscala.models.DrumVoice.*
-import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Accidental.Natural
-import org.soundsofscala.models.AtomicMusicalEvent.{Note, Rest}
-import org.soundsofscala.models.Duration.{Eighth, Half, Quarter, Sixteenth, ThirtySecond, Whole}
-import org.soundsofscala.models.{MusicalEvent, Octave, Pitch}
-import org.soundsofscala.models.Velocity.OnFull
+import org.soundsofscala.models.AtomicMusicalEvent.*
+import org.soundsofscala.models.Duration.*
+import org.soundsofscala.models.Velocity.*
+import org.soundsofscala.models.*
 
 package object syntax:
   object all:
