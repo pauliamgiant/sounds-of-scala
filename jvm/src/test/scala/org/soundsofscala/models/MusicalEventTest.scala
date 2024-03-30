@@ -47,25 +47,22 @@ class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropert
       ("note", "flat"),
       (Note(Pitch.C, Natural, Quarter, Octave(3), Medium), C3.flat)
     ).forEvery: (note, flattened) =>
-      println(flattened)
       note.flat shouldBe flattened
 
   test("Chord contains all notes"):
-    println("Chord")
+    println(Cmaj7)
     Cmaj.noteCount() shouldBe 3
     Cmaj.notes shouldBe NonEmptyList(
       HarmonyTiming(C3, TimingOffset(0)),
       List(HarmonyTiming(E3, TimingOffset(0)), HarmonyTiming(G3, TimingOffset(0))))
 
   test("Chord contains correct notes"):
-    println("Chord")
     Dmaj.noteCount() shouldBe 3
     Dmaj.notes shouldBe NonEmptyList(
       HarmonyTiming(D3, TimingOffset(0)),
       List(HarmonyTiming(F3.sharp, TimingOffset(0)), HarmonyTiming(A3, TimingOffset(0))))
 
   test("4 note Chord contains correct notes"):
-    println("Chord")
     Cmaj7.noteCount() shouldBe 4
     Cmaj7.notes shouldBe NonEmptyList(
       HarmonyTiming(C3, TimingOffset(0)),

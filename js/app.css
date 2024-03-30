@@ -114,6 +114,15 @@ button {
     border-radius: 10px;
 }
 
+.songs {
+    text-align: center;
+    font-size: 2em;
+    padding: 20px;
+    margin: 10px;
+    width:16em;
+    border-radius: 10px;
+}
+
 .button-pad {
     padding: 2em;
     display: flex;

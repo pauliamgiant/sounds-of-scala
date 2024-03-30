@@ -2,10 +2,11 @@ package org.soundsofscala
 
 import cats.data.NonEmptyList
 import org.soundsofscala.models.Accidental.Natural
-import org.soundsofscala.models.AtomicMusicalEvent.{Note, Rest, Harmony}
+import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.models.*
+import org.soundsofscala.models.DrumVoice.*
 
 package object syntax:
   object all:
@@ -119,11 +120,17 @@ package object syntax:
     val RestEighth: Rest = Rest(Eighth)
     val RestSixteenth: Rest = Rest(Sixteenth)
     val RestThirtySecondth: Rest = Rest(ThirtySecond)
-    val OneBarRest: MusicalEvent =
-      RestWhole
+    val OneBarRest: MusicalEvent = RestWhole
     val TwoBarRest: MusicalEvent = OneBarRest + OneBarRest
     val FourBarRest: MusicalEvent = TwoBarRest + TwoBarRest
     val EightBarRest: MusicalEvent = FourBarRest + FourBarRest
+
+    val r1: MusicalEvent = RestWhole
+    val r2: MusicalEvent = RestHalf
+    val r4: MusicalEvent = RestQuarter
+    val r8: MusicalEvent = RestEighth
+    val r16: MusicalEvent = RestSixteenth
+    val r32: MusicalEvent = RestThirtySecondth
 
     // chords
 
@@ -215,6 +222,29 @@ package object syntax:
     val Bmin9: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp)
     val Bmin11: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp, E5)
     val Bmin13: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp, E5, G5)
+
+// drums
+
+    val kk = DrumStroke(Kick, Quarter, Medium)
+    val sn = DrumStroke(Snare, Quarter, Medium)
+    val hhc = DrumStroke(HiHatClosed, Quarter, Medium)
+    val hho = DrumStroke(HiHatOpen, Quarter, Medium)
+    val cr = DrumStroke(Crash, Quarter, Medium)
+    val rd = DrumStroke(Ride, Quarter, Medium)
+    val t1 = DrumStroke(TomHigh, Quarter, Medium)
+    val t2 = DrumStroke(TomMid, Quarter, Medium)
+    val ft = DrumStroke(FloorTom, Quarter, Medium)
+    val clp = DrumStroke(Clap, Quarter, Loud)
+    val KickDrum: AtomicMusicalEvent = kk
+    val SnareDrum: AtomicMusicalEvent = sn
+    val HatsClosed: AtomicMusicalEvent = hhc
+    val HatsOpen: AtomicMusicalEvent = hho
+    val CrashCymbal: AtomicMusicalEvent = cr
+    val RideCymbal: AtomicMusicalEvent = rd
+    val Tom1: AtomicMusicalEvent = t1
+    val Tom2: AtomicMusicalEvent = t2
+    val Tom3: AtomicMusicalEvent = ft
+    val HandClap: AtomicMusicalEvent = clp
 
   /*
 

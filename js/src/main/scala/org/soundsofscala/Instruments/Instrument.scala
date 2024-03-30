@@ -1,18 +1,19 @@
 package org.soundsofscala.Instruments
 
 import cats.effect.IO
-import org.soundsofscala.models
-import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Note}
-import org.soundsofscala.synthesis.Oscillator.*
+import cats.syntax.parallel.catsSyntaxParallelTraverse1
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
+import org.soundsofscala.models
 import org.soundsofscala.models.*
-import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Note}
+import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Harmony, Note}
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.synthesis.DrumGeneration
+import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.transport.SimpleSamplePlayer
 
 sealed trait Instrument:
+
   def play(
       musicEvent: AtomicMusicalEvent,
       when: Double,
@@ -21,10 +22,24 @@ sealed trait Instrument:
       tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit] =
     this match
       case SimplePiano() =>
+        def playSingleNote(note: Note): IO[Unit] =
+          val filePath = s"resources/audio/piano/${note.pitch}${note.octave.value}.wav"
+          IO.println(s"Velocity: $note") >>
+            SimpleSamplePlayer().playSample(filePath, note, when)
         musicEvent match
-          case note: AtomicMusicalEvent.Note =>
-            val filePath = s"resources/audio/piano/${note.pitch}${note.octave.value}.wav"
-            SimpleSamplePlayer().playSample(filePath, musicEvent, when)
+          case note: Note =>
+            playSingleNote(note)
+          case harmony: Harmony =>
+            harmony
+              .notes
+              .toList
+              .parTraverse(harmonyTiming =>
+                harmonyTiming.note match
+                  case singleNote: Note => playSingleNote(singleNote)
+                  case _ => IO.unit
+              )
+              .void
+
           case _ => IO.unit
       case scalaSynth: ScalaSynth =>
         musicEvent match

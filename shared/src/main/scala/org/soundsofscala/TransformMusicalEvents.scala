@@ -31,7 +31,7 @@ object TransformMusicalEvents:
     case Ride => "Ting"
     case TomHigh => "Dim"
     case TomMid => "Dum"
-    case TomLow => "Duh"
+    case FloorTom => "Duh"
     case Rimshot => "Tock"
     case Clap => "Clap"
     case Cowbell => "Ding"

@@ -7,7 +7,7 @@ import org.scalajs.dom.html.Select
 import org.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
-import org.soundsofscala.songs.{TestSong1, TestSong2}
+import org.soundsofscala.songs.{ChordTestSong1, DrumSynthTestSong, PolyRhythmicDrums, TestSong1}
 import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.synthesis.WaveType.{Sawtooth, Sine, Square, Triangle}
 import org.soundsofscala.synthesis.{Oscillator, TestSynth, WaveType}
@@ -17,8 +17,8 @@ import org.soundsofscala.transport.Sequencer
 import scala.concurrent.duration.DurationDouble
 import scala.scalajs.js.timers.setTimeout
 import cats.effect.unsafe.implicits.global
-
 import org.soundsofscala.syntax.all.*
+import cats.syntax.all.*
 
 object Main extends App:
 
@@ -35,6 +35,13 @@ object Main extends App:
         dom.document.addEventListener("keydown", key => handleKeyPress(key, TestSynth()))
 
         given ScalaSynth = ScalaSynth()
+
+        val songs = List[Song](
+          TestSong1.demoSong(),
+          ChordTestSong1.chordsSong(),
+          PolyRhythmicDrums.polyRhythms()
+        )
+
         val homeDiv = document.createElement("div")
         homeDiv.classList.add("home-div")
 
@@ -70,6 +77,9 @@ object Main extends App:
         val sequencerLabel = document.createElement("h2")
         sequencerLabel.textContent = "Sequencer/Scheduler Example Song"
 
+        val sequencerStop = document.createElement("p")
+        sequencerStop.textContent = "🔄 Refresh to stop sequencer"
+
         val drumSynthLabel = document.createElement("h2")
         drumSynthLabel.textContent = "Drum Synth"
 
@@ -84,7 +94,7 @@ object Main extends App:
 
         CompoundSynthPanel
           .buildCompoundSynthPanel()
-          .map { synthPanel =>
+          .map: synthPanel =>
             homeDiv.append(
               heading,
               logoContainer,
@@ -95,7 +105,9 @@ object Main extends App:
               scalaSynthButtonStrip(scalaSynthButton),
               document.createElement("hr"),
               sequencerLabel,
-              playSong,
+              buildDropDownSongSelecter(songs),
+              playSong(songs),
+              sequencerStop,
               document.createElement("hr"),
               drumSynthLabel,
               drumSynthDescription,
@@ -111,15 +123,9 @@ object Main extends App:
               document.createElement("hr"),
               synthPanel
             )
-          }
           .unsafeRunAndForget()
         document.body.appendChild(homeDiv)
     )
-
-  def appendH2(targetNode: dom.Node, text: String): Unit =
-    val parNode = document.createElement("h2")
-    parNode.textContent = text
-    targetNode.appendChild(parNode)
 
   private def simple808DrumMachineDiv: AudioContext ?=> Element =
     val div = document.createElement("div")
@@ -137,7 +143,7 @@ object Main extends App:
     div.appendChild(sequencerButtonDiv)
     div
 
-  private def playSong: AudioContext ?=> Element =
+  private def playSong(songs: List[Song]): AudioContext ?=> Element =
     val div = document.createElement("div")
     div.classList.add("button-pad")
     val sequencerButtonDiv = document.createElement("button")
@@ -146,7 +152,12 @@ object Main extends App:
       "click",
       (_: dom.MouseEvent) =>
         val sequencer = Sequencer()
-        sequencer.playSong(TestSong1.demoSong()).unsafeRunAndForget()
+        val song: Song = document.getElementById("songs") match
+          case select: Select =>
+            songs
+              .collectFirst { case song if song.title.value === select.value => song }
+              .getOrElse(songs.head)
+        sequencer.playSong(song).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
     div
@@ -160,9 +171,25 @@ object Main extends App:
       "click",
       (_: dom.MouseEvent) =>
         val sequencer = Sequencer()
-        sequencer.playSong(TestSong2.drumSynthSong()).unsafeRunAndForget()
+        sequencer.playSong(DrumSynthTestSong.drumSynthSong()).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
+    div
+
+  private def buildDropDownSongSelecter(songs: List[Song])(
+      using audioContext: AudioContext): Element =
+
+    val div = document.createElement("div")
+    div.classList.add("button-pad")
+
+    val select: html.Select = document.createElement("select") match
+      case selectElement: html.Select => selectElement
+
+    select.id = "songs"
+    select.classList.add("songs")
+    val options = songs.map(songSelectionOptions)
+    select.append(options: _*)
+    div.appendChild(select)
     div
 
   private def buildDropDownOscillatorSelecter(): Element =
@@ -201,6 +228,11 @@ object Main extends App:
   private def waveSelectionOptions(waveType: WaveType): Element =
     val option = document.createElement("option")
     option.textContent = waveType.toString
+    option
+
+  private def songSelectionOptions(song: Song): Element =
+    val option = document.createElement("option")
+    option.textContent = song.title.value
     option
 
   def scalaSynthButtonStrip(buttonBuilder: Note => Element): Element =

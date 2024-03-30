@@ -35,7 +35,7 @@ sealed trait MusicalEvent:
     loop(0, this)
 
   def repeat(repetitions: Int): MusicalEvent =
-    if (repetitions == 1) this
+    if (repetitions === 1) this
     else
       @tailrec
       def loop(count: Int, accum: MusicalEvent): MusicalEvent =
@@ -64,7 +64,7 @@ sealed trait MusicalEvent:
 
 final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 
-enum AtomicMusicalEvent(val duration: Duration, velocity: Velocity) extends MusicalEvent:
+enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalEvent:
   def durationToSeconds(tempo: Tempo): Double =
     this.duration.toSeconds(tempo)
 
@@ -76,8 +76,15 @@ enum AtomicMusicalEvent(val duration: Duration, velocity: Velocity) extends Musi
       case Sequence(head, tail) => loop(tail, accumulator + head.printAtomicEvent())
       case event: AtomicMusicalEvent => accumulator + event.printAtomicEvent()
     }
-
     loop(this, "")
+
+  private def printCondensed(): String = this match
+    case Note(pitch, accidental, _, octave, velocity) =>
+      s"$pitch${accidentalToString(accidental)}${octave.value}"
+    case Rest(_) => "R"
+    case DrumStroke(drum, _, velocity) =>
+      s"${drumVoiceToString(drum)}$velocity"
+    case Harmony(_, _) => "CHORD"
 
   private def printAtomicEvent(): String = this match
     case Note(pitch, accidental, duration, octave, velocity) =>
@@ -88,8 +95,10 @@ enum AtomicMusicalEvent(val duration: Duration, velocity: Velocity) extends Musi
     case DrumStroke(drum, duration, velocity) =>
       val firstSection = s"${drumVoiceToString(drum)}${velocity}_"
       durationToString(duration, firstSection)
-    // TODO: Implement Harmony printing
-    case AtomicMusicalEvent.Harmony(notes, duration) => "Harmony"
+    case Harmony(notes, duration) =>
+      durationToString(
+        duration,
+        "[" + notes.toList.map(_.note.printCondensed()).mkString(",") + "]")
 
   def withVelocity(newVelocity: Velocity): AtomicMusicalEvent = this match
     case note: Note => note.copy(velocity = newVelocity)
@@ -141,22 +150,21 @@ enum AtomicMusicalEvent(val duration: Duration, velocity: Velocity) extends Musi
   case Note(
       pitch: Pitch,
       accidental: Accidental,
-      override val duration: Duration,
+      duration: Duration,
       octave: Octave,
       velocity: Velocity
   ) extends AtomicMusicalEvent(duration, velocity)
-  case Rest(override val duration: Duration)
-      extends AtomicMusicalEvent(duration, TheSilentTreatment)
+  case Rest(duration: Duration) extends AtomicMusicalEvent(duration, TheSilentTreatment)
   case DrumStroke(
       drum: DrumVoice,
-      override val duration: Duration,
+      duration: Duration,
       velocity: Velocity
   ) extends AtomicMusicalEvent(duration, velocity)
-  case Harmony(notes: NonEmptyList[HarmonyTiming], override val duration: Duration)
-      extends AtomicMusicalEvent(duration, OnFull)
+  case Harmony(notes: NonEmptyList[HarmonyTiming], duration: Duration)
+      extends AtomicMusicalEvent(duration, Medium)
   extension (harmony: Harmony)
     private def updateVelocity(newVelocity: Velocity): Harmony = harmony.copy(notes =
-      harmony.notes.map(_.copy(note = harmony.notes.head.note.withVelocity(newVelocity))))
+      harmony.notes.map(item => item.copy(note = item.note.withVelocity(newVelocity))))
 
 final case class HarmonyTiming(note: AtomicMusicalEvent, timingOffset: TimingOffset)
 object Chord:
@@ -169,5 +177,8 @@ object Chord:
         HarmonyTiming(root, TimingOffset(0)),
         parts.map(part => HarmonyTiming(part, TimingOffset(0))).toList
       ),
-      root.duration
+      root match
+        case Note(_, _, duration, _, _) => duration
+        case Rest(duration) => duration
+        case _ => Quarter
     )

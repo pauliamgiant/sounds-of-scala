@@ -12,6 +12,7 @@ case class SimpleSamplePlayer()(using audioContext: AudioContext):
   def playSample(filePath: String, musicEvent: AtomicMusicalEvent, when: Double): IO[Unit] =
     for
       _ <- IO.println(s"PLAYING $filePath at $when")
+      _ <- IO.println(s"Volume ${musicEvent.normalizedVelocity}")
       request <- IO(dom.XMLHttpRequest())
       _ <- IO(request.open("GET", filePath, true))
       _ <- IO(request.responseType = "arraybuffer")

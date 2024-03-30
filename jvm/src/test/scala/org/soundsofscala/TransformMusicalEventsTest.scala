@@ -23,7 +23,7 @@ class TransformMusicalEventsTest
       (Ride, "Ting"),
       (TomHigh, "Dim"),
       (TomMid, "Dum"),
-      (TomLow, "Duh"),
+      (FloorTom, "Duh"),
       (Rimshot, "Tock"),
       (Clap, "Clap"),
       (Cowbell, "Ding"),
