@@ -1,10 +1,12 @@
 package org.soundsofscala
 
+import cats.data.NonEmptyList
 import org.soundsofscala.models.Accidental.Natural
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.models.*
+import org.soundsofscala.models.DrumVoice.*
 
 package object syntax:
   object all:
@@ -118,13 +120,133 @@ package object syntax:
     val RestEighth: Rest = Rest(Eighth)
     val RestSixteenth: Rest = Rest(Sixteenth)
     val RestThirtySecondth: Rest = Rest(ThirtySecond)
-    val OneBarRest: MusicalEvent =
-      RestWhole
+    val OneBarRest: MusicalEvent = RestWhole
     val TwoBarRest: MusicalEvent = OneBarRest + OneBarRest
     val FourBarRest: MusicalEvent = TwoBarRest + TwoBarRest
     val EightBarRest: MusicalEvent = FourBarRest + FourBarRest
 
-    /*
+    val r1: MusicalEvent = RestWhole
+    val r2: MusicalEvent = RestHalf
+    val r4: MusicalEvent = RestQuarter
+    val r8: MusicalEvent = RestEighth
+    val r16: MusicalEvent = RestSixteenth
+    val r32: MusicalEvent = RestThirtySecondth
+
+    // chords
+
+    val Cmaj: Harmony = Chord(C3, E3, G3)
+    val Cmaj7: Harmony = Chord(C3, E3, G3, B3)
+    val Cmaj9: Harmony = Chord(C3, E3, G3, B3, D4)
+    val Cmaj11: Harmony = Chord(C3, E3, G3, B3, D4, F4)
+    val Cmaj13: Harmony = Chord(C3, E3, G3, B3, D4, F4, A4)
+
+    val Dmaj: Harmony = Chord(D3, F3.sharp, A3)
+    val Dmaj7: Harmony = Chord(D3, F3.sharp, A3, C4.sharp)
+    val Dmaj9: Harmony = Chord(D3, F3.sharp, A3, C4.sharp, E4)
+    val Dmaj11: Harmony = Chord(D3, F3.sharp, A3, C4.sharp, E4, G4)
+    val Dmaj13: Harmony = Chord(D3, F3.sharp, A3, C4.sharp, E4, G4, B4)
+
+    val Emaj: Harmony = Chord(E3, G3.sharp, B3)
+    val Emaj7: Harmony = Chord(E3, G3.sharp, B3, D4.sharp)
+    val Emaj9: Harmony = Chord(E3, G3.sharp, B3, D4.sharp, F4.sharp)
+    val Emaj11: Harmony =
+      Chord(E3, G3.sharp, B3, D4.sharp, F4.sharp, A4.sharp)
+    val Emaj13: Harmony =
+      Chord(E3, G3.sharp, B3, D4.sharp, F4.sharp, A4.sharp, C5.sharp)
+
+    val Fmaj: Harmony = Chord(F3, A3, C4)
+    val Fmaj7: Harmony = Chord(F3, A3, C4, E4)
+    val Fmaj9: Harmony = Chord(F3, A3, C4, E4, G4)
+    val Fmaj11: Harmony = Chord(F3, A3, C4, E4, G4, B4.flat)
+    val Fmaj13: Harmony = Chord(F3, A3, C4, E4, G4, B4.flat, D5)
+
+    val Gmaj: Harmony = Chord(G3, B3, D4)
+    val Gmaj7: Harmony = Chord(G3, B3, D4, F4.sharp)
+    val Gmaj9: Harmony = Chord(G3, B3, D4, F4.sharp, A4)
+    val Gmaj11: Harmony = Chord(G3, B3, D4, F4.sharp, A4, C5)
+    val Gmaj13: Harmony = Chord(G3, B3, D4, F4.sharp, A4, C5, E5)
+
+    val Amaj: Harmony = Chord(A3, C4.sharp, E4)
+    val Amaj7: Harmony = Chord(A3, C4.sharp, E4, G4.sharp)
+    val Amaj9: Harmony = Chord(A3, C4.sharp, E4, G4.sharp, B4)
+    val Amaj11: Harmony = Chord(A3, C4.sharp, E4, G4.sharp, B4, D5)
+    val Amaj13: Harmony = Chord(A3, C4.sharp, E4, G4.sharp, B4, D5, F5.sharp)
+
+    val Bmaj: Harmony = Chord(B3, D4.sharp, F4.sharp)
+    val Bmaj7: Harmony = Chord(B3, D4.sharp, F4.sharp, A4.sharp)
+    val Bmaj9: Harmony = Chord(B3, D4.sharp, F4.sharp, A4.sharp, C5.sharp)
+    val Bmaj11: Harmony =
+      Chord(B3, D4.sharp, F4.sharp, A4.sharp, C5.sharp, E5.sharp)
+    val Bmaj13: Harmony =
+      Chord(B3, D4.sharp, F4.sharp, A4.sharp, C5.sharp, E5.sharp, G5.sharp)
+
+    val Cmin: Harmony = Chord(C3, E3.flat, G3)
+    val Cmin7: Harmony = Chord(C3, E3.flat, G3, B3.flat)
+    val Cmin9: Harmony = Chord(C3, E3.flat, G3, B3.flat, D4)
+    val Cmin11: Harmony = Chord(C3, E3.flat, G3, B3.flat, D4, F4)
+    val Cmin13: Harmony = Chord(C3, E3.flat, G3, B3.flat, D4, F4, A4.flat)
+
+    val Dmin: Harmony = Chord(D3, F3, A3)
+    val Dmin7: Harmony = Chord(D3, F3, A3, C4)
+    val Dmin9: Harmony = Chord(D3, F3, A3, C4, E4)
+    val Dmin11: Harmony = Chord(D3, F3, A3, C4, E4, G4)
+    val Dmin13: Harmony = Chord(D3, F3, A3, C4, E4, G4, B4.flat)
+
+    val Emin: Harmony = Chord(E3, G3, B3)
+    val Emin7: Harmony = Chord(E3, G3, B3, D4)
+    val Emin9: Harmony = Chord(E3, G3, B3, D4, F4.sharp)
+    val Emin11: Harmony = Chord(E3, G3, B3, D4, F4.sharp, A4)
+    val Emin13: Harmony = Chord(E3, G3, B3, D4, F4.sharp, A4, C5)
+
+    val Fmin: Harmony = Chord(F3, A3.flat, C4)
+    val Fmin7: Harmony = Chord(F3, A3.flat, C4, E4.flat)
+    val Fmin9: Harmony = Chord(F3, A3.flat, C4, E4.flat, G4)
+    val Fmin11: Harmony = Chord(F3, A3.flat, C4, E4.flat, G4, B4.flat)
+    val Fmin13: Harmony =
+      Chord(F3, A3.flat, C4, E4.flat, G4, B4.flat, D5.flat)
+
+    val Gmin: Harmony = Chord(G3, B3.flat, D4)
+    val Gmin7: Harmony = Chord(G3, B3.flat, D4, F4)
+    val Gmin9: Harmony = Chord(G3, B3.flat, D4, F4, A4)
+    val Gmin11: Harmony = Chord(G3, B3.flat, D4, F4, A4, C5)
+    val Gmin13: Harmony = Chord(G3, B3.flat, D4, F4, A4, C5, E5.flat)
+
+    val Amin: Harmony = Chord(A3, C4, E4)
+    val Amin7: Harmony = Chord(A3, C4, E4, G4)
+    val Amin9: Harmony = Chord(A3, C4, E4, G4, B4)
+    val Amin11: Harmony = Chord(A3, C4, E4, G4, B4, D5)
+    val Amin13: Harmony = Chord(A3, C4, E4, G4, B4, D5, F5)
+
+    val Bmin: Harmony = Chord(B3, D4, F4.sharp)
+    val Bmin7: Harmony = Chord(B3, D4, F4.sharp, A4)
+    val Bmin9: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp)
+    val Bmin11: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp, E5)
+    val Bmin13: Harmony = Chord(B3, D4, F4.sharp, A4, C5.sharp, E5, G5)
+
+// drums
+
+    val kk = DrumStroke(Kick, Quarter, Medium)
+    val sn = DrumStroke(Snare, Quarter, Medium)
+    val hhc = DrumStroke(HiHatClosed, Quarter, Medium)
+    val hho = DrumStroke(HiHatOpen, Quarter, Medium)
+    val cr = DrumStroke(Crash, Quarter, Medium)
+    val rd = DrumStroke(Ride, Quarter, Medium)
+    val t1 = DrumStroke(TomHigh, Quarter, Medium)
+    val t2 = DrumStroke(TomMid, Quarter, Medium)
+    val ft = DrumStroke(FloorTom, Quarter, Medium)
+    val clp = DrumStroke(Clap, Quarter, Loud)
+    val KickDrum: AtomicMusicalEvent = kk
+    val SnareDrum: AtomicMusicalEvent = sn
+    val HatsClosed: AtomicMusicalEvent = hhc
+    val HatsOpen: AtomicMusicalEvent = hho
+    val CrashCymbal: AtomicMusicalEvent = cr
+    val RideCymbal: AtomicMusicalEvent = rd
+    val Tom1: AtomicMusicalEvent = t1
+    val Tom2: AtomicMusicalEvent = t2
+    val Tom3: AtomicMusicalEvent = ft
+    val HandClap: AtomicMusicalEvent = clp
+
+  /*
 
 # Back in Black Drum Beat
 
@@ -137,4 +259,4 @@ Time Signature: 4/4
 Bass Drum | x       | x       | x       |
 Snare     | x   x   | x   x   | x   x   |
 Hi-Hat    | x x x x | x x x x | x x x x |
-     */
+   */

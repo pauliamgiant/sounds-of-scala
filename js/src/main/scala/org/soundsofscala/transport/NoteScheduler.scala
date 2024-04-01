@@ -28,9 +28,8 @@ case class NoteScheduler(
   def scheduleInstrument(musicalEvent: MusicalEvent, instrument: Instrument)(
       using audioContext: AudioContext): IO[Unit] =
     val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
-    IO.println(s"Playing instrument: $instrument") >>
-      scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println(
-        "Sequence finished")
+//    IO.println(s"Playing instrument: $instrument") >>
+    scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println("Sequence finished")
 
   private def scheduler(
       musicalEvent: MusicalEvent,
@@ -53,10 +52,6 @@ case class NoteScheduler(
       nextNoteTime: NextNoteTime,
       instrument: Instrument): AudioContext ?=> IO[Unit] =
     musicalEvent match
-      case note: Note =>
-        instrument.play(note, nextNoteTime.value, Attack(0), Release(0.9), tempo)
-      case drumStroke: DrumStroke =>
-        instrument.play(drumStroke, nextNoteTime.value, Attack(0), Release(0.9), tempo)
       case Rest(_) => IO.unit
-      // TODO implement Chords
-      case Harmony(_, _) => IO.unit
+      case event: AtomicMusicalEvent =>
+        instrument.play(event, nextNoteTime.value, Attack(0), Release(0.9), tempo)

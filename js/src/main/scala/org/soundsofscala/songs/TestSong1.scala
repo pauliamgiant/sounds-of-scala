@@ -76,7 +76,7 @@ object TestSong1 {
 
   def demoSong(): AudioContext ?=> Song =
     Song(
-      title = Title("A test sequencer song"),
+      title = Title("Test Tune 1"),
       tempo = Tempo(92),
       swing = Swing(0),
       mixer = Mixer(

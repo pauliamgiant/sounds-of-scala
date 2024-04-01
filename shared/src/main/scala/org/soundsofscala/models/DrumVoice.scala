@@ -7,7 +7,7 @@ enum DrumVoice:
   case HiHatOpen extends DrumVoice
   case Crash extends DrumVoice
   case Ride extends DrumVoice
-  case TomLow extends DrumVoice
+  case FloorTom extends DrumVoice
   case TomMid extends DrumVoice
   case TomHigh extends DrumVoice
   case Rimshot extends DrumVoice
