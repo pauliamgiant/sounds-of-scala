@@ -138,6 +138,7 @@ object CompoundSynthPanel:
       val percentage = ((value - min) / (max - min)) * 100
       slider.style.background =
         s"linear-gradient(to right, #00FF00 0%, #00FF00 $percentage%, #D3D3D3FF $percentage%)"
+    end updateSliderBackground
 
     updateSliderBackground()
     slider.addEventListener(
@@ -238,5 +239,6 @@ object CompoundSynthPanel:
       _ <- IO(updateSynthVolume(Sawtooth, synth))
       _ <- IO(updateSynthVolume(Square, synth))
       _ <- IO(updateSynthVolume(Triangle, synth))
-      _ <- IO(synth.play(audioContext.currentTime)) >> IO.sleep(300.millis) >> IO(synth.stop())
+      _ <-
+        IO(synth.play(audioContext.currentTime)) >> IO.sleep(300.millis) >> IO(synth.stop())
     yield IO.unit

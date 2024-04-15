@@ -3,7 +3,7 @@ package org.soundsofscala.models
 import cats.data.NonEmptyList
 import cats.syntax.all.*
 import org.soundsofscala.TransformMusicalEvents.*
-import org.soundsofscala.models.AtomicMusicalEvent.*
+import org.soundsofscala.models.AtomicMusicalEvent.{Note, *}
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.models.Accidental.*
@@ -11,7 +11,6 @@ import org.soundsofscala.models.Accidental.*
 import scala.annotation.{tailrec, targetName}
 
 sealed trait MusicalEvent:
-
   def reverse(): MusicalEvent =
     @tailrec
     def loop(current: MusicalEvent, accumulator: MusicalEvent): MusicalEvent =
@@ -35,11 +34,11 @@ sealed trait MusicalEvent:
     loop(0, this)
 
   def repeat(repetitions: Int): MusicalEvent =
-    if (repetitions === 1) this
+    if repetitions === 1 then this
     else
       @tailrec
       def loop(count: Int, accum: MusicalEvent): MusicalEvent =
-        if (count <= 1) accum
+        if count <= 1 then accum
         else loop(count - 1, this + accum)
       loop(repetitions - 1, this + this)
 
@@ -64,7 +63,30 @@ sealed trait MusicalEvent:
 
 final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 
+object AtomicMusicalEvent:
+  extension (note: Note)
+    def sharp: Note =
+      note.copy(accidental = Sharp)
+
+    def flat: Note =
+      note.copy(accidental = Flat)
+
+    def frequency: Double =
+      val f = note.pitch.calculateFrequency
+      val referenceOctave = 4
+      val thisOctave = note.octave.value - referenceOctave
+      val noteOctave = f * Math.pow(2, thisOctave)
+      note.accidental match
+        case Sharp => noteOctave * Math.pow(2, 1.0 / 12)
+        case Flat => noteOctave / Math.pow(2, 1.0 / 12)
+        case Natural => noteOctave
+
+  extension (harmony: Harmony)
+    private def updateVelocity(newVelocity: Velocity): Harmony = harmony.copy(notes =
+      harmony.notes.map(item => item.copy(note = item.note.withVelocity(newVelocity))))
+
 enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalEvent:
+
   def durationToSeconds(tempo: Tempo): Double =
     this.duration.toSeconds(tempo)
 
@@ -72,10 +94,9 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
 
   override def toString: String =
     @tailrec
-    def loop(current: MusicalEvent, accumulator: String): String = current match {
+    def loop(current: MusicalEvent, accumulator: String): String = current match
       case Sequence(head, tail) => loop(tail, accumulator + head.printAtomicEvent())
       case event: AtomicMusicalEvent => accumulator + event.printAtomicEvent()
-    }
     loop(this, "")
 
   private def printCondensed(): String = this match
@@ -112,16 +133,7 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
     case drum: DrumStroke => drum.copy(duration = newDuration)
     case harmony: Harmony => harmony.copy(duration = newDuration)
 
-  // accidentals
-  def sharp: AtomicMusicalEvent = this match
-    case note: Note => note.copy(accidental = Sharp)
-    case _ => this
-
-  def flat: AtomicMusicalEvent = this match
-    case note: Note => note.copy(accidental = Flat)
-    case _ => this
-
-  // timing
+    // timing
   def whole: AtomicMusicalEvent = this.withDuration(Duration.Whole)
   def half: AtomicMusicalEvent = this.withDuration(Half)
   def quarter: AtomicMusicalEvent = this.withDuration(Quarter)
@@ -154,6 +166,7 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
       octave: Octave,
       velocity: Velocity
   ) extends AtomicMusicalEvent(duration, velocity)
+
   case Rest(duration: Duration) extends AtomicMusicalEvent(duration, TheSilentTreatment)
   case DrumStroke(
       drum: DrumVoice,
@@ -162,9 +175,6 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
   ) extends AtomicMusicalEvent(duration, velocity)
   case Harmony(notes: NonEmptyList[HarmonyTiming], duration: Duration)
       extends AtomicMusicalEvent(duration, Medium)
-  extension (harmony: Harmony)
-    private def updateVelocity(newVelocity: Velocity): Harmony = harmony.copy(notes =
-      harmony.notes.map(item => item.copy(note = item.note.withVelocity(newVelocity))))
 
 final case class HarmonyTiming(note: AtomicMusicalEvent, timingOffset: TimingOffset)
 object Chord:

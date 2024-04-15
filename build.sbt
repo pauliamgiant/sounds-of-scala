@@ -17,6 +17,8 @@ lazy val root = project
   .in(file("."))
   .aggregate(sos.js, sos.jvm)
   .settings(
+    name := "sounds-of-scala",
+    version := "0.1.0-SNAPSHOT",
     publish := {},
     publishLocal := {}
   )
@@ -24,8 +26,6 @@ lazy val root = project
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
-    name := "sounds-of-scala",
-    version := "0.1.0-SNAPSHOT",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",
       "org.scalatest" %%% "scalatest" % "3.2.17" % Test,

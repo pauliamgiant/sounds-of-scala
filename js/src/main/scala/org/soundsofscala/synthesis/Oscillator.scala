@@ -12,11 +12,6 @@ enum WaveType:
  *
  * It can be of different types, such as Sine, Square, Sawtooth, and Triangle. The oscillator
  * can be played, stopped, and updated with a new frequency and volume.
- *
- * @param frequency
- *   the frequency of the oscillator
- * @param volume
- *   the volume of the oscillator
  */
 
 object Oscillator:
@@ -51,16 +46,6 @@ enum Oscillator(frequency: Frequency, volume: Volume)(using audioContext: AudioC
 
   def updateFilterFrequency(frequency: Double): Unit = lowPassFilter.updateF(frequency)
   def updateFrequency(frequency: Double): Unit = oscillatorNode.frequency.value = frequency
-  def updateFrequencyFromPitch(pitch: Pitch): Unit =
-    oscillatorNode.frequency.value = pitch match
-      case Pitch.C => pitch.calculateFrequency
-      case Pitch.D => pitch.calculateFrequency
-      case Pitch.E => pitch.calculateFrequency
-      case Pitch.F => pitch.calculateFrequency
-      case Pitch.G => pitch.calculateFrequency
-      case Pitch.A => pitch.calculateFrequency
-      case Pitch.B => pitch.calculateFrequency
-
   def updateVolume(volume: Volume): Unit =
     amplifier.setLevelIndiscriminately(volume)
 
