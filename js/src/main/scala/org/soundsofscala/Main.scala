@@ -222,6 +222,7 @@ object Main extends App:
     select.append(options*)
     div.appendChild(select)
     div
+  end buildDropDownOscillatorSelecter
 
   private def waveSelectionOptions(waveType: WaveType): Element =
     val option = document.createElement("option")
@@ -322,3 +323,4 @@ object Main extends App:
             case but: HTMLButtonElement => but
         button.click()
       case _ => ()
+end Main

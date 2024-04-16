@@ -43,3 +43,4 @@ case class SimpleSamplePlayer()(using audioContext: AudioContext):
         )
       )
     yield IO.unit
+end SimpleSamplePlayer

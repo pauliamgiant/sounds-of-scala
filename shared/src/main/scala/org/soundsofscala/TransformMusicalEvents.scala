@@ -36,3 +36,4 @@ object TransformMusicalEvents:
     case Clap => "Clap"
     case Cowbell => "Ding"
     case Tambourine => "Chinka"
+end TransformMusicalEvents

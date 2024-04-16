@@ -7,11 +7,11 @@ enum WaveType:
   case Sine, Square, Sawtooth, Triangle
 
 /**
- * Oscillator is a sound wave generator that can be played at a certain frequency and volume.
- * This is the fundamental building block of sound synthesis.
+ * Oscillator is a sound wave generator that can be played at a certain frequency and volume. This
+ * is the fundamental building block of sound synthesis.
  *
- * It can be of different types, such as Sine, Square, Sawtooth, and Triangle. The oscillator
- * can be played, stopped, and updated with a new frequency and volume.
+ * It can be of different types, such as Sine, Square, Sawtooth, and Triangle. The oscillator can be
+ * played, stopped, and updated with a new frequency and volume.
  */
 
 object Oscillator:
@@ -96,3 +96,4 @@ enum Oscillator(frequency: Frequency, volume: Volume)(using audioContext: AudioC
 
   case TriangleOscillator(frequency: Frequency = Frequency(440), volume: Volume = Volume(0.3))(
       using AudioContext) extends Oscillator(frequency, volume)
+end Oscillator

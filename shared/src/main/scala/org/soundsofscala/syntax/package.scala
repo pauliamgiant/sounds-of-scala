@@ -246,8 +246,8 @@ package object syntax:
     val Tom3: AtomicMusicalEvent = ft
     val HandClap: AtomicMusicalEvent = clp
   end all
-
-  /*
+end syntax
+/*
 
 # Back in Black Drum Beat
 
@@ -260,5 +260,4 @@ Time Signature: 4/4
 Bass Drum | x       | x       | x       |
 Snare     | x   x   | x   x   | x   x   |
 Hi-Hat    | x x x x | x x x x | x x x x |
-   */
-end syntax
+ */

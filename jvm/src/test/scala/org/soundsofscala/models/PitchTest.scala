@@ -53,3 +53,4 @@ class PitchTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks
       (D8, 4698.64),
       (E8, 5274.048)
     ).forEvery((note, frequency) => note.frequency shouldBe frequency)
+end PitchTest

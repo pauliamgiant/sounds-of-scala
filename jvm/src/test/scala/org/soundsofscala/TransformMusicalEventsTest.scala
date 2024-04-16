@@ -7,10 +7,7 @@ import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Accidental.*
 
-class TransformMusicalEventsTest
-    extends AnyFunSuite
-    with Matchers
-    with TableDrivenPropertyChecks:
+class TransformMusicalEventsTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
 
   test("testDrumVoiceToString"):
     Table(
@@ -52,3 +49,4 @@ class TransformMusicalEventsTest
       (Natural, "")
     ).forEvery: (accidental, expected) =>
       TransformMusicalEvents.accidentalToString(accidental) shouldBe expected
+end TransformMusicalEventsTest

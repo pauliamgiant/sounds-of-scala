@@ -60,6 +60,7 @@ sealed trait MusicalEvent:
         case Sequence(head, tail) => loop(tail, Sequence(head, accumulator))
         case event: AtomicMusicalEvent => Sequence(event, accumulator)
     loop(other, thisReversed).reverse()
+end MusicalEvent
 
 final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 
@@ -175,6 +176,7 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
   ) extends AtomicMusicalEvent(duration, velocity)
   case Harmony(notes: NonEmptyList[HarmonyTiming], duration: Duration)
       extends AtomicMusicalEvent(duration, Medium)
+end AtomicMusicalEvent
 
 final case class HarmonyTiming(note: AtomicMusicalEvent, timingOffset: TimingOffset)
 object Chord:

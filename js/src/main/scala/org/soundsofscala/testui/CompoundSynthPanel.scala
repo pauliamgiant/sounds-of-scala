@@ -72,6 +72,7 @@ object CompoundSynthPanel:
       buttonElement <- compoundSynthPlayButton(synth, playingRef)
       _ = transport.append(buttonElement)
     yield compoundSynthContainer
+  end buildCompoundSynthPanel
 
   enum TestSynthState:
     case Playing, Stopped
@@ -149,6 +150,7 @@ object CompoundSynthPanel:
     )
     div.appendChild(slider)
     div
+  end buildVolumeSlider
 
   private def buildFilterFreqSlider(startingF: Int, synth: TestSynth) =
     val sliderContainer = document.createElement("div")
@@ -181,6 +183,7 @@ object CompoundSynthPanel:
     )
     sliderContainer.append(slider)
     sliderContainer
+  end buildFilterFreqSlider
 
   private def buildPitchSlider(startingF: Int, synth: TestSynth) =
     val sliderContainer = document.createElement("div")
@@ -214,6 +217,7 @@ object CompoundSynthPanel:
     )
     sliderContainer.append(slider)
     sliderContainer
+  end buildPitchSlider
 
   private def retrieveValueFromInputNode(elementId: String): Double =
     dom.document.getElementById(elementId) match
@@ -242,3 +246,4 @@ object CompoundSynthPanel:
       _ <-
         IO(synth.play(audioContext.currentTime)) >> IO.sleep(300.millis) >> IO(synth.stop())
     yield IO.unit
+end CompoundSynthPanel

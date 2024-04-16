@@ -9,8 +9,8 @@ import org.soundsofscala.models.{AtomicMusicalEvent, Release, Tempo}
 import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 
 /**
- * This is a POC of creating drum sounds using the Web Audio API. The sounds are based on the
- * 808 drum machine. TODO: Refactor this to use a Synth API
+ * This is a POC of creating drum sounds using the Web Audio API. The sounds are based on the 808
+ * drum machine. TODO: Refactor this to use a Synth API
  */
 object DrumGeneration:
 
@@ -158,3 +158,4 @@ object DrumGeneration:
 
       bodyOsc.stop(when + 0.3)
       noise.stop(when + 0.3)
+end DrumGeneration
