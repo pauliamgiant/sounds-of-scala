@@ -45,3 +45,4 @@ object ChordTestSong1:
         Track(Title("Piano"), piano, SimplePiano())
       )
     )
+end ChordTestSong1

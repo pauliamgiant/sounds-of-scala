@@ -89,3 +89,4 @@ object TestSong1:
         Track(Title("Piano"), piano, SimplePiano())
       )
     )
+end TestSong1

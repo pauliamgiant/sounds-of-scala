@@ -54,3 +54,4 @@ case class NoteScheduler(
       case Rest(_) => IO.unit
       case event: AtomicMusicalEvent =>
         instrument.play(event, nextNoteTime.value, Attack(0), Release(0.9), tempo)
+end NoteScheduler

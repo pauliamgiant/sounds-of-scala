@@ -104,3 +104,4 @@ class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropert
         Sequence(G3, Sequence(F3, Sequence(E3, Sequence(D3, Sequence(C3, Sequence(B2, A2)))))))
     ).forEvery: (sequence, expected) =>
       sequence.reverse() shouldBe expected
+end MusicalEventTest

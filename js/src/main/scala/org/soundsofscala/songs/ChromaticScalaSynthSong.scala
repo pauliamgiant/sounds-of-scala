@@ -41,3 +41,4 @@ object ChromaticScalaSynthSong:
         Track(Title("Bass"), bassLine, ScalaSynth())
       )
     )
+end ChromaticScalaSynthSong

@@ -48,3 +48,4 @@ case class TestSynth()(using audioContext: AudioContext):
         oscillators(2).updateVolume(volume)
       case WaveType.Triangle =>
         oscillators(3).updateVolume(volume)
+end TestSynth

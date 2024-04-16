@@ -12,8 +12,7 @@ import org.soundsofscala.models.Bandwidth
  * @param bandwidth
  *   bandwidth of the filter - how wide the filter is
  * @param filterType
- *   type of the filter - lowpass, highpass, bandpass, notch, allpass, peaking, lowshelf,
- *   highshelf
+ *   type of the filter - lowpass, highpass, bandpass, notch, allpass, peaking, lowshelf, highshelf
  * @param audioContext
  *   audio context for creating filter node
  */
@@ -49,3 +48,4 @@ enum Filter(frequency: Frequency, bandwidth: Bandwidth, filterType: String)(
       extends Filter(frequency, bandwidth, "lowshelf")
   case HighShelf(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "highshelf")
+end Filter

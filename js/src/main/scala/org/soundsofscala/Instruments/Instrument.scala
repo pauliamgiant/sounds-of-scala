@@ -71,6 +71,7 @@ sealed trait Instrument:
               case _ => "resources/audio/drums-808/G.wav"
             SimpleSamplePlayer().playSample(filePath, musicEvent, when)
           case _ => IO.unit
+end Instrument
 
 final case class SimplePiano() extends Instrument
 final case class SimpleDrums() extends Instrument
