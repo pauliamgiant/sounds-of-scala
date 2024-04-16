@@ -15,6 +15,8 @@ import scala.util.Random
 
 class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
 
+  val c3: Note = Note(Pitch.C, Natural, Quarter, Octave(3), Medium)
+
   test("Large song doesn't cause a stack overflow"):
     val notes = Seq[MusicalEvent](A1, B1, C1, D1, E1, F1, G1)
     Table(
@@ -35,17 +37,17 @@ class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropert
       sequence1 + sequence2 shouldBe expected
 
   test("Sharp sharpens a Note"):
+
     Table(
       ("note", "sharpened"),
-      (Note(Pitch.C, Natural, Quarter, Octave(3), Medium), C3.sharp)
+      (c3, C3.sharp)
     ).forEvery: (note, sharpened) =>
-      println(sharpened)
       note.sharp shouldBe sharpened
 
   test("Flat flattens a Note"):
     Table(
       ("note", "flat"),
-      (Note(Pitch.C, Natural, Quarter, Octave(3), Medium), C3.flat)
+      (c3, C3.flat)
     ).forEvery: (note, flattened) =>
       note.flat shouldBe flattened
 

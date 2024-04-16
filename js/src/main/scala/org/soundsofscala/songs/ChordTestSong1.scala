@@ -6,7 +6,7 @@ import org.soundsofscala.Instruments.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ChordTestSong1 {
+object ChordTestSong1:
 
   val bassLine: MusicalEvent =
     val bar1 =
@@ -45,5 +45,3 @@ object ChordTestSong1 {
         Track(Title("Piano"), piano, SimplePiano())
       )
     )
-
-}

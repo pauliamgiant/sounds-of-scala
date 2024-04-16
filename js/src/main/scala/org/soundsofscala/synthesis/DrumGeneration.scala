@@ -130,7 +130,8 @@ object DrumGeneration:
       bodyOsc.connect(bodyGain)
 
       val bufferSize = audioContext.sampleRate.toInt * 2 // 2 seconds of audio
-      val noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate.toInt)
+      val noiseBuffer =
+        audioContext.createBuffer(1, bufferSize, audioContext.sampleRate.toInt)
       val output = noiseBuffer.getChannelData(0)
 
       (0 until output.length).foreach(i => output(i) = (math.random() * 2 - 1).toFloat)

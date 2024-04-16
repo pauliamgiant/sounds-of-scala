@@ -10,7 +10,7 @@ import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.syntax.all.*
 
-object TestSong1 {
+object TestSong1:
 
   val bassLine: MusicalEvent =
 
@@ -89,5 +89,3 @@ object TestSong1 {
         Track(Title("Piano"), piano, SimplePiano())
       )
     )
-
-}

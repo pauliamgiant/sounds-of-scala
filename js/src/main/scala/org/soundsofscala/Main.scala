@@ -1,24 +1,20 @@
 package org.soundsofscala
 
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.unsafe.implicits.global
+import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
 import org.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
-import org.soundsofscala.songs.{ChordTestSong1, DrumSynthTestSong, PolyRhythmicDrums, TestSong1}
+import org.soundsofscala.songs.*
+import org.soundsofscala.syntax.all.*
 import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.synthesis.WaveType.{Sawtooth, Sine, Square, Triangle}
 import org.soundsofscala.synthesis.{Oscillator, TestSynth, WaveType}
 import org.soundsofscala.testui.CompoundSynthPanel
 import org.soundsofscala.transport.Sequencer
-
-import scala.concurrent.duration.DurationDouble
-import scala.scalajs.js.timers.setTimeout
-import cats.effect.unsafe.implicits.global
-import org.soundsofscala.syntax.all.*
-import cats.syntax.all.*
 
 object Main extends App:
 
@@ -39,7 +35,9 @@ object Main extends App:
         val songs = List[Song](
           TestSong1.demoSong(),
           ChordTestSong1.chordsSong(),
-          PolyRhythmicDrums.polyRhythms()
+          PolyRhythmicDrums.polyRhythms(),
+          DemoTune.demoTune(),
+          ChromaticScalaSynthSong.chromaticScalaSynthSong()
         )
 
         val homeDiv = document.createElement("div")
@@ -161,6 +159,7 @@ object Main extends App:
     )
     div.appendChild(sequencerButtonDiv)
     div
+  end playSong
 
   private def synthDrums: AudioContext ?=> Element =
     val div = document.createElement("div")
@@ -176,8 +175,7 @@ object Main extends App:
     div.appendChild(sequencerButtonDiv)
     div
 
-  private def buildDropDownSongSelecter(songs: List[Song])(
-      using audioContext: AudioContext): Element =
+  private def buildDropDownSongSelecter(songs: List[Song]): AudioContext ?=> Element =
 
     val div = document.createElement("div")
     div.classList.add("button-pad")
@@ -188,7 +186,7 @@ object Main extends App:
     select.id = "songs"
     select.classList.add("songs")
     val options = songs.map(songSelectionOptions)
-    select.append(options: _*)
+    select.append(options*)
     div.appendChild(select)
     div
 
@@ -221,7 +219,7 @@ object Main extends App:
     select.id = "oscillator"
     select.classList.add("oscillator")
     val options = waveTypes.map(waveSelectionOptions)
-    select.append(options: _*)
+    select.append(options*)
     div.appendChild(select)
     div
 
@@ -249,7 +247,7 @@ object Main extends App:
       B3
     ).map(buttonBuilder)
 
-    buttonPad.append(buttonList: _*)
+    buttonPad.append(buttonList*)
     buttonPad
 
   def startStopOsc()(using audioContext: AudioContext): Element =

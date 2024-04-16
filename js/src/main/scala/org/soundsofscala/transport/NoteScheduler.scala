@@ -28,7 +28,6 @@ case class NoteScheduler(
   def scheduleInstrument(musicalEvent: MusicalEvent, instrument: Instrument)(
       using audioContext: AudioContext): IO[Unit] =
     val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
-//    IO.println(s"Playing instrument: $instrument") >>
     scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println("Sequence finished")
 
   private def scheduler(

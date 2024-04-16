@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.soundsofscala.models.Duration.*
 
-class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks {
+class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
 
   test("test duration to millisecond conversion") {
     val table = Table(
@@ -24,6 +24,5 @@ class DurationTest extends AnyFunSuite with Matchers with TableDrivenPropertyChe
       (Sixteenth, Tempo(126), 0.11904761904761904)
     )
     forAll(table)((note, tempo, seconds) => note.toSeconds(tempo) shouldBe seconds)
-  }
 
-}
+  }

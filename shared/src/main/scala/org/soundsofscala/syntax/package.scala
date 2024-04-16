@@ -74,13 +74,13 @@ package object syntax:
     val F3: Note = F(Octave(3))
     val G3: Note = G(Octave(3))
 
-    val A4: Note = A(Octave(3))
-    val B4: Note = B(Octave(3))
-    val C4: Note = C(Octave(3))
-    val D4: Note = D(Octave(3))
-    val E4: Note = E(Octave(3))
-    val F4: Note = F(Octave(3))
-    val G4: Note = G(Octave(3))
+    val A4: Note = A(Octave(4))
+    val B4: Note = B(Octave(4))
+    val C4: Note = C(Octave(4))
+    val D4: Note = D(Octave(4))
+    val E4: Note = E(Octave(4))
+    val F4: Note = F(Octave(4))
+    val G4: Note = G(Octave(4))
 
     val A5: Note = A(Octave(5))
     val B5: Note = B(Octave(5))
@@ -245,6 +245,7 @@ package object syntax:
     val Tom2: AtomicMusicalEvent = t2
     val Tom3: AtomicMusicalEvent = ft
     val HandClap: AtomicMusicalEvent = clp
+  end all
 
   /*
 
@@ -260,3 +261,4 @@ Bass Drum | x       | x       | x       |
 Snare     | x   x   | x   x   | x   x   |
 Hi-Hat    | x x x x | x x x x | x x x x |
    */
+end syntax
