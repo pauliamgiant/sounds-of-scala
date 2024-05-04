@@ -31,13 +31,18 @@ class TransformMusicalEventsTest extends AnyFunSuite with Matchers with TableDri
   test("testDurationToString"):
     Table(
       ("duration", "expected"),
-      (Whole, 64),
-      (Half, 32),
-      (Quarter, 16),
-      (Eighth, 8),
-      (Sixteenth, 4),
-      (ThirtySecond, 2),
-      (SixtyFourth, 1)
+      (Whole, 64 * 3),
+      (Half, 32 * 3),
+      (Quarter, 16 * 3),
+      (Eighth, 8 * 3),
+      (Sixteenth, 4 * 3),
+      (ThirtySecond, 2 * 3),
+      (SixtyFourth, 1 * 3),
+      (HalfTriplet, 64),
+      (QuarterTriplet, 32),
+      (EighthTriplet, 16),
+      (SixteenthTriplet, 8),
+      (ThirtySecondTriplet, 4)
     ).forEvery: (duration, expected) =>
       TransformMusicalEvents.durationToString(duration, "").length shouldBe expected
 

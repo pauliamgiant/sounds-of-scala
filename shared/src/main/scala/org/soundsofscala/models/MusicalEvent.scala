@@ -135,12 +135,17 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
     case harmony: Harmony => harmony.copy(duration = newDuration)
 
     // timing
-  def whole: AtomicMusicalEvent = this.withDuration(Duration.Whole)
+  def whole: AtomicMusicalEvent = this.withDuration(Whole)
   def half: AtomicMusicalEvent = this.withDuration(Half)
   def quarter: AtomicMusicalEvent = this.withDuration(Quarter)
   def eighth: AtomicMusicalEvent = this.withDuration(Eighth)
   def sixteenth: AtomicMusicalEvent = this.withDuration(Sixteenth)
   def thirtySecond: AtomicMusicalEvent = this.withDuration(ThirtySecond)
+  def halfTriplet: AtomicMusicalEvent = this.withDuration(HalfTriplet)
+  def quarterTriplet: AtomicMusicalEvent = this.withDuration(QuarterTriplet)
+  def eighthTriplet: AtomicMusicalEvent = this.withDuration(EighthTriplet)
+  def sixteenthTriplet: AtomicMusicalEvent = this.withDuration(SixteenthTriplet)
+  def thirtySecondTriplet: AtomicMusicalEvent = this.withDuration(ThirtySecondTriplet)
   // velocity
   def ppp: AtomicMusicalEvent = this.withVelocity(Pianississimo)
   def pp: AtomicMusicalEvent = this.withVelocity(Pianissimo)

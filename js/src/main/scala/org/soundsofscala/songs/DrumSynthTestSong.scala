@@ -10,7 +10,10 @@ object DrumSynthTestSong:
 
   val kick: MusicalEvent = kk + r8 + r16 + kk.sixteenth + kk + r4
   val snare: MusicalEvent = (r4 + sn).repeat
-  val hats: MusicalEvent = (hhc.eighth + hhc.sixteenth + hhc.sixteenth.softest).repeat(4)
+  val hats: MusicalEvent =
+    (hhc.eighth + hhc.sixteenth + hhc.sixteenth.softest).repeat(2)
+      + hhc.eighth + hhc.eighthTriplet + hhc.sixteenthTriplet
+      + hhc.eighthTriplet + hhc.eighthTriplet.p + hhc.eighthTriplet.mp
 
   def drumSynthSong(): AudioContext ?=> Song =
     Song(

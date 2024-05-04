@@ -14,13 +14,18 @@ object TransformMusicalEvents:
   def durationToString(duration: Duration, currentString: String): String =
     def formatSpaces(count: Int): String = " " * (count - currentString.length)
     duration match
-      case Whole => currentString ++ formatSpaces(64)
-      case Half => currentString ++ formatSpaces(32)
-      case Quarter => currentString ++ formatSpaces(16)
-      case Eighth => currentString ++ formatSpaces(8)
-      case Sixteenth => currentString ++ formatSpaces(4)
-      case ThirtySecond => currentString ++ formatSpaces(2)
-      case SixtyFourth => currentString ++ formatSpaces(1)
+      case Whole => currentString ++ formatSpaces(64 * 3)
+      case Half => currentString ++ formatSpaces(32 * 3)
+      case Quarter => currentString ++ formatSpaces(16 * 3)
+      case Eighth => currentString ++ formatSpaces(8 * 3)
+      case Sixteenth => currentString ++ formatSpaces(4 * 3)
+      case ThirtySecond => currentString ++ formatSpaces(2 * 3)
+      case SixtyFourth => currentString ++ formatSpaces(1 * 3)
+      case HalfTriplet => currentString ++ formatSpaces(64)
+      case QuarterTriplet => currentString ++ formatSpaces(32)
+      case EighthTriplet => currentString ++ formatSpaces(16)
+      case SixteenthTriplet => currentString ++ formatSpaces(8)
+      case ThirtySecondTriplet => currentString ++ formatSpaces(4)
 
   def drumVoiceToString(drum: DrumVoice): String = drum match
     case Kick => "Doob"
