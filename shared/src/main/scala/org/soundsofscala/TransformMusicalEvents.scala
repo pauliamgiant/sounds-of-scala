@@ -26,6 +26,12 @@ object TransformMusicalEvents:
       case EighthTriplet => currentString ++ formatSpaces(16)
       case SixteenthTriplet => currentString ++ formatSpaces(8)
       case ThirtySecondTriplet => currentString ++ formatSpaces(4)
+      case WholeDotted => currentString ++ formatSpaces((64 * 3 * 1.5).toInt)
+      case HalfDotted => currentString ++ formatSpaces((32 * 3 * 1.5).toInt)
+      case QuarterDotted => currentString ++ formatSpaces((16 * 3 * 1.5).toInt)
+      case EighthDotted => currentString ++ formatSpaces((8 * 3 * 1.5).toInt)
+      case SixteenthDotted => currentString ++ formatSpaces((4 * 3 * 1.5).toInt)
+      case ThirtySecondDotted => currentString ++ formatSpaces((2 * 3 * 1.5).toInt)
 
   def drumVoiceToString(drum: DrumVoice): String = drum match
     case Kick => "Doob"
