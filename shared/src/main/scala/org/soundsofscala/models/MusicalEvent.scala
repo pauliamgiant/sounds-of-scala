@@ -146,6 +146,13 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
   def eighthTriplet: AtomicMusicalEvent = this.withDuration(EighthTriplet)
   def sixteenthTriplet: AtomicMusicalEvent = this.withDuration(SixteenthTriplet)
   def thirtySecondTriplet: AtomicMusicalEvent = this.withDuration(ThirtySecondTriplet)
+  def wholeDotted: AtomicMusicalEvent = this.withDuration(WholeDotted)
+  def halfDotted: AtomicMusicalEvent = this.withDuration(HalfDotted)
+  def quarterDotted: AtomicMusicalEvent = this.withDuration(QuarterDotted)
+  def eighthDotted: AtomicMusicalEvent = this.withDuration(EighthDotted)
+  def sixteenthDotted: AtomicMusicalEvent = this.withDuration(SixteenthDotted)
+  def thirtySecondDotted: AtomicMusicalEvent = this.withDuration(ThirtySecondDotted)
+
   // velocity
   def ppp: AtomicMusicalEvent = this.withVelocity(Pianississimo)
   def pp: AtomicMusicalEvent = this.withVelocity(Pianissimo)
