@@ -131,6 +131,12 @@ package object syntax:
     val r8: MusicalEvent = RestEighth
     val r16: MusicalEvent = RestSixteenth
     val r32: MusicalEvent = RestThirtySecondth
+    val r64: MusicalEvent = Rest(SixtyFourth)
+    val r2triplet: MusicalEvent = Rest(HalfTriplet)
+    val r4triplet: MusicalEvent = Rest(QuarterTriplet)
+    val r8triplet: MusicalEvent = Rest(EighthTriplet)
+    val r16triplet: MusicalEvent = Rest(SixteenthTriplet)
+    val r32triplet: MusicalEvent = Rest(ThirtySecondTriplet)
 
     // chords
 
