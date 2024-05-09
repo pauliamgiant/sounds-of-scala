@@ -46,6 +46,11 @@ sealed trait Instrument:
           case note: AtomicMusicalEvent.Note =>
             scalaSynth.attackRelease(when, note, tempo, release)
           case _ => IO.unit
+      case pianoSynth: PianoSynth =>
+        musicEvent match
+          case note: AtomicMusicalEvent.Note =>
+            pianoSynth.attackRelease(when, note, tempo, release)
+          case _ => IO.unit
       case SimpleDrumSynth() =>
         musicEvent match
           case drumStroke: AtomicMusicalEvent.DrumStroke =>
@@ -92,6 +97,22 @@ final case class ScalaSynth()(using audioContext: AudioContext) extends Instrume
         SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
         TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
 //        SquareOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
+      )
+      oscillators.foreach: osc =>
+        osc.play(when)
+        osc.stop(when + note.durationToSeconds(tempo))
+
+final case class PianoSynth()(using audioContext: AudioContext) extends Instrument:
+  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+    IO:
+      val keyNote = note.frequency * 5
+      val sineVelocity = note.velocity.getNormalisedVelocity
+      //      val sawVelocity = note.velocity.getNormalisedVelocity / 10
+      val triangleVelocity = note.velocity.getNormalisedVelocity / 8
+      val oscillators = Seq(
+        SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
+        TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
+        //        SquareOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

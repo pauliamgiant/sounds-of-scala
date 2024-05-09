@@ -5,7 +5,7 @@ import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
-import org.soundsofscala.Instruments.{ScalaSynth, SimpleScala808DrumMachine}
+import org.soundsofscala.Instruments.{ScalaSynth, PianoSynth, SimpleScala808DrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.songs.*
@@ -15,6 +15,7 @@ import org.soundsofscala.synthesis.WaveType.{Sawtooth, Sine, Square, Triangle}
 import org.soundsofscala.synthesis.{Oscillator, TestSynth, WaveType}
 import org.soundsofscala.testui.CompoundSynthPanel
 import org.soundsofscala.transport.Sequencer
+import org.soundsofscala.Instruments.PianoSynth
 
 object Main extends App:
 
@@ -23,106 +24,121 @@ object Main extends App:
     document.addEventListener(
       "DOMContentLoaded",
       (e: dom.Event) =>
+        val overlay = document.createElement("div")
+        overlay.classList.add("overlay")
+        val overlayText = document.createElement("div")
+        overlayText.classList.add("overlay-text")
+        overlayText.textContent = "Click me to start audioContext"
+        overlay.appendChild(overlayText)
+        overlay.addEventListener(
+          "click",
+          (_: dom.MouseEvent) =>
+            overlay.setAttribute("display", "none")
+            overlayText.setAttribute("display", "none")
+            overlay.remove()
+            given audioContext: AudioContext = new AudioContext()
 
-        given audioContext: AudioContext = new AudioContext()
+            // allows you to play notes on the keyboard asdfghjkl -> abcdefgab
 
-        // allows you to play notes on the keyboard asdfghjkl -> abcdefgab
+            dom.document.addEventListener("keydown", key => handleKeyPress(key, TestSynth()))
 
-        dom.document.addEventListener("keydown", key => handleKeyPress(key, TestSynth()))
+            given ScalaSynth = ScalaSynth()
+            given PianoSynth = PianoSynth()
 
-        given ScalaSynth = ScalaSynth()
-
-        val songs = List[Song](
-          TestSong1.demoSong(),
-          ChordTestSong1.chordsSong(),
-          PolyRhythmicDrums.polyRhythms(),
-          DemoTune.demoTune(),
-          ChromaticScalaSynthSong.chromaticScalaSynthSong()
-        )
-
-        val homeDiv = document.createElement("div")
-        homeDiv.classList.add("home-div")
-
-        val heading = document.createElement("h1")
-        heading.textContent = "Welcome to Sounds of Scala"
-
-        val logoContainer = document.createElement("div")
-        logoContainer.classList.add("logo-container")
-        val img = document.createElement("img") match
-          case image: HTMLImageElement => image
-        img.src = "/resources/images/sounds_of_scala_logo.png"
-        img.width = 200
-        logoContainer.appendChild(img)
-
-        val exampleWebAppLabel = document.createElement("h2")
-        exampleWebAppLabel.textContent = "Example WebApp"
-
-        document.createElement("hr")
-
-        val scalaSynthTitle = document.createElement("h2")
-        scalaSynthTitle.textContent = "ScalaSynth"
-
-        val scalaSynthDescription = document.createElement("p")
-        scalaSynthDescription.textContent =
-          "A basic synthesizer built from WebAudio API components"
-
-        val drumMachineLabel = document.createElement("h2")
-        drumMachineLabel.textContent = "SimpleScala808DrumMachine"
-
-        val drumMachineDescription = document.createElement("p")
-        drumMachineDescription.textContent = "A basic sample based drum machine"
-
-        val sequencerLabel = document.createElement("h2")
-        sequencerLabel.textContent = "Sequencer/Scheduler Example Song"
-
-        val sequencerStop = document.createElement("p")
-        sequencerStop.textContent = "🔄 Refresh to stop sequencer"
-
-        val drumSynthLabel = document.createElement("h2")
-        drumSynthLabel.textContent = "Drum Synth"
-
-        val drumSynthDescription = document.createElement("p")
-        drumSynthDescription.textContent =
-          "Using WebAudio API components to re-create classic electronic drum sounds"
-
-        val simpleSineSynthLabel = document.createElement("h1")
-        simpleSineSynthLabel.textContent = "Oscillators"
-
-        // Append elements to Document
-
-        CompoundSynthPanel
-          .buildCompoundSynthPanel()
-          .map: synthPanel =>
-            homeDiv.append(
-              heading,
-              logoContainer,
-              exampleWebAppLabel,
-              document.createElement("hr"),
-              scalaSynthTitle,
-              scalaSynthDescription,
-              scalaSynthButtonStrip(scalaSynthButton),
-              document.createElement("hr"),
-              sequencerLabel,
-              buildDropDownSongSelecter(songs),
-              playSong(songs),
-              sequencerStop,
-              document.createElement("hr"),
-              drumSynthLabel,
-              drumSynthDescription,
-              synthDrums,
-              document.createElement("hr"),
-              simpleSineSynthLabel,
-              buildDropDownOscillatorSelecter(),
-              startStopOsc(),
-              document.createElement("hr"),
-              drumMachineLabel,
-              drumMachineDescription,
-              simple808DrumMachineDiv,
-              document.createElement("hr"),
-              synthPanel
+            val songs = List[Song](
+              TestSong1.demoSong(),
+              ChordTestSong1.chordsSong(),
+              PolyRhythmicDrums.polyRhythms(),
+              DemoTune.demoTune(),
+              ChromaticScalaSynthSong.chromaticScalaSynthSong(),
+              Sonata.piece()
             )
-          .unsafeRunAndForget()
-        document.body.appendChild(homeDiv)
+
+            val homeDiv = document.createElement("div")
+            homeDiv.classList.add("home-div")
+
+            val heading = document.createElement("h1")
+            heading.textContent = "Welcome to Sounds of Scala"
+
+            val logoContainer = document.createElement("div")
+            logoContainer.classList.add("logo-container")
+            val img = document.createElement("img") match
+              case image: HTMLImageElement => image
+            img.src = "/resources/images/sounds_of_scala_logo.png"
+            img.width = 200
+            logoContainer.appendChild(img)
+
+            val exampleWebAppLabel = document.createElement("h2")
+            exampleWebAppLabel.textContent = "Example WebApp"
+
+            document.createElement("hr")
+
+            val scalaSynthTitle = document.createElement("h2")
+            scalaSynthTitle.textContent = "ScalaSynth"
+
+            val scalaSynthDescription = document.createElement("p")
+            scalaSynthDescription.textContent =
+              "A basic synthesizer built from WebAudio API components"
+
+            val drumMachineLabel = document.createElement("h2")
+            drumMachineLabel.textContent = "SimpleScala808DrumMachine"
+
+            val drumMachineDescription = document.createElement("p")
+            drumMachineDescription.textContent = "A basic sample based drum machine"
+
+            val sequencerLabel = document.createElement("h2")
+            sequencerLabel.textContent = "Sequencer/Scheduler Example Song"
+
+            val sequencerStop = document.createElement("p")
+            sequencerStop.textContent = "🔄 Refresh to stop sequencer"
+
+            val drumSynthLabel = document.createElement("h2")
+            drumSynthLabel.textContent = "Drum Synth"
+
+            val drumSynthDescription = document.createElement("p")
+            drumSynthDescription.textContent =
+              "Using WebAudio API components to re-create classic electronic drum sounds"
+
+            val simpleSineSynthLabel = document.createElement("h1")
+            simpleSineSynthLabel.textContent = "Oscillators"
+
+            // Append elements to Document
+
+            CompoundSynthPanel
+              .buildCompoundSynthPanel()
+              .map: synthPanel =>
+                homeDiv.append(
+                  heading,
+                  logoContainer,
+                  exampleWebAppLabel,
+                  document.createElement("hr"),
+                  scalaSynthTitle,
+                  scalaSynthDescription,
+                  scalaSynthButtonStrip(scalaSynthButton),
+                  document.createElement("hr"),
+                  sequencerLabel,
+                  buildDropDownSongSelecter(songs),
+                  playSong(songs),
+                  sequencerStop,
+                  document.createElement("hr"),
+                  drumSynthLabel,
+                  drumSynthDescription,
+                  synthDrums,
+                  document.createElement("hr"),
+                  simpleSineSynthLabel,
+                  buildDropDownOscillatorSelecter(),
+                  startStopOsc(),
+                  document.createElement("hr"),
+                  drumMachineLabel,
+                  drumMachineDescription,
+                  simple808DrumMachineDiv,
+                  document.createElement("hr"),
+                  synthPanel
+                )
+              .unsafeRunAndForget()
+            document.body.appendChild(homeDiv)
+        )
+        document.body.appendChild(overlay)
     )
 
   private def simple808DrumMachineDiv: AudioContext ?=> Element =
@@ -151,10 +167,13 @@ object Main extends App:
       (_: dom.MouseEvent) =>
         val sequencer = Sequencer()
         val song: Song = document.getElementById("songs") match
+
           case select: Select =>
             songs
               .collectFirst { case song if song.title.value === select.value => song }
               .getOrElse(songs.head)
+
+        println(s"Playing song: ${song.title.value}")
         sequencer.playSong(song).unsafeRunAndForget()
     )
     div.appendChild(sequencerButtonDiv)
