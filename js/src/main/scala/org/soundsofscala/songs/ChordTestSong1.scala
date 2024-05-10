@@ -24,12 +24,12 @@ object ChordTestSong1:
       .whole
       .soft + Fmaj7.whole.soft) repeat 4
 
-  val kickSequence: MusicalEvent =
-    KickDrum + RestEighth + RestSixteenth + KickDrum.sixteenth + KickDrum + RestQuarter
+  val kickSequence: MusicalEvent = kk + (r8triplet + r8triplet + kk.eighthTriplet) + kk + r4
   val snareSequence: MusicalEvent = (RestQuarter + SnareDrum).repeat
   val hatsSequence: MusicalEvent =
-    (HatsClosed.eighth + HatsClosed.sixteenth + HatsClosed.sixteenth.softest).repeat(4)
-  val clapSequence: MusicalEvent = (RestQuarter + RestQuarter + SnareDrum).repeat
+    (hhc.eighthTriplet.onFull + hhc.eighthTriplet.soft + hhc.eighthTriplet.soft) * 4
+
+  val clapSequence: MusicalEvent = (RestQuarter + RestQuarter + RestQuarter + HandClap).repeat
 
   def chordsSong(): AudioContext ?=> Song =
     Song(

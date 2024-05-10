@@ -49,7 +49,6 @@ object Main extends App:
               TestSong1.demoSong(),
               ChordTestSong1.chordsSong(),
               PolyRhythmicDrums.polyRhythms(),
-              DemoTune.demoTune(),
               ChromaticScalaSynthSong.chromaticScalaSynthSong(),
               Sonata.piece()
             )
