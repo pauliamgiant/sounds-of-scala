@@ -15,14 +15,14 @@ object TestSong1:
   val bassLine: MusicalEvent =
 
     val bar1 =
-      G(Octave(1)).medium + RestEighth + RestSixteenth + G(Octave(1)).medium.sixteenth + G(
+      G(Octave(1)).medium + RestEighth + RestSixteenth + G(Octave(1)).soft.sixteenth + G(
         Octave(1)).medium + RestQuarter
     val bar2 = bar1
     val bar3 =
-      A(Octave(2)).medium + RestEighth + RestSixteenth + A(Octave(2)).medium.sixteenth + A(
-        Octave(2)).medium + G(Octave(1)).medium
+      A(Octave(1)).medium + RestEighth + RestSixteenth + A(Octave(1)).soft.sixteenth + A(
+        Octave(1)).medium + G(Octave(1)).medium
     val bar4 =
-      F(Octave(1)).medium + RestEighth + RestSixteenth + F(Octave(1)).medium.sixteenth + F(
+      F(Octave(1)).medium + RestEighth + RestSixteenth + F(Octave(1)).soft.sixteenth + F(
         Octave(1)).medium.half
     (bar1 + bar2 + bar3 + bar4).repeat(4)
 

@@ -50,7 +50,7 @@ enum Oscillator(frequency: Frequency, volume: Volume)(using audioContext: AudioC
     amplifier.setLevelIndiscriminately(volume)
 
   def play(when: Double): Unit =
-    updateVolume(volume)
+    amplifier.level(volume, when)
     amplifier.plugIn(lowPassFilter.plugIn(oscillatorNode))
     amplifier.plugInTo(audioContext.destination)
     oscillatorNode.start(when)

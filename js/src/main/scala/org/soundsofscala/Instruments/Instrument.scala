@@ -4,6 +4,7 @@ import cats.effect.IO
 import cats.syntax.parallel.catsSyntaxParallelTraverse1
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
+import org.soundsofscala
 import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Harmony, Note}
@@ -50,6 +51,11 @@ sealed trait Instrument:
         musicEvent match
           case note: AtomicMusicalEvent.Note =>
             pianoSynth.attackRelease(when, note, tempo, release)
+          case chord: AtomicMusicalEvent.Harmony =>
+            chord.notes.head.note match
+              case rootNote: Note => pianoSynth.attackRelease(when, rootNote, tempo, release)
+              case _ => IO.unit
+
           case _ => IO.unit
       case SimpleDrumSynth() =>
         musicEvent match
@@ -91,12 +97,12 @@ final case class ScalaSynth()(using audioContext: AudioContext) extends Instrume
     IO:
       val keyNote = note.frequency
       val sineVelocity = note.velocity.getNormalisedVelocity
-//      val sawVelocity = note.velocity.getNormalisedVelocity / 10
-      val triangleVelocity = note.velocity.getNormalisedVelocity / 8
+      val sawVelocity = note.velocity.getNormalisedVelocity / 10
+      val triangleVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
-//        SquareOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
+        SineOscillator(Frequency(keyNote), Volume(sineVelocity)),
+        TriangleOscillator(Frequency(keyNote * 2), Volume(triangleVelocity))
+//        SawtoothOscillator(Frequency(keyNote), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

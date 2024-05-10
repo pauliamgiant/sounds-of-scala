@@ -15,7 +15,7 @@ case class Amplifier()(using audioContext: AudioContext):
   def setLevelIndiscriminately(vol: Volume): Unit = gainNode.gain.value = vol.value
   def level(vol: Volume, when: Double): Unit =
     gainNode.gain.value = 0
-    gainNode.gain.linearRampToValueAtTime(vol.value, when + 0.1)
+    gainNode.gain.linearRampToValueAtTime(vol.value, when + 0.06)
 
   def quickFade(stopTime: Double): Unit =
-    gainNode.gain.linearRampToValueAtTime(0.0001, Math.max(stopTime + 0.2, stopTime))
+    gainNode.gain.linearRampToValueAtTime(0.0001, Math.max(stopTime, stopTime + 0.05))
