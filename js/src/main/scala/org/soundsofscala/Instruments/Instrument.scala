@@ -40,22 +40,13 @@ sealed trait Instrument:
                   case _ => IO.unit
               )
               .void
-
           case _ => IO.unit
-      case scalaSynth: ScalaSynth =>
+      case synth: Synth =>
         musicEvent match
           case note: AtomicMusicalEvent.Note =>
-            scalaSynth.attackRelease(when, note, tempo, release)
-          case _ => IO.unit
-      case pianoSynth: PianoSynth =>
-        musicEvent match
-          case note: AtomicMusicalEvent.Note =>
-            pianoSynth.attackRelease(when, note, tempo, release)
+            synth.attackRelease(when, note, tempo, release)
           case chord: AtomicMusicalEvent.Harmony =>
-            chord.notes.head.note match
-              case rootNote: Note => pianoSynth.attackRelease(when, rootNote, tempo, release)
-              case _ => IO.unit
-
+            chord.notes.parTraverse(note => play(note.note, when, attack, release, tempo)).void
           case _ => IO.unit
       case SimpleDrumSynth() =>
         musicEvent match
@@ -88,12 +79,27 @@ final case class SimplePiano() extends Instrument
 final case class SimpleDrums() extends Instrument
 final case class SimpleDrumSynth() extends Instrument
 
+trait Synth()(using audioContext: AudioContext) extends Instrument:
+  /**
+   * Plays the note via an oscillator (or many)
+   */
+  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit]
+end Synth
+
+object Synth:
+  def apply()(using audioContext: AudioContext): Synth = ScalaSynth()
+  def default()(using audioContext: AudioContext): Synth = Synth()
+  def simpleSine()(using audioContext: AudioContext): Synth = ScalaSynth()
+  def simpleSawtooth()(using audioContext: AudioContext): Synth = SawtoothSynth()
+end Synth
+
 /**
  * A simple example synthesizer that combines 3 oscillators at different octaves
  * @param audioContext
  */
-final case class ScalaSynth()(using audioContext: AudioContext) extends Instrument:
-  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+final case class ScalaSynth()(using audioContext: AudioContext)
+    extends Synth()(using audioContext: AudioContext):
+  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
     IO:
       val keyNote = note.frequency
       val sineVelocity = note.velocity.getNormalisedVelocity
@@ -108,10 +114,37 @@ final case class ScalaSynth()(using audioContext: AudioContext) extends Instrume
         osc.play(when)
         osc.stop(when + note.durationToSeconds(tempo))
 
-final case class PianoSynth()(using audioContext: AudioContext) extends Instrument:
-  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+final case class SineSynth()(using audioContext: AudioContext)
+    extends Synth()(using audioContext: AudioContext):
+  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
     IO:
-      val keyNote = note.frequency * 5
+      val sineVelocity = note.velocity.getNormalisedVelocity
+      val sawVelocity = note.velocity.getNormalisedVelocity / 10
+      val triangleVelocity = note.velocity.getNormalisedVelocity / 4
+      val oscillators = Seq(
+        SineOscillator(Frequency(note.frequency), Volume(sineVelocity))
+      )
+      oscillators.foreach: osc =>
+        osc.play(when)
+        osc.stop(when + note.durationToSeconds(tempo))
+
+final case class SawtoothSynth()(using audioContext: AudioContext)
+    extends Synth()(using audioContext: AudioContext):
+  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+    IO:
+      val sawVelocity = note.velocity.getNormalisedVelocity / 4
+      val oscillators = Seq(
+        SawtoothOscillator(Frequency(note.frequency), Volume(sawVelocity))
+      )
+      oscillators.foreach: osc =>
+        osc.play(when)
+        osc.stop(when + note.durationToSeconds(tempo))
+
+final case class PianoSynth()(using audioContext: AudioContext)
+    extends Synth()(using audioContext: AudioContext):
+  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+    IO:
+      val keyNote = note.frequency * 4
       val sineVelocity = note.velocity.getNormalisedVelocity
       //      val sawVelocity = note.velocity.getNormalisedVelocity / 10
       val triangleVelocity = note.velocity.getNormalisedVelocity / 8

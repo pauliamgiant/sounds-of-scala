@@ -6,14 +6,6 @@ import org.soundsofscala.Instruments.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-// semibreve = 1
-// minim = 1 / 2
-// crotchet = 1 / 4
-// quaver = 1 / 8
-// semiquaver = 1 / 16
-// demisemiquaver = 1 / 32
-// hemidemisemiquaver = 1 / 64
-
 object Sonata:
   private val beginningChord = Chord(G4, D4, B3, G3, G2).half
 
