@@ -5,17 +5,16 @@ import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.scalajs.dom.html.Select
-import org.soundsofscala.Instruments.{ScalaSynth, PianoSynth, SimpleScala808DrumMachine}
+import org.soundsofscala.Instruments.{PianoSynth, ScalaSynth, SimpleScala808DrumMachine, TestSynth}
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.songs.*
 import org.soundsofscala.syntax.all.*
 import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.synthesis.WaveType.{Sawtooth, Sine, Square, Triangle}
-import org.soundsofscala.synthesis.{Oscillator, TestSynth, WaveType}
+import org.soundsofscala.synthesis.{Oscillator, OldTestSynth, WaveType}
 import org.soundsofscala.testui.CompoundSynthPanel
 import org.soundsofscala.transport.Sequencer
-import org.soundsofscala.Instruments.PianoSynth
 
 object Main extends App:
 
@@ -40,10 +39,11 @@ object Main extends App:
 
             // allows you to play notes on the keyboard asdfghjkl -> abcdefgab
 
-            dom.document.addEventListener("keydown", key => handleKeyPress(key, TestSynth()))
+            dom.document.addEventListener("keydown", key => handleKeyPress(key, OldTestSynth()))
 
             given ScalaSynth = ScalaSynth()
             given PianoSynth = PianoSynth()
+            given TestSynth = TestSynth()
 
             val songs = List[Song](
               TestSong1.demoSong(),
@@ -296,7 +296,7 @@ object Main extends App:
     div.appendChild(button)
     div
 
-  def scalaSynthButton(note: Note)(using synth: ScalaSynth)(using ac: AudioContext): Element =
+  def scalaSynthButton(note: Note)(using synth: TestSynth)(using ac: AudioContext): Element =
     val button = document.createElement("button")
     button.textContent = note.pitch.toString
     button.addEventListener(
@@ -325,7 +325,7 @@ object Main extends App:
     "p" -> 15 // C
   )
 
-  private def handleKeyPress(keyEvent: KeyboardEvent, testSynth: TestSynth)(
+  private def handleKeyPress(keyEvent: KeyboardEvent, testSynth: OldTestSynth)(
       using audioContext: AudioContext): Unit =
 
     val offsetFromReference: Option[Int] = keyToSemitoneOffset.get(keyEvent.key.toLowerCase())

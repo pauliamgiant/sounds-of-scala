@@ -1,10 +1,12 @@
 package org.soundsofscala.synthesis
 
+import cats.effect.IO
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.models.*
+import org.soundsofscala.models.AtomicMusicalEvent.Note
 
-case class TestSynth()(using audioContext: AudioContext):
+case class OldTestSynth()(using audioContext: AudioContext):
   val startingF = 440
 
   var oscillators: List[Oscillator] = List(
@@ -48,4 +50,4 @@ case class TestSynth()(using audioContext: AudioContext):
         oscillators(2).updateVolume(volume)
       case WaveType.Triangle =>
         oscillators(3).updateVolume(volume)
-end TestSynth
+end OldTestSynth
