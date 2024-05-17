@@ -4,7 +4,7 @@ import cats.effect.{IO, Ref}
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, Element, document, html}
 import org.soundsofscala.synthesis.WaveType.*
-import org.soundsofscala.synthesis.{TestSynth, WaveType}
+import org.soundsofscala.synthesis.{OldTestSynth, WaveType}
 import org.soundsofscala.models.Volume
 
 import scala.concurrent.duration.DurationInt
@@ -14,7 +14,7 @@ import org.soundsofscala.testui.CompoundSynthPanel.TestSynthState.*
 object CompoundSynthPanel:
 
   def buildCompoundSynthPanel(): AudioContext ?=> IO[Element] =
-    val synth = TestSynth()
+    val synth = OldTestSynth()
     val compoundSynthContainer = document.createElement("div")
     compoundSynthContainer.classList.add("compound-container")
     val compoundSynthLabel = document.createElement("h1")
@@ -77,7 +77,7 @@ object CompoundSynthPanel:
   enum TestSynthState:
     case Playing, Stopped
 
-  private def compoundSynthPlayButton(synth: TestSynth, playingRef: Ref[IO, TestSynthState])(
+  private def compoundSynthPlayButton(synth: OldTestSynth, playingRef: Ref[IO, TestSynthState])(
       using audioContext: AudioContext): IO[Element] = IO:
     val div = document.createElement("div")
     div.classList.add("play-stop-pad")
@@ -114,7 +114,7 @@ object CompoundSynthPanel:
   private def getSlider(id: String) = dom.document.createElement(id) match
     case sliderElement: html.Input => sliderElement
 
-  private def buildVolumeSlider(startingV: Double, waveType: WaveType, synth: TestSynth) =
+  private def buildVolumeSlider(startingV: Double, waveType: WaveType, synth: OldTestSynth) =
     val div = document.createElement("div")
     val label = document.createElement("label")
     label.textContent = s"${waveType.toString}"
@@ -152,7 +152,7 @@ object CompoundSynthPanel:
     div
   end buildVolumeSlider
 
-  private def buildFilterFreqSlider(startingF: Int, synth: TestSynth) =
+  private def buildFilterFreqSlider(startingF: Int, synth: OldTestSynth) =
     val sliderContainer = document.createElement("div")
     sliderContainer.classList.add("slider-container")
     val slider = getSlider("input")
@@ -185,7 +185,7 @@ object CompoundSynthPanel:
     sliderContainer
   end buildFilterFreqSlider
 
-  private def buildPitchSlider(startingF: Int, synth: TestSynth) =
+  private def buildPitchSlider(startingF: Int, synth: OldTestSynth) =
     val sliderContainer = document.createElement("div")
     sliderContainer.classList.add("slider-container")
 
@@ -224,19 +224,19 @@ object CompoundSynthPanel:
       case input: html.Input => input.value.toDouble
       case _ => 0.0
 
-  private def updateSynthVolume(waveType: WaveType, synth: TestSynth): Unit =
+  private def updateSynthVolume(waveType: WaveType, synth: OldTestSynth): Unit =
     val volume = retrieveValueFromInputNode(s"${waveType.toString.toLowerCase}-volume")
     synth.updateVolume(Volume(volume), waveType)
 
-  private def updateSynthFilterFrequency(synth: TestSynth): Unit =
+  private def updateSynthFilterFrequency(synth: OldTestSynth): Unit =
     val frequency = retrieveValueFromInputNode("filter-frequency")
     synth.updateFilterFrequency(frequency)
 
-  private def updateSynthFrequency(synth: TestSynth): Unit =
+  private def updateSynthFrequency(synth: OldTestSynth): Unit =
     val frequency = retrieveValueFromInputNode("frequency")
     synth.updatePitchFrequency(frequency)
 
-  def playAGnarlySynthNote(synth: TestSynth)(using audioContext: AudioContext): IO[Unit] =
+  def playAGnarlySynthNote(synth: OldTestSynth)(using audioContext: AudioContext): IO[Unit] =
     for
       _ <- IO(updateSynthFilterFrequency(synth))
       _ <- IO(updateSynthVolume(Sine, synth))
