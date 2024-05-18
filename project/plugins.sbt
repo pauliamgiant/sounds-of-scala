@@ -8,4 +8,6 @@ addSbtPlugin("com.github.reibitto" % "sbt-welcome" % "0.4.0")
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.11.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.1")
+addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.7.1")
+addSbtPlugin("org.typelevel" % "sbt-typelevel-site" % "0.7.1")
 libraryDependencies += "org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.0"

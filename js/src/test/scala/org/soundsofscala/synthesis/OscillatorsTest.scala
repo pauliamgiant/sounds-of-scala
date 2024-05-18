@@ -1,6 +1,5 @@
 package org.soundsofscala.synthesis
 
-import org.scalajs.dom.AudioContext
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -15,6 +14,6 @@ class OscillatorsTest extends AnyFunSuite with Matchers with BeforeAndAfterAll:
   override def afterAll(): Unit = ()
   // Perform cleanup code here
 
-  test("sawtooth wave"):
-    given ac: AudioContext = new AudioContext() // Not finding this
+  test("sawtooth wave") {}
+
 //    val sawtooth = SawtoothOscillator(110)

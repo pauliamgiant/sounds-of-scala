@@ -3,7 +3,7 @@ package org.soundsofscala.transport
 import cats.effect.IO
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, XMLHttpRequest}
-import org.soundsofscala.models.{AtomicMusicalEvent, FileLoadingError, MusicalEvent}
+import org.soundsofscala.models.{AtomicMusicalEvent, FileLoadingError}
 
 import scala.scalajs.js.typedarray.ArrayBuffer
 
@@ -17,8 +17,8 @@ case class SimpleSamplePlayer()(using audioContext: AudioContext):
       _ <- IO(request.open("GET", filePath, true))
       _ <- IO(request.responseType = "arraybuffer")
       _ <- loadAndPlaySample(request, musicEvent, when)
-      _ <- IO.delay(request.send())
-    yield IO.unit
+      _ <- IO(request.send())
+    yield ()
 
   private def loadAndPlaySample(
       request: XMLHttpRequest,
@@ -42,5 +42,5 @@ case class SimpleSamplePlayer()(using audioContext: AudioContext):
           () => IO.raiseError(FileLoadingError("Error decoding audio data"))
         )
       )
-    yield IO.unit
+    yield ()
 end SimpleSamplePlayer

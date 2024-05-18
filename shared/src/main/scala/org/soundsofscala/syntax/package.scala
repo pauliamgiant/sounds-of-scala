@@ -1,12 +1,11 @@
 package org.soundsofscala
 
-import cats.data.NonEmptyList
+import org.soundsofscala.models.*
 import org.soundsofscala.models.Accidental.Natural
 import org.soundsofscala.models.AtomicMusicalEvent.*
+import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
-import org.soundsofscala.models.*
-import org.soundsofscala.models.DrumVoice.*
 
 package object syntax:
   object all:

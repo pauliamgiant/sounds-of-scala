@@ -1,8 +1,8 @@
 package org.soundsofscala
 
 import cats.effect.{ExitCode, IO, IOApp}
+import org.soundsofscala.models.MusicalEvent
 import org.soundsofscala.syntax.all.*
-import org.soundsofscala.models.{AtomicMusicalEvent, MusicalEvent}
 
 object Main extends IOApp:
 

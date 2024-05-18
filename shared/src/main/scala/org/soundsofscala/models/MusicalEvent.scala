@@ -44,6 +44,8 @@ sealed trait MusicalEvent:
 
   def repeat: MusicalEvent = repeat(2)
 
+  def loop: MusicalEvent = repeat(128) // Lets see if this 💥
+
   @targetName("repeatMusicEvents")
   def *(repetitions: Int): MusicalEvent = repeat(repetitions)
 
@@ -101,7 +103,7 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
     loop(this, "")
 
   private def printCondensed(): String = this match
-    case Note(pitch, accidental, _, octave, velocity) =>
+    case Note(pitch, accidental, _, octave, velocity, offset) =>
       s"$pitch${accidentalToString(accidental)}${octave.value}"
     case Rest(_) => "R"
     case DrumStroke(drum, _, velocity) =>
@@ -109,7 +111,7 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
     case Harmony(_, _) => "CHORD"
 
   private def printAtomicEvent(): String = this match
-    case Note(pitch, accidental, duration, octave, velocity) =>
+    case Note(pitch, accidental, duration, octave, velocity, offset) =>
       val firstSection =
         s"$pitch${accidentalToString(accidental)}${octave.value}${velocity}_"
       durationToString(duration, firstSection)
@@ -177,7 +179,8 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
       accidental: Accidental,
       duration: Duration,
       octave: Octave,
-      velocity: Velocity
+      velocity: Velocity,
+      offset: TimingOffset = TimingOffset(0)
   ) extends AtomicMusicalEvent(duration, velocity)
 
   case Rest(duration: Duration) extends AtomicMusicalEvent(duration, TheSilentTreatment)
@@ -202,7 +205,7 @@ object Chord:
         parts.map(part => HarmonyTiming(part, TimingOffset(0))).toList
       ),
       root match
-        case Note(_, _, duration, _, _) => duration
+        case Note(_, _, duration, _, _, _) => duration
         case Rest(duration) => duration
         case _ => Quarter
     )

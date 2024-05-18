@@ -1,4 +1,4 @@
-package org.soundsofscala.songs
+package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
@@ -10,7 +10,7 @@ import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.syntax.all.*
 
-object TestSong1:
+object ExampleSong1 extends SongExample {
 
   val bassLine: MusicalEvent =
 
@@ -27,24 +27,24 @@ object TestSong1:
     (bar1 + bar2 + bar3 + bar4).repeat(4)
 
   val pianoTonicNotes: MusicalEvent =
-    val bar1 = RestEighth + G2.softest + RestSixteenth + G2
+    val bar1 = RestEighth + G3.softest + RestSixteenth + G3
       .softest
-      .sixteenth + G2.softest + RestEighth + G2.softest.eighth
-    val bar2 = RestEighth + B2.softest + RestSixteenth + B2
+      .sixteenth + G3.softest + RestEighth + G3.softest.eighth
+    val bar2 = RestEighth + B3.softest + RestSixteenth + B3
       .softest
-      .sixteenth + B2.softest + RestEighth + B2.softest.eighth
+      .sixteenth + B3.softest + RestEighth + B3.softest.eighth
     val bar3 =
-      RestEighth + A2.softest + RestSixteenth + A2.softest.sixteenth + A2.softest + G2.softest
-    val bar4 = F2.softest + RestEighth + RestSixteenth + F2.softest.sixteenth + F2.softest.half
+      RestEighth + A3.softest + RestSixteenth + A3.softest.sixteenth + A3.softest + G3.softest
+    val bar4 = F3.softest + RestEighth + RestSixteenth + F3.softest.sixteenth + F3.softest.half
 
     (bar1 + bar2 + bar3 + bar4).repeat(4)
 
-  val piano = FourBarRest + (((D3.eighth.soft + B2.eighth.soft) * 4) |
-    ((E3.eighth.soft + B2.eighth.soft) * 4) |
-    ((E3.eighth.soft + C3.eighth.soft) * 4) |
-    (G3.eighth.soft + C3.eighth.soft) * 2 + F3.eighth.soft + C3.eighth.soft + D3
+  val piano = FourBarRest + (((D4.eighth.soft + B3.eighth.soft) * 4) |
+    ((E4.eighth.soft + B3.eighth.soft) * 4) |
+    ((E4.eighth.soft + C4.eighth.soft) * 4) |
+    (G4.eighth.soft + C4.eighth.soft) * 2 + F4.eighth.soft + C4.eighth.soft + D4
       .eighth
-      .soft + C3.eighth.soft) * 2
+      .soft + C4.eighth.soft) * 2
 
   val kick = Sequence(
     DrumStroke(Kick, Quarter, Medium),
@@ -55,38 +55,37 @@ object TestSong1:
         Sequence(
           DrumStroke(Kick, Sixteenth, Soft),
           Sequence(DrumStroke(Kick, Quarter, Medium), Rest(Quarter)))))
-  ).repeat(20)
+  ).loop
 
   val snare = Sequence(
     Rest(Quarter),
     Sequence(
       DrumStroke(Snare, Quarter, Medium),
-      Sequence(Rest(Quarter), DrumStroke(Snare, Quarter, Loud)))).repeat(20)
+      Sequence(Rest(Quarter), DrumStroke(Snare, Quarter, Loud)))).repeat(16)
 
   val clap =
     Sequence(Rest(Half), Sequence(Rest(Quarter), DrumStroke(Clap, Quarter, Assertively)))
-      .repeat(20)
+      .repeat(16)
 
   val hats =
     Sequence(
       DrumStroke(HiHatClosed, Eighth, Loud),
       Sequence(
         DrumStroke(HiHatClosed, Sixteenth, Medium),
-        DrumStroke(HiHatClosed, Sixteenth, Softest))).repeat(4).repeat(20)
+        DrumStroke(HiHatClosed, Sixteenth, Softest))).repeat(4).repeat(12)
 
-  def demoSong(): AudioContext ?=> Song =
+  def song(): AudioContext ?=> Song =
     Song(
-      title = Title("Test Tune 1"),
+      title = Title("A Tale of Two Synths"),
       tempo = Tempo(92),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Kick"), kick, SimpleDrums()),
-        Track(Title("Snare"), snare, SimpleDrums()),
-        Track(Title("HiHats"), hats, SimpleDrums()),
-        Track(Title("Clap"), clap, SimpleDrums()),
+        Track(Title("Kick"), kick, SimpleDrumMachine()),
+        Track(Title("Snare"), snare, SimpleDrumMachine()),
+        Track(Title("HiHats"), hats, SimpleDrumMachine()),
         Track(Title("Bass"), bassLine, ScalaSynth()),
-        Track(Title("PianoTonicNotes"), pianoTonicNotes, SimplePiano()),
-        Track(Title("Piano"), piano, SimplePiano())
+        Track(Title("PianoTonicNotes"), pianoTonicNotes, ScalaSynth()),
+        Track(Title("Piano"), piano, ScalaSynth())
       )
     )
-end TestSong1
+}

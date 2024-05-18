@@ -1,11 +1,10 @@
 package org.soundsofscala.synthesis
 
 import cats.effect.IO
-import org.soundsofscala.models
-import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.{AtomicMusicalEvent, Release, Tempo}
+import org.soundsofscala.models
+import org.soundsofscala.models.AtomicMusicalEvent
 import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 
 /**
