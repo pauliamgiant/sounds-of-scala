@@ -48,7 +48,7 @@ sealed trait Instrument:
           case chord: AtomicMusicalEvent.Harmony =>
             chord.notes.parTraverse(note => play(note.note, when, attack, release, tempo)).void
           case _ => IO.unit
-      case SimpleDrumSynth() =>
+      case SimpleDrumMachine() =>
         musicEvent match
           case drumStroke: AtomicMusicalEvent.DrumStroke =>
             drumStroke.drum match
@@ -77,9 +77,9 @@ end Instrument
 
 final case class SimplePiano() extends Instrument
 final case class SimpleDrums() extends Instrument
-final case class SimpleDrumSynth() extends Instrument
+final case class SimpleDrumMachine() extends Instrument
 
-trait Synth()(using audioContext: AudioContext) extends Instrument:
+trait Synth()(using AudioContext) extends Instrument:
   /**
    * Plays the note via an oscillator (or many)
    */
@@ -89,7 +89,7 @@ end Synth
 object Synth:
   def apply()(using audioContext: AudioContext): Synth = ScalaSynth()
   def default()(using audioContext: AudioContext): Synth = Synth()
-  def simpleSine()(using audioContext: AudioContext): Synth = ScalaSynth()
+  def simpleSine()(using audioContext: AudioContext): Synth = SineSynth()
   def simpleSawtooth()(using audioContext: AudioContext): Synth = SawtoothSynth()
 end Synth
 
@@ -103,7 +103,7 @@ final case class ScalaSynth()(using audioContext: AudioContext)
     IO:
       val keyNote = note.frequency
       val sineVelocity = note.velocity.getNormalisedVelocity
-      val sawVelocity = note.velocity.getNormalisedVelocity / 10
+//      val sawVelocity = note.velocity.getNormalisedVelocity / 20
       val triangleVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
         SineOscillator(Frequency(keyNote), Volume(sineVelocity)),
@@ -119,8 +119,6 @@ final case class SineSynth()(using audioContext: AudioContext)
   override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
     IO:
       val sineVelocity = note.velocity.getNormalisedVelocity
-      val sawVelocity = note.velocity.getNormalisedVelocity / 10
-      val triangleVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
         SineOscillator(Frequency(note.frequency), Volume(sineVelocity))
       )

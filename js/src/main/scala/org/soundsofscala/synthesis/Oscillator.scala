@@ -78,13 +78,6 @@ enum Oscillator(frequency: Frequency, volume: Volume)(using audioContext: AudioC
       case SawtoothOscillator(_, vol) => SawtoothOscillator(newFrequency, vol)
       case TriangleOscillator(_, vol) => TriangleOscillator(newFrequency, vol)
 
-  private def waveTypeToString(oscillator: Oscillator): String =
-    oscillator match
-      case _: SineOscillator => "sine"
-      case _: SquareOscillator => "square"
-      case _: SawtoothOscillator => "sawtooth"
-      case _: TriangleOscillator => "triangle"
-
   case SineOscillator(frequency: Frequency = Frequency(440), volume: Volume = Volume(0.3))(
       using AudioContext) extends Oscillator(frequency, volume)
 

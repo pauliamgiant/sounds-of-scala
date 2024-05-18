@@ -1,11 +1,26 @@
+import laika.sbt.LaikaPlugin.autoImport.laikaTheme
+import laika.helium.Helium
+import laika.theme.config.Color
+import laika.helium.config.HeliumIcon
+import laika.helium.config.IconLink
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
+    tlBaseVersion := "0.1",
     organization := "org.soundsofscala",
     scalaVersion := "3.3.3",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
+    tlSonatypeUseLegacyHost := false,
+    tlSitePublishBranch := Some("main"),
+    developers := List(
+      tlGitHubDev("pauliamgiant", "Paul Matthews"),
+      tlGitHubDev("noelwelsh", "Noel Welsh"),
+      tlGitHubDev("ikukojohanna", "Johanna Odersky"),
+      tlGitHubDev("BokChoyWarrior", "Harvey Cambridge")
+    ),
     scalafixDependencies ++= List(
       "com.github.xuwei-k" %% "scalafix-rules" % "0.3.0"
     ),
@@ -18,14 +33,13 @@ lazy val root = project
   .aggregate(sos.js, sos.jvm)
   .settings(
     name := "sounds-of-scala",
-    version := "0.1.0-SNAPSHOT",
-    publish := {},
-    publishLocal := {}
+    publish := {}
   )
 
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
+    moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",
       "org.scalatest" %%% "scalatest" % "3.2.17" % Test,
@@ -52,8 +66,33 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
   )
   .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))
 
-import sbtwelcome.*
+lazy val docs =
+  project.in(file("docs")).settings(
+    description := "Documentation for Sounds of Scala",
+    mdocIn := file("docs/src/pages"),
+    laikaTheme := Helium.defaults
+      .all.themeColors(
+        primary = Color.hex("007c99"),
+        secondary = Color.hex("931813"),
+        primaryMedium = Color.hex("a7d4de"),
+        primaryLight = Color.hex("ebf6f7"),
+        text = Color.hex("5f5f5f"),
+        background = Color.hex("ffffff"),
+        bgGradient = (Color.hex("095269"), Color.hex("007c99"))
+      ).site
+      .topNavigationBar(
+        homeLink = IconLink.internal(laika.ast.Path(List("README.md")), HeliumIcon.home),
+        navLinks = Seq(IconLink.external(
+          "https://github.com/pauliamgiant/sounds-of-scala",
+          HeliumIcon.github))
+      ).build,
+    laikaExtensions ++= Seq(
+      laika.format.Markdown.GitHubFlavor,
+      laika.config.SyntaxHighlighting
+    )
+  ).enablePlugins(TypelevelSitePlugin)
 
+import sbtwelcome.*
 // Generated from http://patorjk.com/software/taag/#p=display&f=Stronger%20Than%20All&t=Sounds%20of%20Scala
 logo :=
   raw"""
@@ -72,6 +111,8 @@ logo :=
 usefulTasks := Seq(
   UsefulTask("~fastOptJS / webpack", "Run fastOptJS for live updates").alias("f"),
   UsefulTask("reload", "run reload").alias("r"),
+  UsefulTask("publishLocal", "Publish build locally").alias("pub"),
+  UsefulTask("docs/tlSitePreview", "preview documentation").alias("doc"),
   UsefulTask("clean", "run clean").alias("cln"),
   UsefulTask("compile", "run compile").alias("c"),
   UsefulTask("test", "Run test").alias("t"),

@@ -1,4 +1,4 @@
-package org.soundsofscala.songs
+package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
@@ -6,7 +6,7 @@ import org.soundsofscala.Instruments.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ChromaticScalaSynthSong:
+object ExampleSong2ChromaticScale extends SongExample:
 
   val bassLine: MusicalEvent =
     A3.eighth + A3.sharp.eighth + B3.eighth + C4.eighth + C4.sharp.eighth + D4.eighth + D4
@@ -29,16 +29,16 @@ object ChromaticScalaSynthSong:
   val hatsSequence: MusicalEvent =
     (HatsClosed.eighth + HatsClosed.sixteenth + HatsClosed.sixteenth.softest).repeat(4)
 
-  def chromaticScalaSynthSong(): AudioContext ?=> Song =
+  def song(): AudioContext ?=> Song =
     Song(
       title = Title("Chromatic"),
       tempo = Tempo(92),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Kick"), kickSequence.repeat(12), SimpleDrums()),
-        Track(Title("Snare"), snareSequence.repeat(12), SimpleDrums()),
-        Track(Title("HiHats"), hatsSequence.repeat(12), SimpleDrums()),
+        Track(Title("Kick"), kickSequence.repeat(12), SimpleDrumMachine()),
+        Track(Title("Snare"), snareSequence.repeat(12), SimpleDrumMachine()),
+        Track(Title("HiHats"), hatsSequence.repeat(12), SimpleDrumMachine()),
         Track(Title("Bass"), bassLine, ScalaSynth())
       )
     )
-end ChromaticScalaSynthSong
+end ExampleSong2ChromaticScale

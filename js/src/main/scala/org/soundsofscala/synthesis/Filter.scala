@@ -1,9 +1,7 @@
 package org.soundsofscala.synthesis
 
 import org.scalajs.dom.{AudioContext, AudioNode, BiquadFilterNode}
-import refined4s.*
-import org.soundsofscala.models.Frequency
-import org.soundsofscala.models.Bandwidth
+import org.soundsofscala.models.{Bandwidth, Frequency}
 
 /**
  * Filter for shaping audio signal with different types of filters
