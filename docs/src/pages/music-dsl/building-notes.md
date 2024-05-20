@@ -32,4 +32,4 @@ Again, we have a range of syntactic sugar to make instantiating a note more read
 ```scala 3
 C4.sharp.eighth.soft
 ```
-### [Next Step: Building Melodies](http://localhost:4242/music-dsl/building-melodies.html)
+### [Next Step: Building Melodies](../music-dsl/building-melodies.md)

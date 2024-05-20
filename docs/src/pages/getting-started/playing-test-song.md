@@ -38,4 +38,4 @@ Once you have played that and heard some Audio playing you can:
     - `ExampleSong4Beethoven`
     - `ExampleDrumBeat1`
 
-### [Next Step: Creating your own Song](http://localhost:4242/music-dsl/#the-song-type)
+### [Next Step: Creating your own Song](../music-dsl/songs.md#the-song-type)

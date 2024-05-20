@@ -19,5 +19,5 @@ sealed trait MusicalEvent:
 - `DrumStroke` - a single drum stroke
 - `Harmony` - a chord or notes in the same voice played at the same time
 
-### [Next Step: Building Drum Beats](http://localhost:4242/music-dsl/building-beats.html)
+### [Next Step: Building Drum Beats](../music-dsl/building-beats.md)
 

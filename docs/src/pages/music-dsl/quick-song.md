@@ -32,5 +32,5 @@ def writingAFirstSong(): AudioContext ?=> Song =
 )
 ```
 
-### [Next Step: The Song type](http://localhost:4242/music-dsl/songs.html)
+### [Next Step: The Song type](../music-dsl/songs.md)
 

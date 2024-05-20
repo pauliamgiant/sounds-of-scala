@@ -1,6 +1,6 @@
 ## Building Melodies
 
-Melodies are a sequence of notes. They can be defined using the Sequence class. We have already seen the sequence class in the [building beats](http://localhost:4242/music-dsl/building-beats.html) section.
+Melodies are a sequence of notes. They can be defined using the Sequence class. We have already seen the sequence class in the [building beats](../music-dsl/building-beats.md) section.
 
 
 ```scala 3
@@ -11,4 +11,4 @@ Melodies are a sequence of notes. They can be defined using the Sequence class. 
 
 To listen to this you can import ExampleSong0 from the `sounds-of-scala` library and play it.
 
-### [Next Step: Syntax](http://localhost:4242/music-dsl/syntax.html)
+### [Next Step: Syntax](../music-dsl/syntax.md)

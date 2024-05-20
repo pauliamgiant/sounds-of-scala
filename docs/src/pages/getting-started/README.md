@@ -81,4 +81,4 @@ def firstMusicProgram(): AudioContext ?=> IO[Unit] = ???
   
   // TODO: Your code
 ```
-### [Next Step: Playing a test song](http://localhost:4242/getting-started/playing-test-song.html)
+### [Next Step: Playing a test song](../getting-started/playing-test-song.md)
