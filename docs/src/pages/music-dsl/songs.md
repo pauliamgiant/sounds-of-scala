@@ -44,4 +44,4 @@ case class Track(
                   sendFX: List[FX] = List.empty)
 ```
 
-### [Next Step: Musical Events](http://localhost:4242/music-dsl/musical-events.html)
+### [Next Step: Musical Events](../music-dsl/musical-events.md)

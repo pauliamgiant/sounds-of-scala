@@ -58,7 +58,7 @@ We can also loop a section of music using the **`loop`** method:
 ```scala 3
 (RestQuarter + SnareDrum).loop(4)
 ```
-### [Next Step: Building Notes](http://localhost:4242/music-dsl/building-notes.html)
+### [Next Step: Building Notes](../music-dsl/building-notes.md)
 
 
 
