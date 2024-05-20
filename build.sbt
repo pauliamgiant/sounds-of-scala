@@ -3,17 +3,24 @@ import laika.helium.Helium
 import laika.theme.config.Color
 import laika.helium.config.HeliumIcon
 import laika.helium.config.IconLink
+import sbt.ThisBuild
+
+import scala.collection.Seq
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
     tlBaseVersion := "0.1",
+    startYear := Some(2024),
+    licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
+    organizationName := "Sounds of Scala",
     scalaVersion := "3.3.3",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSonatypeUseLegacyHost := false,
+    tlCiReleaseBranches := List(),
     tlSitePublishBranch := Some("main"),
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
@@ -27,6 +34,20 @@ inThisBuild(
     resolvers +=
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
   ))
+
+commands += Command.command("build") { state =>
+  "dependencyUpdates" ::
+    "compile" ::
+    "test" ::
+    "scalafixAll" ::
+    "scalafmtAll" ::
+    "scalafmtSbt" ::
+    "headerCreateAll" ::
+    "githubWorkflowGenerate" ::
+    "docs / tlSite" ::
+    "reload plugins; reload return" ::
+    state
+}
 
 lazy val root = project
   .in(file("."))
