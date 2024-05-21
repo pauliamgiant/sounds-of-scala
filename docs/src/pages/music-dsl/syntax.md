@@ -106,3 +106,5 @@ kk.whole.assertively
     val r16triplet = Rest(SixteenthTriplet)
     val r32triplet = Rest(ThirtySecondTriplet)
 ```
+
+### [Next Step: Syntax](../instruments/README.md)
