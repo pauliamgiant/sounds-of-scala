@@ -19,12 +19,14 @@ package org.soundsofscala.models
 import cats.data.NonEmptyList
 import cats.syntax.all.*
 import org.soundsofscala.TransformMusicalEvents.*
-import org.soundsofscala.models.AtomicMusicalEvent.{Note, *}
+import org.soundsofscala.models.Accidental.*
+import org.soundsofscala.models.AtomicMusicalEvent.Note
+import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
-import org.soundsofscala.models.Accidental.*
 
-import scala.annotation.{tailrec, targetName}
+import scala.annotation.tailrec
+import scala.annotation.targetName
 
 sealed trait MusicalEvent:
   def reverse(): MusicalEvent =

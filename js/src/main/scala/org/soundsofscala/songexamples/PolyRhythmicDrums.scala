@@ -18,11 +18,11 @@ package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
-import org.soundsofscala.Instruments.SimpleDrums
+import org.soundsofscala.instrument.Simple80sDrumMachine
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object PolyRhythmicDrums extends SongExample:
+object PolyRhythmicDrums:
 
   val simple: MusicalEvent = RestQuarter + SnareDrum + RestQuarter + SnareDrum
 
@@ -33,14 +33,14 @@ object PolyRhythmicDrums extends SongExample:
       .sixteenth
       .softest + hhc.eighth).repeat(4)
 
-  override def song(): AudioContext ?=> Song =
+  def song(): AudioContext ?=> Song =
     Song(
       title = Title("PolyRhythmic Drums"),
       tempo = Tempo(112),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Kick"), kick7Eight.repeat(12), SimpleDrums()),
-        Track(Title("Snare"), snare.repeat(12), SimpleDrums()),
-        Track(Title("HiHats"), hats5Eight.repeat(12), SimpleDrums())
+        Track(Title("Kick"), kick7Eight.repeat(12), Simple80sDrumMachine()),
+        Track(Title("Snare"), snare.repeat(12), Simple80sDrumMachine()),
+        Track(Title("HiHats"), hats5Eight.repeat(12), Simple80sDrumMachine())
       )
     )

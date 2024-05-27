@@ -18,15 +18,16 @@ package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
-import org.soundsofscala.Instruments.*
-import org.soundsofscala.models.*
-import org.soundsofscala.models.AtomicMusicalEvent.{DrumStroke, Rest}
+import org.soundsofscala.instrument.*
+import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
+import org.soundsofscala.models.AtomicMusicalEvent.Rest
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
+import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong1 extends SongExample {
+object ExampleSong1 {
 
   val bassLine: MusicalEvent =
 
@@ -96,9 +97,9 @@ object ExampleSong1 extends SongExample {
       tempo = Tempo(92),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Kick"), kick, SimpleDrumMachine()),
-        Track(Title("Snare"), snare, SimpleDrumMachine()),
-        Track(Title("HiHats"), hats, SimpleDrumMachine()),
+        Track(Title("Kick"), kick, Simple80sDrumMachine()),
+        Track(Title("Snare"), snare, Simple80sDrumMachine()),
+        Track(Title("HiHats"), hats, Simple80sDrumMachine()),
         Track(Title("Bass"), bassLine, ScalaSynth()),
         Track(Title("PianoTonicNotes"), pianoTonicNotes, ScalaSynth()),
         Track(Title("Piano"), piano, ScalaSynth())

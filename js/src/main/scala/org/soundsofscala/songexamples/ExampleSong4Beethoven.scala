@@ -18,11 +18,11 @@ package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
-import org.soundsofscala.Instruments.*
+import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong4Beethoven extends SongExample:
+object ExampleSong4Beethoven:
   private val beginningChord = Chord(G4, D4, B3, G3, G2).half
 
   private val triplets =
@@ -137,7 +137,7 @@ object ExampleSong4Beethoven extends SongExample:
   val upperVoice = trebClef1 + trebClef2 + trebleClef3 + trebleClef4
   val lowerVoice = bassClef1 + bassClef2 + bassClef3 + bassClef4
 
-  override def song(): AudioContext ?=> Song =
+  def song(): AudioContext ?=> Song =
     Song(
       title = Title("Beethoven Sonata No. 49 G Maj"),
       tempo = Tempo(140),

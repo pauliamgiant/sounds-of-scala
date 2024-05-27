@@ -16,27 +16,34 @@
 
 package org.soundsofscala.songexamples
 
+import cats.effect.IO
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
-import org.soundsofscala.Instruments.SimpleDrumMachine
+import org.soundsofscala.instrument.Simple80sDrumMachine
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleDrumBeat1 extends SongExample:
+object ExampleDrumBeat1:
 
   val kick: MusicalEvent = kk + (r8triplet + r8triplet + kk.eighthTriplet) + kk + r4
   val snare: MusicalEvent = (r4 + sn).repeat
   val hats: MusicalEvent =
     (hhc.eighthTriplet + hhc.eighthTriplet.p + hhc.eighthTriplet.mp) * 4
 
-  override def song(): AudioContext ?=> Song =
-    Song(
-      title = Title("Drum Synth Song"),
-      tempo = Tempo(90),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(Title("Kick"), kick.repeat(12), SimpleDrumMachine()),
-        Track(Title("Snare"), snare.repeat(12), SimpleDrumMachine()),
-        Track(Title("HiHats"), hats.repeat(12), SimpleDrumMachine())
+  def play(): AudioContext ?=> IO[Unit] =
+    for {
+      drumMachine <- IO(Simple80sDrumMachine())
+      song = Song(
+        title = Title("Drum Synth Song"),
+        tempo = Tempo(90),
+        swing = Swing(0),
+        mixer = Mixer(
+          Track(Title("Kick"), kick.repeat(12), drumMachine),
+          Track(Title("Snare"), snare.repeat(12), drumMachine),
+          Track(Title("HiHats"), hats.repeat(12), drumMachine)
+        )
       )
-    )
+      _ <- song.play()
+    } yield ()
+
+end ExampleDrumBeat1

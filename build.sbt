@@ -16,7 +16,7 @@ inThisBuild(
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.3.3",
+    scalaVersion := "3.4.2",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSonatypeUseLegacyHost := false,

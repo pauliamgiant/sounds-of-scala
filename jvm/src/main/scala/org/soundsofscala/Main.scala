@@ -16,7 +16,9 @@
 
 package org.soundsofscala
 
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.ExitCode
+import cats.effect.IO
+import cats.effect.IOApp
 import org.soundsofscala.models.MusicalEvent
 import org.soundsofscala.syntax.all.*
 

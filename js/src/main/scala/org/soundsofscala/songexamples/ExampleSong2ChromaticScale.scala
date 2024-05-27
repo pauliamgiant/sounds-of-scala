@@ -18,11 +18,11 @@ package org.soundsofscala.songexamples
 
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
-import org.soundsofscala.Instruments.*
+import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong2ChromaticScale extends SongExample:
+object ExampleSong2ChromaticScale:
 
   val bassLine: MusicalEvent =
     A3.eighth + A3.sharp.eighth + B3.eighth + C4.eighth + C4.sharp.eighth + D4.eighth + D4
@@ -51,9 +51,9 @@ object ExampleSong2ChromaticScale extends SongExample:
       tempo = Tempo(92),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Kick"), kickSequence.repeat(12), SimpleDrumMachine()),
-        Track(Title("Snare"), snareSequence.repeat(12), SimpleDrumMachine()),
-        Track(Title("HiHats"), hatsSequence.repeat(12), SimpleDrumMachine()),
+        Track(Title("Kick"), kickSequence.repeat(12), Simple80sDrumMachine()),
+        Track(Title("Snare"), snareSequence.repeat(12), Simple80sDrumMachine()),
+        Track(Title("HiHats"), hatsSequence.repeat(12), Simple80sDrumMachine()),
         Track(Title("Bass"), bassLine, ScalaSynth())
       )
     )
