@@ -26,7 +26,7 @@ import org.soundsofscala.models.Duration.*
 import org.soundsofscala.models.Velocity.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong1 extends SongExample {
+object ExampleSong1 extends SongExample:
 
   val bassLine: MusicalEvent =
 
@@ -104,4 +104,4 @@ object ExampleSong1 extends SongExample {
         Track(Title("Piano"), piano, ScalaSynth())
       )
     )
-}
+end ExampleSong1
