@@ -122,8 +122,8 @@ final case class ScalaSynth()(using audioContext: AudioContext)
 //      val sawVelocity = note.velocity.getNormalisedVelocity / 20
       val triangleVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote * 2), Volume(triangleVelocity))
+        SineOscillator(Hertz(keyNote), Volume(sineVelocity)),
+        TriangleOscillator(Hertz(keyNote * 2), Volume(triangleVelocity))
 //        SawtoothOscillator(Frequency(keyNote), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
@@ -136,7 +136,7 @@ final case class SineSynth()(using audioContext: AudioContext)
     IO:
       val sineVelocity = note.velocity.getNormalisedVelocity
       val oscillators = Seq(
-        SineOscillator(Frequency(note.frequency), Volume(sineVelocity))
+        SineOscillator(Hertz(note.frequency), Volume(sineVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)
@@ -148,7 +148,7 @@ final case class SawtoothSynth()(using audioContext: AudioContext)
     IO:
       val sawVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
-        SawtoothOscillator(Frequency(note.frequency), Volume(sawVelocity))
+        SawtoothOscillator(Hertz(note.frequency), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)
@@ -163,8 +163,8 @@ final case class PianoSynth()(using audioContext: AudioContext)
       //      val sawVelocity = note.velocity.getNormalisedVelocity / 10
       val triangleVelocity = note.velocity.getNormalisedVelocity / 8
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
+        SineOscillator(Hertz(keyNote / 8), Volume(sineVelocity)),
+        TriangleOscillator(Hertz(keyNote / 4), Volume(triangleVelocity))
         //        SquareOscillator(Frequency(keyNote / 8), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
