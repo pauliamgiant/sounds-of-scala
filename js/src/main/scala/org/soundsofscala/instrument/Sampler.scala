@@ -17,7 +17,7 @@
 package org.soundsofscala.instrument
 
 import cats.effect.IO
-import cats.implicits.*
+
 import org.scalajs.dom
 import org.scalajs.dom.AudioBuffer
 import org.scalajs.dom.AudioContext
@@ -32,7 +32,6 @@ object Sampler {
       musicalEvent: AtomicMusicalEvent,
       when: Double)(using audioContext: AudioContext): IO[Unit] =
     for
-      _ <- IO.println(s"Volume ${musicalEvent.normalizedVelocity}")
       gainNode <- IO(audioContext.createGain())
       sourceNode <- IO(audioContext.createBufferSource())
       _ <- IO(gainNode.gain.value = musicalEvent.normalizedVelocity / 2)
@@ -41,7 +40,8 @@ object Sampler {
       _ <- IO {
         sourceNode.buffer = buffer
         sourceNode.playbackRate.value = playbackRate
-        sourceNode.start(when)
+        val adjustedDuration = buffer.duration * math.abs(playbackRate)
+        sourceNode.start(when, 0, adjustedDuration)
       }
     yield ()
 }

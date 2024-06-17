@@ -25,8 +25,8 @@ import org.soundsofscala.syntax.all.*
 object ExampleSong0:
 
   val musicalEvent: MusicalEvent =
-    C3 + C3 + G3 + G3 + A3 + A3 + G3.half |
-      F3 + F3 + E3 + E3 + D3 + D3 + C3.half
+    C4.flat + C4 + G4.sharp + G4 + A4.sharp + A4 + G4.half |
+      F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
 
   def play(): AudioContext ?=> IO[Unit] =
     for {
