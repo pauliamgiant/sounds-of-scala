@@ -27,17 +27,17 @@ import scala.annotation.tailrec
 final case class PianoSampler(samples: Map[SampleKey, AudioBuffer]) extends Sampler {
 
 //order samples into a list of (frequency, SampleKey, AudioBuffer) tuples
-  private val orderedSamples: List[(Double, SampleKey, AudioBuffer)] =
-    samples.map { case (key, buffer) => (key.frequency, key, buffer) }.toList.sortBy {
+  private val orderedSamples: Array[(Double, SampleKey, AudioBuffer)] =
+    samples.map { case (key, buffer) => (key.frequency, key, buffer) }.toArray.sortBy {
       case (f, key, buffer) => f
     }
 
 // Find the closest sample to the note we have been asked to play
   private def closestFrequency(
-      sampleFreqs: List[(Double, SampleKey, AudioBuffer)],
+      sampleFreqs: Array[(Double, SampleKey, AudioBuffer)],
       target: Double): (Double, SampleKey, AudioBuffer) = {
     @tailrec
-    def loop(
+    def binarySearch(
         left: Int,
         right: Int,
         closest: (Double, SampleKey, AudioBuffer)): (Double, SampleKey, AudioBuffer) = {
@@ -49,11 +49,11 @@ final case class PianoSampler(samples: Map[SampleKey, AudioBuffer]) extends Samp
           if Math.abs(f - target) < Math.abs(closest._1 - target) then (f, key, buffer)
           else closest
         if f == target then (f, key, buffer)
-        else if f < target then loop(mid + 1, right, newClosest)
-        else loop(left, mid - 1, newClosest)
+        else if f < target then binarySearch(mid + 1, right, newClosest)
+        else binarySearch(left, mid - 1, newClosest)
       }
     }
-    loop(0, sampleFreqs.length - 1, sampleFreqs(0))
+    binarySearch(0, sampleFreqs.length - 1, sampleFreqs(0))
   }
 
   def play(
