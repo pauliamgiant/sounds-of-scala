@@ -19,10 +19,10 @@ package org.soundsofscala.transport
 import cats.effect.IO
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.Instruments.Instrument
+import org.soundsofscala.instrument.Instrument
 import org.soundsofscala.models
-import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.*
+import org.soundsofscala.models.*
 
 import scala.concurrent.duration.DurationDouble
 

@@ -17,8 +17,8 @@
 package org.soundsofscala.synthesis
 
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.synthesis.Oscillator.*
 import org.soundsofscala.models.*
+import org.soundsofscala.synthesis.Oscillator.*
 
 case class TestSynth()(using audioContext: AudioContext):
   val startingF = 440

@@ -16,7 +16,7 @@
 
 package org.soundsofscala.models
 
-import org.soundsofscala.Instruments.Instrument
+import org.soundsofscala.instrument.Instrument
 
 case class Track(
     title: Title,

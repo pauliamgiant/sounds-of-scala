@@ -16,23 +16,32 @@
 
 package org.soundsofscala.songexamples
 
+import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.Instruments.ScalaSynth
+import org.soundsofscala.instrument.PianoSampler
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong0 extends SongExample:
+object ExampleSong0:
 
   val musicalEvent: MusicalEvent =
-    C3 + C3 + G3 + G3 + A3 + A3 + G3.half |
-      F3 + F3 + E3 + E3 + D3 + D3 + C3.half
+    `C-2`.sixteenth + `C-1`.sixteenth + C0.sixteenth + C1.sixteenth |
+      C2.sixteenth + C3.sixteenth + C4.sixteenth + C5.sixteenth |
+      C6.sixteenth + C7.sixteenth + C8.sixteenth |
+      C4.flat + C4 + G4.sharp + G4 + A4.sharp + A4 + G4.half |
+      F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
 
-  def song(): AudioContext ?=> Song =
-    Song(
-      title = Title("Something We All Know"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(Title("Single Synth Voice"), musicalEvent, ScalaSynth())
+  def play(): AudioContext ?=> IO[Unit] =
+    for {
+      piano <- PianoSampler.default
+      song = Song(
+        title = Title("Something We All Know"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(
+          Track(Title("Single Synth Voice"), musicalEvent, piano)
+        )
       )
-    )
+      a <- song.play()
+    } yield a
+end ExampleSong0

@@ -16,7 +16,8 @@
 
 package org.soundsofscala.synthesis
 
-import org.scalajs.dom.{AudioContext, OscillatorNode}
+import org.scalajs.dom.AudioContext
+import org.scalajs.dom.OscillatorNode
 import org.soundsofscala.models.*
 
 enum WaveType:

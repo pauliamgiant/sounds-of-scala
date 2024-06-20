@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package org.soundsofscala.songexamples
+package org.soundsofscala.instrument
 
 import cats.effect.IO
+import org.scalajs.dom
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.Song
+import org.soundsofscala
+import org.soundsofscala.models
+import org.soundsofscala.models.*
 
-trait SongExample:
-  def apply(): AudioContext ?=> Song = song()
+trait Instrument:
 
-  def song(): AudioContext ?=> Song
-
-  def play(): AudioContext ?=> IO[Unit] = song().play()
+  def play(
+      musicEvent: AtomicMusicalEvent,
+      when: Double,
+      attack: Attack,
+      release: Release,
+      tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit]
+end Instrument

@@ -16,7 +16,8 @@
 
 package org.soundsofscala.models
 
-import refined4s.{Newtype, Refined}
+import refined4s.Newtype
+import refined4s.Refined
 
 type Frequency = Frequency.Type
 

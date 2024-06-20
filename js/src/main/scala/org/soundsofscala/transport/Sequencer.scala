@@ -17,9 +17,11 @@
 package org.soundsofscala.transport
 
 import cats.effect.IO
-import org.scalajs.dom.AudioContext
 import cats.syntax.all.*
-import org.soundsofscala.models.{LookAhead, ScheduleWindow, Song}
+import org.scalajs.dom.AudioContext
+import org.soundsofscala.models.LookAhead
+import org.soundsofscala.models.ScheduleWindow
+import org.soundsofscala.models.Song
 
 case class Sequencer():
   def playSong(song: Song)(using audioContext: AudioContext): IO[Unit] =

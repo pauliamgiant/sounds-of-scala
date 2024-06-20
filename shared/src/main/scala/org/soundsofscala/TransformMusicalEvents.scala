@@ -16,10 +16,10 @@
 
 package org.soundsofscala
 
-import org.soundsofscala.models.*
 import org.soundsofscala.models.Accidental.*
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
+import org.soundsofscala.models.*
 
 object TransformMusicalEvents:
   def accidentalToString(accidental: Accidental): String = accidental match

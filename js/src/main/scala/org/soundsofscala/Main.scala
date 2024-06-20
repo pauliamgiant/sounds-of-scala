@@ -45,7 +45,7 @@ object Main extends App:
         (_: dom.MouseEvent) =>
           given audioContext: AudioContext = new AudioContext()
           // your actions here
-          PolyRhythmicDrums().play().unsafeRunAndForget()
+          ExampleSong0.play().unsafeRunAndForget()
       )
       val clickToRun = document.createElement("h3")
       clickToRun.textContent = "Click to run your code"

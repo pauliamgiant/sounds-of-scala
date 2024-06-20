@@ -14,16 +14,4 @@
  * limitations under the License.
  */
 
-package org.soundsofscala
-
-import cats.effect.ExitCode
-import cats.effect.IO
-import cats.effect.IOApp
-import org.soundsofscala.models.MusicalEvent
-import org.soundsofscala.syntax.all.*
-
-object Main extends IOApp:
-
-  def run(args: List[String]): IO[ExitCode] =
-    val quickTestSong: MusicalEvent = C3 + D4 + E2.+(F2)
-    IO.println("Song" + quickTestSong.toString) >> IO.unit.as(ExitCode.Success)
+// TODO once sampler is complete

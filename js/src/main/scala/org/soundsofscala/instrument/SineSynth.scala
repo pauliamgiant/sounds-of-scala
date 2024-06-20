@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package org.soundsofscala.Instruments
+package org.soundsofscala.instrument
 
 import cats.effect.IO
-import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
+import org.soundsofscala
 import org.soundsofscala.models
+import org.soundsofscala.models.AtomicMusicalEvent.Note
+import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.*
-import org.soundsofscala.transport.NoteScheduler
+import org.soundsofscala.synthesis.Oscillator.*
 
-/**
- * Simplest possible drum machine that plays a sequence of drum events
- * @param tempo
- *   takes the speed of the music in beats per minute
- */
-case class SimpleScala808DrumMachine(tempo: Tempo):
-  def playGroove(
-      drumMusicalEvents: MusicalEvent*
-  )(using audioContext: AudioContext): IO[Unit] =
-    drumMusicalEvents.parTraverse { drumMusicalEvent =>
-      NoteScheduler(tempo, LookAhead(25), ScheduleWindow(0.1))
-        .scheduleInstrument(drumMusicalEvent, SimpleDrums())
-    }.void
+final case class SineSynth()(using audioContext: AudioContext)
+    extends Synth(using audioContext: AudioContext):
+  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+    IO:
+      val sineVelocity = note.velocity.getNormalisedVelocity
+      val oscillators = Seq(
+        SineOscillator(Frequency(note.frequency), Volume(sineVelocity))
+      )
+      oscillators.foreach: osc =>
+        osc.play(when)
+        osc.stop(when + note.durationToSeconds(tempo))

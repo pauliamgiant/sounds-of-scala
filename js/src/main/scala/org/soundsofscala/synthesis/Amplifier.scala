@@ -16,7 +16,9 @@
 
 package org.soundsofscala.synthesis
 
-import org.scalajs.dom.{AudioContext, AudioNode, GainNode}
+import org.scalajs.dom.AudioContext
+import org.scalajs.dom.AudioNode
+import org.scalajs.dom.GainNode
 import org.soundsofscala.models.Volume
 
 /**

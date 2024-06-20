@@ -18,6 +18,10 @@ project/target/
 project/bloop/
 target/
 
+# js
+node_modules/
+package-lock.json
+
 # eclipse
 build/
 .classpath
