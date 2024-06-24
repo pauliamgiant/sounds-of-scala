@@ -23,13 +23,5 @@ final case class SampleKey(pitch: Pitch, accidental: Accidental, octave: Octave)
     s"${pitch.toString}${accidental.toString}${octave.toString}"
 
   def frequency: Double =
-    // TODO: Consider merging this and the calculation in AtomicMusicalEvent into one piece of code
-    val f = pitch.calculateFrequency
-    val referenceOctave = 4
-    val thisOctave = octave.value - referenceOctave
-    val noteOctave = f * Math.pow(2, thisOctave)
-    accidental match
-      case Accidental.Sharp => noteOctave * Math.pow(2, 1.0 / 12)
-      case Accidental.Flat => noteOctave / Math.pow(2, 1.0 / 12)
-      case Accidental.Natural => noteOctave
+    Freq.calculate(pitch, accidental, octave)
 }

@@ -18,7 +18,7 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.PianoSampler
+import org.soundsofscala.instrument.Sampler
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
@@ -33,7 +33,7 @@ object ExampleSong0:
 
   def play(): AudioContext ?=> IO[Unit] =
     for {
-      piano <- PianoSampler.default
+      piano <- Sampler.piano
       song = Song(
         title = Title("Something We All Know"),
         tempo = Tempo(110),

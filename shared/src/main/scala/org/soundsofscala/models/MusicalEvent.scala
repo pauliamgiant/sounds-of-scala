@@ -84,6 +84,17 @@ end MusicalEvent
 
 final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 
+object Freq:
+  def calculate(pitch: Pitch, accidental: Accidental, octave: Octave): Double =
+    val f = pitch.calculateFrequency
+    val referenceOctave = 4
+    val thisOctave = octave.value - referenceOctave
+    val noteOctave = f * Math.pow(2, thisOctave)
+    accidental match
+      case Sharp => noteOctave * Math.pow(2, 1.0 / 12)
+      case Flat => noteOctave / Math.pow(2, 1.0 / 12)
+      case Natural => noteOctave
+
 object AtomicMusicalEvent:
   extension (note: Note)
     def sharp: Note =
@@ -93,14 +104,7 @@ object AtomicMusicalEvent:
       note.copy(accidental = Flat)
 
     def frequency: Double =
-      val f = note.pitch.calculateFrequency
-      val referenceOctave = 4
-      val thisOctave = note.octave.value - referenceOctave
-      val noteOctave = f * Math.pow(2, thisOctave)
-      note.accidental match
-        case Sharp => noteOctave * Math.pow(2, 1.0 / 12)
-        case Flat => noteOctave / Math.pow(2, 1.0 / 12)
-        case Natural => noteOctave
+      Freq.calculate(note.pitch, note.accidental, note.octave)
 
   extension (harmony: Harmony)
     private def updateVelocity(newVelocity: Velocity): Harmony = harmony.copy(notes =
