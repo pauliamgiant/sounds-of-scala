@@ -35,7 +35,7 @@ object ExampleSong0:
     for {
       piano <- Sampler.piano
       song = Song(
-        title = Title("Something We All Know"),
+        title = Title("Something We Used to Know"),
         tempo = Tempo(110),
         swing = Swing(0),
         mixer = Mixer(
