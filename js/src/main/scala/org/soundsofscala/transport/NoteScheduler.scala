@@ -41,33 +41,43 @@ case class NoteScheduler(
         Ready
       else Waiting
 
-  def scheduleInstrument(musicalEvent: MusicalEvent, instrument: Instrument)(
+  def scheduleInstrument[Settings](
+      musicalEvent: MusicalEvent,
+      instrument: Instrument[Settings],
+      settings: Settings)(
       using audioContext: AudioContext): IO[Unit] =
     val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
-    scheduler(musicalEvent, initialNextNoteValue, instrument) >> IO.println("Sequence finished")
+    scheduler(musicalEvent, initialNextNoteValue, instrument, settings) >> IO.println(
+      "Sequence finished")
 
-  private def scheduler(
+  private def scheduler[Settings](
       musicalEvent: MusicalEvent,
       nextNoteTime: NextNoteTime,
-      instrument: Instrument): AudioContext ?=> IO[Unit] =
+      instrument: Instrument[Settings],
+      settings: Settings): AudioContext ?=> IO[Unit] =
     ScheduleState(nextNoteTime) match
       case ScheduleState.Ready =>
         musicalEvent match
           case sequence: Sequence =>
             val time = NextNoteTime(nextNoteTime.value + sequence.head.durationToSeconds(tempo))
-            scheduleAtomicEvent(sequence.head, nextNoteTime, instrument) >>
-              scheduler(sequence.tail, time, instrument)
+            scheduleAtomicEvent(sequence.head, nextNoteTime, instrument, settings) >>
+              scheduler(sequence.tail, time, instrument, settings)
           case atomicEvent: AtomicMusicalEvent =>
-            scheduleAtomicEvent(atomicEvent, nextNoteTime, instrument)
+            scheduleAtomicEvent(atomicEvent, nextNoteTime, instrument, settings)
       case ScheduleState.Waiting =>
-        IO.sleep(lookAheadMs.value.millis) >> scheduler(musicalEvent, nextNoteTime, instrument)
+        IO.sleep(lookAheadMs.value.millis) >> scheduler(
+          musicalEvent,
+          nextNoteTime,
+          instrument,
+          settings)
 
-  private def scheduleAtomicEvent(
+  private def scheduleAtomicEvent[Settings](
       musicalEvent: AtomicMusicalEvent,
       nextNoteTime: NextNoteTime,
-      instrument: Instrument): AudioContext ?=> IO[Unit] =
+      instrument: Instrument[Settings],
+      settings: Settings): AudioContext ?=> IO[Unit] =
     musicalEvent match
       case Rest(_) => IO.unit
       case event: AtomicMusicalEvent =>
-        instrument.play(event, nextNoteTime.value, Attack(0), Release(0.9), tempo)
+        instrument.play(event, nextNoteTime.value, tempo)(settings)
 end NoteScheduler

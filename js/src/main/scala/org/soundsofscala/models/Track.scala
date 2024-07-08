@@ -16,11 +16,15 @@
 
 package org.soundsofscala.models
 
+import org.soundsofscala.instrument.Default
 import org.soundsofscala.instrument.Instrument
 
-case class Track(
+case class Track[Settings](
     title: Title,
     musicalEvent: MusicalEvent,
-    instrument: Instrument,
+    instrument: Instrument[Settings],
+    customSettings: Option[Settings] = None,
     insertFX: List[FX] = List.empty,
-    sendFX: List[FX] = List.empty)
+    sendFX: List[FX] = List.empty)(using Default[Settings]) {
+  val settings: Settings = customSettings.getOrElse(Default.default[Settings])
+}

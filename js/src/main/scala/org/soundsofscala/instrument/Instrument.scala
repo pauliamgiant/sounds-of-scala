@@ -23,12 +23,18 @@ import org.soundsofscala
 import org.soundsofscala.models
 import org.soundsofscala.models.*
 
-trait Instrument:
+trait Instrument[Settings]:
 
-  def play(
+  final def play(
       musicEvent: AtomicMusicalEvent,
       when: Double,
-      attack: Attack,
-      release: Release,
-      tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit]
+      tempo: Tempo)(settings: Settings)(using audioContext: dom.AudioContext): IO[Unit] =
+    playWithSettings(musicEvent, when, tempo, settings)
+
+  protected def playWithSettings(
+      musicEvent: AtomicMusicalEvent,
+      when: Double,
+      tempo: Tempo,
+      settings: Settings
+  )(using dom.AudioContext): IO[Unit]
 end Instrument

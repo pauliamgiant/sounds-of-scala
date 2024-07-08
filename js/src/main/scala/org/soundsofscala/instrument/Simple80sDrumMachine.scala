@@ -26,13 +26,15 @@ import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.*
 import org.soundsofscala.synthesis.DrumGeneration
 
-final case class Simple80sDrumMachine() extends Instrument:
-  def play(
+final case class Simple80sDrumMachine() extends Instrument[Default.NoSettings]:
+
+  final case class Settings(attack: Attack, release: Release)
+
+  def playWithSettings(
       musicEvent: AtomicMusicalEvent,
       when: Double,
-      attack: Attack,
-      release: Release,
-      tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit] =
+      tempo: Tempo,
+      settings: Default.NoSettings)(using audioContext: dom.AudioContext): IO[Unit] =
     musicEvent match
       case drumStroke: AtomicMusicalEvent.DrumStroke =>
         drumStroke.drum match

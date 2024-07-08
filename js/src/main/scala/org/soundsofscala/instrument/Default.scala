@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package org.soundsofscala.models
+package org.soundsofscala.instrument
 
-import cats.data.NonEmptyList
-import cats.effect.IO
-import org.scalajs.dom.AudioContext
-import org.soundsofscala.transport.Sequencer
+trait Default[A] {
+  def default: A
+}
 
-case class Song(
-    title: Title,
-    tempo: Tempo = Tempo(120),
-    swing: Swing = Swing(0),
-    mixer: Mixer
-):
-  def play()(using AudioContext): IO[Unit] =
-    IO.println(s"Playing: $title") *> Sequencer().playSong(this)
+object Default {
+  final case class NoSettings()
+  given Default[NoSettings] with {
+    val default: NoSettings = NoSettings()
+  }
 
-case class Mixer(tracks: NonEmptyList[Track[?]])
-object Mixer:
-  def apply(tracks: Track[?]*): Mixer = Mixer(
-    NonEmptyList(tracks.head, tracks.tail.toList)
-  )
+  def default[A](using d: Default[A]): A = d.default
+}

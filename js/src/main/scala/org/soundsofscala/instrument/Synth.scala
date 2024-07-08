@@ -26,18 +26,19 @@ import org.soundsofscala.models.AtomicMusicalEvent.Harmony
 import org.soundsofscala.models.AtomicMusicalEvent.Note
 import org.soundsofscala.models.*
 
-trait Synth(using AudioContext) extends Instrument:
-  def play(
+trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
+
+  def playWithSettings(
       musicEvent: AtomicMusicalEvent,
       when: Double,
-      attack: Attack,
-      release: Release,
-      tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit] =
+      tempo: Tempo,
+      settings: Synth.Settings)(using audioContext: dom.AudioContext): IO[Unit] =
     musicEvent match
       case note: AtomicMusicalEvent.Note =>
-        this.attackRelease(when, note, tempo, release)
+        this.attackRelease(when, note, tempo, settings.release)
       case chord: AtomicMusicalEvent.Harmony =>
-        chord.notes.parTraverse(note => play(note.note, when, attack, release, tempo)).void
+        chord.notes.parTraverse(note =>
+          playWithSettings(note.note, when, tempo, settings)).void
       case _ => IO.unit
 
   /**
@@ -51,4 +52,12 @@ object Synth:
   def default()(using audioContext: AudioContext): Synth = Synth()
   def simpleSine()(using audioContext: AudioContext): Synth = SineSynth()
   def simpleSawtooth()(using audioContext: AudioContext): Synth = SawtoothSynth()
+
+  final case class Settings(attack: Attack, release: Release)
+
+  object Settings {
+    given Default[Settings] with {
+      val default: Settings = Settings(Attack(0), Release(0.9))
+    }
+  }
 end Synth

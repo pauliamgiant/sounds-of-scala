@@ -22,17 +22,15 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioBuffer
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.*
+
 import scala.annotation.tailrec
 
 final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePlayer {
-
-// Order samples into a list of (frequency, SampleKey, AudioBuffer) tuples
   private val orderedSamples: Array[(Double, SampleKey, AudioBuffer)] =
     samples.map { case (key, buffer) => (key.frequency, key, buffer) }.toArray.sortBy {
       case (f, key, buffer) => f
     }
 
-// Find the closest sample to the note we have been asked to play
   private def closestFrequency(
       sampleFreqs: Array[(Double, SampleKey, AudioBuffer)],
       target: Double): (Double, SampleKey, AudioBuffer) = {
@@ -56,18 +54,17 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
     binarySearch(0, sampleFreqs.length - 1, sampleFreqs(0))
   }
 
-  def play(
+  protected def playWithSettings(
       musicEvent: AtomicMusicalEvent,
       when: Double,
-      attack: Attack,
-      release: Release,
-      tempo: Tempo)(using audioContext: dom.AudioContext): IO[Unit] = {
+      tempo: Tempo,
+      settings: SamplePlayer.Settings)(using audioContext: dom.AudioContext): IO[Unit] = {
     musicEvent match {
       case note: AtomicMusicalEvent.Note =>
         val frequency = note.frequency
         val (closestF, closestKey, buffer) = closestFrequency(orderedSamples, frequency)
-        val playbackRate = frequency / closestF
-        SamplePlayer.playSample(buffer, playbackRate, musicEvent, when)
+        val playbackRatePitchFix = frequency / closestF
+        SamplePlayer.playSample(buffer, playbackRatePitchFix, musicEvent, when, settings)
       case _ => IO.println("This musical event is not a note.")
     }
   }
@@ -111,7 +108,7 @@ object Sampler {
 
   def rhubarb(using AudioContext): IO[Sampler] = {
     val filePaths: List[(SampleKey, String)] = List(
-      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> s"resources/audio/misc/rhubarbSample.wav"
+      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/rhubarbSample.wav"
     )
     fromPaths(filePaths)
   }

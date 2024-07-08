@@ -30,5 +30,5 @@ case class Sequencer():
       .mixer
       .tracks
       .parTraverse: track =>
-        noteScheduler.scheduleInstrument(track.musicalEvent, track.instrument)
+        noteScheduler.scheduleInstrument(track.musicalEvent, track.instrument, track.settings)
       .void
