@@ -30,22 +30,21 @@ import org.soundsofscala.models.*
 
 trait SamplePlayer extends Instrument[SamplePlayer.Settings] {}
 
-object SamplePlayer {
+object SamplePlayer:
 
   final case class Settings(
-      attack: Attack,
-      release: Release,
+      volume: Double,
+      fadeIn: Double,
+      fadeOut: Double,
       playbackRate: Double,
       reversed: Boolean,
       loop: Option[Loop],
       startTime: Double,
       offset: Double,
       duration: Option[Double])
-  object Settings {
-    given Default[Settings] with {
-      val default: Settings = Settings(Attack(0), Release(0.9), 1.0, false, None, 0, 0, None)
-    }
-  }
+  object Settings:
+    given Default[Settings] with
+      val default: Settings = Settings(1, 0, 0, 1.0, false, None, 0, 0, None)
 
   def playSample(
       buffer: AudioBuffer,
@@ -90,6 +89,21 @@ object SamplePlayer {
           case Some(d) => d
           case None => (buffer.duration / math.abs(playbackRate)) - offset
 
+        settings.fadeIn match
+          case 0 =>
+            gainNode.gain.value = settings.volume
+          case in if in > 0 =>
+            gainNode.gain.value = 0
+            gainNode.gain.linearRampToValueAtTime(settings.volume, startTime + offset + in)
+
+        settings.fadeOut match
+          case 0 =>
+            gainNode.gain.value = settings.volume
+          case out if out > 0 =>
+            gainNode.gain.linearRampToValueAtTime(
+              0,
+              startTime + offset + duration - settings.fadeOut)
+
         settings.loop match
           case Some(Loop(start, end)) =>
             sourceNode.loop = true
@@ -104,4 +118,4 @@ object SamplePlayer {
     yield ()
     end for
   end playSample
-}
+end SamplePlayer

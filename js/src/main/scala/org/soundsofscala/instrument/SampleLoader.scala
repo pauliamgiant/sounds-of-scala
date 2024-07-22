@@ -25,14 +25,14 @@ import org.soundsofscala.models.FileLoadingError
 import scala.scalajs.js.typedarray.ArrayBuffer
 
 object SampleLoader:
-  def loadSample(filePath: String)(using audioContext: AudioContext): IO[AudioBuffer] = {
+  def loadSample(filePath: String)(using audioContext: AudioContext): IO[AudioBuffer] =
     IO.async_[AudioBuffer] { cb =>
       val request = new dom.XMLHttpRequest()
       request.open("GET", filePath, true)
       request.responseType = "arraybuffer"
       request.onerror =
         (_: dom.Event) => cb(Left(FileLoadingError(s"Request failed for $filePath")))
-      request.onload = (_: dom.Event) => {
+      request.onload = (_: dom.Event) =>
         val arrayBuffer = request.response.asInstanceOf[ArrayBuffer]
         audioContext.decodeAudioData(
           arrayBuffer,
@@ -40,7 +40,5 @@ object SampleLoader:
             cb(Right(buffer)),
           () => cb(Left(FileLoadingError("Error decoding audio data")))
         )
-      }
       request.send()
     }
-  }

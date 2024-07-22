@@ -50,7 +50,7 @@ object ExampleSong1:
     RestHalf + RestSixteenth + C3.eighth + RestSixteenth + RestQuarter + RestHalf + RestSixteenth + C3.eighth + RestEighth + C3.eighth + RestSixteenth + RestHalf + RestSixteenth + C3.eighth + RestSixteenth + RestQuarter + OneBarRest
 
   def play(): AudioContext ?=> IO[Unit] =
-    for {
+    for
       rhubarb <- Sampler.rhubarb
       vinyl <- Sampler.vinyl
       sparkles <- Sampler.sparkles
@@ -73,5 +73,5 @@ object ExampleSong1:
         )
       )
       a <- song.play()
-    } yield a
+    yield a
 end ExampleSong1

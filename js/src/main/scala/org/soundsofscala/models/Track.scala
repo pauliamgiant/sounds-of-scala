@@ -25,6 +25,5 @@ case class Track[Settings](
     instrument: Instrument[Settings],
     customSettings: Option[Settings] = None,
     insertFX: List[FX] = List.empty,
-    sendFX: List[FX] = List.empty)(using Default[Settings]) {
+    sendFX: List[FX] = List.empty)(using Default[Settings]):
   val settings: Settings = customSettings.getOrElse(Default.default[Settings])
-}

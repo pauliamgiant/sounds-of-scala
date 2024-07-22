@@ -26,11 +26,12 @@ object ExampleSong0:
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
+      volume = 1,
       playbackRate = 1,
       reversed = false,
       loop = None, // Some(Loop(start = 2, end = 6)),
-      attack = Attack(0),
-      release = Release(0.9),
+      fadeIn = 0,
+      fadeOut = 0,
       startTime = 0,
       offset = 0,
       duration = Some(1)
@@ -44,7 +45,7 @@ object ExampleSong0:
       F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
 
   def play(): AudioContext ?=> IO[Unit] =
-    for {
+    for
       piano <- Sampler.piano
       song = Song(
         title = Title("Something We Used to Know"),
@@ -55,5 +56,5 @@ object ExampleSong0:
         )
       )
       a <- song.play()
-    } yield a
+    yield a
 end ExampleSong0

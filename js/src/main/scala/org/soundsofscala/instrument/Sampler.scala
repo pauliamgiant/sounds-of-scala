@@ -25,7 +25,7 @@ import org.soundsofscala.models.*
 
 import scala.annotation.tailrec
 
-final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePlayer {
+final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePlayer:
   private val orderedSamples: Array[(Double, SampleKey, AudioBuffer)] =
     samples.map { case (key, buffer) => (key.frequency, key, buffer) }.toArray.sortBy {
       case (f, key, buffer) => f
@@ -33,14 +33,14 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
 
   private def closestFrequency(
       sampleFreqs: Array[(Double, SampleKey, AudioBuffer)],
-      target: Double): (Double, SampleKey, AudioBuffer) = {
+      target: Double): (Double, SampleKey, AudioBuffer) =
     @tailrec
     def binarySearch(
         left: Int,
         right: Int,
-        closest: (Double, SampleKey, AudioBuffer)): (Double, SampleKey, AudioBuffer) = {
+        closest: (Double, SampleKey, AudioBuffer)): (Double, SampleKey, AudioBuffer) =
       if left > right then closest
-      else {
+      else
         val mid = left + (right - left) / 2
         val current = sampleFreqs(mid)
         val newClosest =
@@ -49,35 +49,30 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
         if current._1 == target then current
         else if current._1 < target then binarySearch(mid + 1, right, newClosest)
         else binarySearch(left, mid - 1, newClosest)
-      }
-    }
     binarySearch(0, sampleFreqs.length - 1, sampleFreqs(0))
-  }
 
   protected def playWithSettings(
       musicEvent: AtomicMusicalEvent,
       when: Double,
       tempo: Tempo,
-      settings: SamplePlayer.Settings)(using audioContext: dom.AudioContext): IO[Unit] = {
-    musicEvent match {
+      settings: SamplePlayer.Settings)(using audioContext: dom.AudioContext): IO[Unit] =
+    musicEvent match
       case note: AtomicMusicalEvent.Note =>
         val frequency = note.frequency
         val (closestF, closestKey, buffer) = closestFrequency(orderedSamples, frequency)
         val playbackRatePitchFix = frequency / closestF
         SamplePlayer.playSample(buffer, playbackRatePitchFix, musicEvent, when, settings)
       case _ => IO.println("This musical event is not a note.")
-    }
-  }
-}
+end Sampler
 
-object Sampler {
+object Sampler:
 
   def fromPaths(filePaths: List[(SampleKey, String)])(using AudioContext): IO[Sampler] =
     filePaths.traverse {
       case (key, path) => SampleLoader.loadSample(path).map(buffer => key -> buffer)
     }.map(samples => Sampler(samples.toMap))
 
-  def piano(using AudioContext): IO[Sampler] = {
+  def piano(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] =
       List(Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G, Pitch.A, Pitch.B).flatMap { note =>
         List(
@@ -93,58 +88,49 @@ object Sampler {
         )
       }
     fromPaths(filePaths)
-  }
 
-  def guitar(using AudioContext): IO[Sampler] = {
-    val filePaths: List[(SampleKey, String)] = {
+  def guitar(using AudioContext): IO[Sampler] =
+    val filePaths: List[(SampleKey, String)] =
       (List(Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G).map { note =>
         SampleKey(note, Accidental.Natural, Octave(3)) -> s"resources/audio/guitar/${note}3.wav"
       }) ++ (List(Pitch.A, Pitch.B).map { note =>
         SampleKey(note, Accidental.Natural, Octave(2)) -> s"resources/audio/guitar/${note}2.wav"
       })
-    }
     fromPaths(filePaths)
-  }
 
-  def rhubarb(using AudioContext): IO[Sampler] = {
+  def rhubarb(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/rhubarbSample.wav"
     )
     fromPaths(filePaths)
-  }
 
-  def vinyl(using AudioContext): IO[Sampler] = {
+  def vinyl(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(3)) -> "resources/audio/misc/vinylNoise.wav"
     )
     fromPaths(filePaths)
-  }
 
-  def sparkles(using AudioContext): IO[Sampler] = {
+  def sparkles(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(3)) -> "resources/audio/misc/sparklesSample.wav"
     )
     fromPaths(filePaths)
-  }
 
-  def kickDrum(using AudioContext): IO[Sampler] = {
+  def kickDrum(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/kickTL.wav"
     )
     fromPaths(filePaths)
-  }
 
-  def snareDrum(using AudioContext): IO[Sampler] = {
+  def snareDrum(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/snareShort.wav"
     )
     fromPaths(filePaths)
-  }
 
-  def rimShot(using AudioContext): IO[Sampler] = {
+  def rimShot(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(3)) -> "resources/audio/misc/rim.mp3"
     )
     fromPaths(filePaths)
-  }
-}
+end Sampler

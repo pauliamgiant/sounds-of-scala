@@ -18,10 +18,9 @@ package org.soundsofscala.instrument
 
 import org.soundsofscala.models.*
 
-final case class SampleKey(pitch: Pitch, accidental: Accidental, octave: Octave) {
+final case class SampleKey(pitch: Pitch, accidental: Accidental, octave: Octave):
   override def toString: String =
     s"${pitch.toString}${accidental.toString}${octave.toString}"
 
   def frequency: Double =
     Freq.calculate(pitch, accidental, octave)
-}

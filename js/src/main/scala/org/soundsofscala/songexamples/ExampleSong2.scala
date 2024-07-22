@@ -29,18 +29,19 @@ object ExampleSong2:
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
+      volume = 1,
       playbackRate = 1,
       reversed = false,
-      loop = Some(Loop(start = 2, end = 6)),
-      attack = Attack(0),
-      release = Release(0.9),
-      startTime = 1,
-      offset = 1,
-      duration = Some(1)
+      loop = Some(Loop(start = 3, end = 6)),
+      fadeIn = 3,
+      fadeOut = 3,
+      startTime = 0,
+      offset = 0,
+      duration = None // Some(1)
     )
 
   def play(): AudioContext ?=> IO[Unit] =
-    for {
+    for
       piano <- Sampler.rhubarb
       song = Song(
         title = Title("Rhubarb Loop"),
@@ -55,5 +56,5 @@ object ExampleSong2:
         )
       )
       a <- song.play()
-    } yield a
+    yield a
 end ExampleSong2

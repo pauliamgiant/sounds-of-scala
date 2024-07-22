@@ -16,15 +16,12 @@
 
 package org.soundsofscala.instrument
 
-trait Default[A] {
+trait Default[A]:
   def default: A
-}
 
-object Default {
+object Default:
   final case class NoSettings()
-  given Default[NoSettings] with {
+  given Default[NoSettings] with
     val default: NoSettings = NoSettings()
-  }
 
   def default[A](using d: Default[A]): A = d.default
-}

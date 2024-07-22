@@ -55,9 +55,7 @@ object Synth:
 
   final case class Settings(attack: Attack, release: Release)
 
-  object Settings {
-    given Default[Settings] with {
+  object Settings:
+    given Default[Settings] with
       val default: Settings = Settings(Attack(0), Release(0.9))
-    }
-  }
 end Synth
