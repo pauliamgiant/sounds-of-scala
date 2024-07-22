@@ -18,11 +18,23 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.Sampler
+import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
 object ExampleSong0:
+
+  val customSettings: SamplePlayer.Settings =
+    SamplePlayer.Settings(
+      playbackRate = 1,
+      reversed = false,
+      loop = None, // Some(Loop(start = 2, end = 6)),
+      attack = Attack(0),
+      release = Release(0.9),
+      startTime = 0,
+      offset = 0,
+      duration = Some(1)
+    )
 
   val musicalEvent: MusicalEvent =
     `C-2`.sixteenth + `C-1`.sixteenth + C0.sixteenth + C1.sixteenth |

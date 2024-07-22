@@ -20,20 +20,23 @@ import cats.effect.IO
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
-import org.soundsofscala.syntax.all.*
 import org.soundsofscala.playback.*
+import org.soundsofscala.syntax.all.*
 
 object ExampleSong2:
   val musicalEvent: MusicalEvent =
-    D3
+    D2
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
-      playbackRate = 0.9,
-      reversed = true,
-      loop = Some(Loop(start = 2, end = 3)),
+      playbackRate = 1,
+      reversed = false,
+      loop = Some(Loop(start = 2, end = 6)),
       attack = Attack(0),
-      release = Release(0.9)
+      release = Release(0.9),
+      startTime = 1,
+      offset = 1,
+      duration = Some(1)
     )
 
   def play(): AudioContext ?=> IO[Unit] =

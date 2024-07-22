@@ -37,10 +37,13 @@ object SamplePlayer {
       release: Release,
       playbackRate: Double,
       reversed: Boolean,
-      loop: Option[Loop])
+      loop: Option[Loop],
+      startTime: Double,
+      offset: Double,
+      duration: Option[Double])
   object Settings {
     given Default[Settings] with {
-      val default: Settings = Settings(Attack(0), Release(0.9), 1.0, false, None)
+      val default: Settings = Settings(Attack(0), Release(0.9), 1.0, false, None, 0, 0, None)
     }
   }
 
@@ -72,24 +75,33 @@ object SamplePlayer {
       _ <- IO(sourceNode.connect(gainNode))
       _ <- IO {
 
-        if settings.reversed then
-          sourceNode.buffer = reverseBuffer(buffer)
-        else
-          sourceNode.buffer = buffer
+        sourceNode.playbackRate.value = settings.playbackRate * playbackRate
+
+        settings.reversed match
+          case true =>
+            sourceNode.buffer = reverseBuffer(buffer)
+          case false =>
+            sourceNode.buffer = buffer
+
+        val startTime = settings.startTime
+        val offset = settings.offset
+
+        val duration = settings.duration match
+          case Some(d) => d
+          case None => (buffer.duration / math.abs(playbackRate)) - offset
 
         settings.loop match
           case Some(Loop(start, end)) =>
             sourceNode.loop = true
             sourceNode.loopStart = start
             sourceNode.loopEnd = end
+            sourceNode.start(startTime, start)
           case None =>
             sourceNode.loop = false
+            sourceNode.start(startTime, offset, duration)
 
-        sourceNode.playbackRate.value = settings.playbackRate * playbackRate
-
-        val adjustedDuration = buffer.duration * math.abs(playbackRate)
-        sourceNode.start(when, 0, adjustedDuration)
       }
     yield ()
+    end for
   end playSample
 }
