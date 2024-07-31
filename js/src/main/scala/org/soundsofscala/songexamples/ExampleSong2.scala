@@ -20,21 +20,20 @@ import cats.effect.IO
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
-import org.soundsofscala.playback.*
 import org.soundsofscala.syntax.all.*
 
 object ExampleSong2:
   val musicalEvent: MusicalEvent =
-    D2
+    D2 + A2
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
       volume = 1,
       playbackRate = 1,
       reversed = false,
-      loop = Some(Loop(start = 3, end = 6)),
-      fadeIn = 3,
-      fadeOut = 3,
+      loop = None, // Some(Loop(start = 3, end = 6)),
+      fadeIn = 0,
+      fadeOut = 0,
       startTime = 0,
       offset = 0,
       duration = None // Some(1)
