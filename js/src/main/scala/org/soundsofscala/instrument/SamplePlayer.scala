@@ -42,6 +42,7 @@ object SamplePlayer:
       startTime: Double,
       offset: Double,
       duration: Option[Double])
+
   object Settings:
     given Default[Settings] with
       val default: Settings = Settings(1, 0, 0, 1.0, false, None, 0, 0, None)
@@ -52,6 +53,26 @@ object SamplePlayer:
       musicalEvent: AtomicMusicalEvent,
       when: Double,
       settings: Settings)(using audioContext: AudioContext): IO[Unit] =
+
+    val startTime = settings.startTime
+    val offset = settings.offset
+    val duration = settings.duration match
+      case Some(d) => d
+      case None => (buffer.duration / math.abs(playbackRate)) - offset
+
+    def createGainNode(volume: Double): IO[dom.GainNode] =
+      for
+        gainNode <- IO(audioContext.createGain())
+        _ <- IO(gainNode.gain.value = volume)
+        _ <- IO(gainNode.connect(audioContext.destination))
+      yield gainNode
+
+    def createSourceNode(buffer:AudioBuffer, playbackRate: Double, reversed: Boolean): IO[dom.AudioBufferSourceNode] =
+      for
+        sourceNode <- IO(audioContext.createBufferSource())
+        _ <- IO(sourceNode.playbackRate.value = playbackRate)
+        _ <- IO(sourceNode.buffer = if reversed then reverseBuffer(buffer) else buffer)
+      yield sourceNode
 
     def reverseBuffer(buffer: AudioBuffer): AudioBuffer =
       val newBuffer = audioContext.createBuffer(
@@ -66,55 +87,41 @@ object SamplePlayer:
         newBuffer.copyToChannel(typedArr, channel, 0)
       newBuffer
 
+    def configureGainNode(gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO {
+      settings.fadeIn match
+        case 0 =>
+          gainNode.gain.value = settings.volume
+        case fadeIn if fadeIn > 0 =>
+          gainNode.gain.value = 0
+          gainNode.gain.linearRampToValueAtTime(settings.volume, startTime + offset + fadeIn)
+
+      settings.fadeOut match
+        case 0 =>
+        // No action needed for fade-out if fadeOut is 0
+        case fadeOut if fadeOut > 0 =>
+          gainNode.gain.linearRampToValueAtTime(
+            0,
+            startTime + offset + duration - fadeOut)
+    }
+
+    def configureSourceNode(sourceNode: dom.AudioBufferSourceNode, settings: Settings): IO[Unit] = IO {
+      settings.loop match
+        case Some(Loop(start, end)) =>
+          sourceNode.loop = true
+          sourceNode.loopStart = start
+          sourceNode.loopEnd = end
+          sourceNode.start(startTime, start)
+        case None =>
+          sourceNode.loop = false
+          sourceNode.start(startTime, offset, duration)
+    }
+
     for
-      gainNode <- IO(audioContext.createGain())
-      sourceNode <- IO(audioContext.createBufferSource())
-      _ <- IO(gainNode.gain.value = musicalEvent.normalizedVelocity / 2)
-      _ <- IO(gainNode.connect(audioContext.destination))
+      gainNode <- createGainNode(settings.volume)
+      sourceNode <- createSourceNode(buffer, settings.playbackRate * playbackRate, settings.reversed)
       _ <- IO(sourceNode.connect(gainNode))
-      _ <- IO {
-
-        sourceNode.playbackRate.value = settings.playbackRate * playbackRate
-
-        settings.reversed match
-          case true =>
-            sourceNode.buffer = reverseBuffer(buffer)
-          case false =>
-            sourceNode.buffer = buffer
-
-        val startTime = settings.startTime
-        val offset = settings.offset
-
-        val duration = settings.duration match
-          case Some(d) => d
-          case None => (buffer.duration / math.abs(playbackRate)) - offset
-
-        settings.fadeIn match
-          case 0 =>
-            gainNode.gain.value = settings.volume
-          case in if in > 0 =>
-            gainNode.gain.value = 0
-            gainNode.gain.linearRampToValueAtTime(settings.volume, startTime + offset + in)
-
-        settings.fadeOut match
-          case 0 =>
-            gainNode.gain.value = settings.volume
-          case out if out > 0 =>
-            gainNode.gain.linearRampToValueAtTime(
-              0,
-              startTime + offset + duration - settings.fadeOut)
-
-        settings.loop match
-          case Some(Loop(start, end)) =>
-            sourceNode.loop = true
-            sourceNode.loopStart = start
-            sourceNode.loopEnd = end
-            sourceNode.start(startTime, start)
-          case None =>
-            sourceNode.loop = false
-            sourceNode.start(startTime, offset, duration)
-
-      }
+      _ <- configureGainNode(gainNode, settings)
+      _ <- configureSourceNode(sourceNode, settings)
     yield ()
     end for
   end playSample
