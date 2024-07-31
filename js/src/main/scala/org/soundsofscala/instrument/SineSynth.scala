@@ -32,7 +32,7 @@ final case class SineSynth()(using audioContext: AudioContext)
     IO:
       val sineVelocity = note.velocity.getNormalisedVelocity
       val oscillators = Seq(
-        SineOscillator(Frequency(note.frequency), Volume(sineVelocity))
+        SineOscillator(Hertz(note.frequency), Volume(sineVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

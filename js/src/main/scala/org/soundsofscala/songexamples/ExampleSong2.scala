@@ -18,7 +18,8 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.{SamplePlayer, Sampler}
+import org.soundsofscala.instrument.SamplePlayer
+import org.soundsofscala.instrument.Sampler
 import org.soundsofscala.models.*
 //import org.soundsofscala.playback.*
 import org.soundsofscala.syntax.all.*

@@ -17,6 +17,7 @@
 package org.soundsofscala.synthesis
 
 import org.scalajs.dom.AudioContext
+import org.soundsofscala.models.AudioTypes.WaveType
 import org.soundsofscala.models.*
 import org.soundsofscala.synthesis.Oscillator.*
 
@@ -24,10 +25,10 @@ case class TestSynth()(using audioContext: AudioContext):
   val startingF = 440
 
   var oscillators: List[Oscillator] = List(
-    SineOscillator(Frequency(440)),
-    SawtoothOscillator(Frequency(startingF / 8)),
-    SquareOscillator().frequency(Frequency(startingF / 4)),
-    TriangleOscillator().frequency(Frequency(startingF - 3))
+    SineOscillator(Hertz(440)),
+    SawtoothOscillator(Hertz(startingF / 8)),
+    SquareOscillator().frequency(Hertz(startingF / 4)),
+    TriangleOscillator().frequency(Hertz(startingF - 3))
   )
 
   def play(time: Double): Unit =
@@ -36,10 +37,10 @@ case class TestSynth()(using audioContext: AudioContext):
   def stop(): Unit =
     oscillators.foreach(_.stop(audioContext.currentTime))
     oscillators = List(
-      SineOscillator(Frequency(440)),
-      SawtoothOscillator(Frequency(startingF / 8)),
-      SquareOscillator().frequency(Frequency(startingF / 4)),
-      TriangleOscillator().frequency(Frequency(startingF - 3))
+      SineOscillator(Hertz(440)),
+      SawtoothOscillator(Hertz(startingF / 8)),
+      SquareOscillator().frequency(Hertz(startingF / 4)),
+      TriangleOscillator().frequency(Hertz(startingF - 3))
     )
 
   def updateFilterFrequency(f: Double): Unit =

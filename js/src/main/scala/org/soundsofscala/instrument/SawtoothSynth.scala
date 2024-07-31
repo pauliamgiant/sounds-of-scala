@@ -36,7 +36,7 @@ final case class SawtoothSynth()(using audioContext: AudioContext)
     IO:
       val sawVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
-        SawtoothOscillator(Frequency(note.frequency), Volume(sawVelocity))
+        SawtoothOscillator(Hertz(note.frequency), Volume(sawVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

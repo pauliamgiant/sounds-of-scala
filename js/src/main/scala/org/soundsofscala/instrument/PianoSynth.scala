@@ -35,8 +35,8 @@ final case class PianoSynth()(using audioContext: AudioContext)
       val sineVelocity = note.velocity.getNormalisedVelocity
       val triangleVelocity = note.velocity.getNormalisedVelocity / 8
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote / 8), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote / 4), Volume(triangleVelocity))
+        SineOscillator(Hertz(keyNote / 8), Volume(sineVelocity)),
+        TriangleOscillator(Hertz(keyNote / 4), Volume(triangleVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

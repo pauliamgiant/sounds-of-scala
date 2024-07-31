@@ -19,9 +19,9 @@ package org.soundsofscala.models
 import refined4s.Newtype
 import refined4s.Refined
 
-type Frequency = Frequency.Type
+type Hertz = Hertz.Type
 
-object Frequency extends Newtype[Double]
+object Hertz extends Newtype[Double]
 
 type Volume = Volume.Type
 
