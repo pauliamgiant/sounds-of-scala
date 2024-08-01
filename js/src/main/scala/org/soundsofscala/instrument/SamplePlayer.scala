@@ -90,25 +90,22 @@ object SamplePlayer:
         newBuffer.copyToChannel(typedArr, channel, 0)
       newBuffer
 
-    def configureGainNode(gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO {
-      settings.fadeIn match
-        case 0 =>
-          gainNode.gain.value = settings.volume
-        case fadeIn if fadeIn > 0 =>
-          gainNode.gain.value = 0
-          gainNode.gain.linearRampToValueAtTime(settings.volume, startTime + offset + fadeIn)
+    def configureGainNode(gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO:
+      val currentTime = audioContext.currentTime
+      if settings.fadeIn > 0 then
+        gainNode.gain.setValueAtTime(0, currentTime)
+        gainNode.gain.linearRampToValueAtTime(settings.volume, currentTime + settings.fadeIn)
+      else
+        gainNode.gain.setValueAtTime(settings.volume, currentTime)
 
-      settings.fadeOut match
-        case 0 =>
-        // No action needed for fade-out if fadeOut is 0
-        case fadeOut if fadeOut > 0 =>
-          gainNode.gain.linearRampToValueAtTime(
-            0,
-            startTime + offset + duration - fadeOut)
-    }
+      if settings.fadeOut > 0 then
+        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration - settings.fadeOut)
+        gainNode.gain.linearRampToValueAtTime(0, currentTime + duration)
+      else
+        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration)
 
     def configureSourceNode(sourceNode: dom.AudioBufferSourceNode, settings: Settings): IO[Unit] =
-      IO {
+      IO:
         settings.loop match
           case Some(Loop(start, end)) =>
             sourceNode.loop = true
@@ -118,7 +115,6 @@ object SamplePlayer:
           case None =>
             sourceNode.loop = false
             sourceNode.start(startTime, offset, duration)
-      }
 
     for
       gainNode <- createGainNode(settings.volume)
