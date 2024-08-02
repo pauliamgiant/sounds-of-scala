@@ -156,7 +156,8 @@ usefulTasks := Seq(
     "cln; c; t; chk",
     "Clean Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("cbld"),
-  UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du")
+  UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du"),
+  UsefulTask("headerCreate", "Run create headers for pagers to pass ci").alias("h")
 )
 
 logoColor := scala.Console.YELLOW

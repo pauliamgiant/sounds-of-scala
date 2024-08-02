@@ -34,8 +34,8 @@ final case class ScalaSynth()(using audioContext: AudioContext)
       val sineVelocity = note.velocity.getNormalisedVelocity
       val triangleVelocity = note.velocity.getNormalisedVelocity / 4
       val oscillators = Seq(
-        SineOscillator(Frequency(keyNote), Volume(sineVelocity)),
-        TriangleOscillator(Frequency(keyNote * 2), Volume(triangleVelocity))
+        SineOscillator(Hertz(keyNote), Volume(sineVelocity)),
+        TriangleOscillator(Hertz(keyNote * 2), Volume(triangleVelocity))
       )
       oscillators.foreach: osc =>
         osc.play(when)

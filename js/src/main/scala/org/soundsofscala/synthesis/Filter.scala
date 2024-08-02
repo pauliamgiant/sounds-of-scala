@@ -20,7 +20,7 @@ import org.scalajs.dom.AudioContext
 import org.scalajs.dom.AudioNode
 import org.scalajs.dom.BiquadFilterNode
 import org.soundsofscala.models.Bandwidth
-import org.soundsofscala.models.Frequency
+import org.soundsofscala.models.Hertz
 
 /**
  * Filter for shaping audio signal with different types of filters
@@ -33,7 +33,7 @@ import org.soundsofscala.models.Frequency
  * @param audioContext
  *   audio context for creating filter node
  */
-enum Filter(frequency: Frequency, bandwidth: Bandwidth, filterType: String)(
+enum Filter(frequency: Hertz, bandwidth: Bandwidth, filterType: String)(
     using audioContext: AudioContext):
   private val filterNode: BiquadFilterNode = audioContext.createBiquadFilter()
   filterNode.`type` = filterType
@@ -49,20 +49,20 @@ enum Filter(frequency: Frequency, bandwidth: Bandwidth, filterType: String)(
   def plugIn(node: AudioNode): BiquadFilterNode =
     node.connect(filterNode)
     filterNode
-  case LowPass(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case LowPass(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "lowpass")
-  case HighPass(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case HighPass(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "highpass")
-  case BandPass(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case BandPass(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "bandpass")
-  case Notch(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case Notch(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "notch")
-  case AllPass(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case AllPass(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "allpass")
-  case Peaking(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case Peaking(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "peaking")
-  case LowShelf(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case LowShelf(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "lowshelf")
-  case HighShelf(frequency: Frequency, bandwidth: Bandwidth)(using audioContext: AudioContext)
+  case HighShelf(frequency: Hertz, bandwidth: Bandwidth)(using audioContext: AudioContext)
       extends Filter(frequency, bandwidth, "highshelf")
 end Filter
