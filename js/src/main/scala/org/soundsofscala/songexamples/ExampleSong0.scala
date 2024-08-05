@@ -36,11 +36,11 @@ object ExampleSong0:
       playbackRate = 1,
       reversed = false,
       loop = None, // Some(Loop(start = 2, end = 6)),
-      fadeIn = 0,
-      fadeOut = 0,
-      startTime = 0,
+      fadeIn = 1,
+      fadeOut = 1,
+      startDelay = 0,
       offset = 0,
-      duration = Some(1)
+      length = Some(1)
     )
 
   val anotherOneBitesTheRust: MusicalEvent =

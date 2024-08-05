@@ -137,9 +137,4 @@ object Sampler:
     )
     fromPaths(filePaths)
 
-  def rimShot(using AudioContext): IO[Sampler] =
-    val filePaths: List[(SampleKey, String)] = List(
-      SampleKey(Pitch.C, Accidental.Natural, Octave(3)) -> "resources/audio/misc/rim.mp3"
-    )
-    fromPaths(filePaths)
 end Sampler

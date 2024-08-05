@@ -38,9 +38,9 @@ object SamplePlayer:
       playbackRate: Double,
       reversed: Boolean,
       loop: Option[Loop],
-      startTime: Double,
+      startDelay: Double,
       offset: Double,
-      duration: Option[Double])
+      length: Option[Double])
 
   object Settings:
     given Default[Settings] with
@@ -54,12 +54,9 @@ object SamplePlayer:
       settings: Settings,
       tempo: Tempo)(using audioContext: AudioContext): IO[Unit] =
 
-//    val startTime = settings.startTime
+    val computedPlaybackRate = playbackRate * settings.playbackRate
     val offset = settings.offset
-    val duration = musicalEvent.durationToSeconds(tempo)
-//    val duration = settings.duration match
-//      case Some(d) => d
-//      case None => (buffer.duration / math.abs(playbackRate)) - offset
+    val length = settings.length.getOrElse((buffer.duration / math.abs(playbackRate)) - offset)
 
     def createGainNode(volume: Double): IO[dom.GainNode] =
       for
@@ -92,18 +89,24 @@ object SamplePlayer:
       newBuffer
 
     def configureGainNode(when: Double, gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO:
-//      val currentTime = audioContext.currentTime
       if settings.fadeIn > 0 then
-        gainNode.gain.setValueAtTime(0, when)
-        gainNode.gain.linearRampToValueAtTime(settings.volume, when + settings.fadeIn)
+        gainNode.gain.setValueAtTime(0, when + settings.startDelay)
+        gainNode.gain.linearRampToValueAtTime(
+          settings.volume,
+          when + settings.startDelay + settings.fadeIn)
       else
-        gainNode.gain.setValueAtTime(settings.volume, when)
+        gainNode.gain.setValueAtTime(settings.volume, when + settings.startDelay)
 
       if settings.fadeOut > 0 then
-        gainNode.gain.setValueAtTime(settings.volume, when + duration - settings.fadeOut)
-        gainNode.gain.linearRampToValueAtTime(0, when + (duration - 0.01))
+        gainNode.gain.setValueAtTime(
+          settings.volume,
+          when + settings.startDelay + length - settings.fadeOut)
+        gainNode.gain.linearRampToValueAtTime(0, when + settings.startDelay + length)
       else
-        gainNode.gain.exponentialRampToValueAtTime(0.001, when + duration + 0.4)
+        gainNode.gain.setValueAtTime(
+          settings.volume,
+          when + settings.startDelay + length - 0.1)
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, when + settings.startDelay + length)
 
     def configureSourceNode(
         when: Double,
@@ -115,16 +118,16 @@ object SamplePlayer:
             sourceNode.loop = true
             sourceNode.loopStart = start
             sourceNode.loopEnd = end
-            sourceNode.start(when, start, duration)
-            sourceNode.stop(when + duration)
+            sourceNode.start(when, start, length)
+            sourceNode.stop(when + length)
           case None =>
             sourceNode.loop = false
-            sourceNode.start(when, offset, duration)
-            sourceNode.stop(when + (duration + 0.1))
+            sourceNode.start(when + settings.startDelay, offset, length)
+            sourceNode.stop(when + settings.startDelay + (length + 0.1))
     for
       gainNode <- createGainNode(settings.volume)
       sourceNode <-
-        createSourceNode(buffer, settings.playbackRate * playbackRate, settings.reversed)
+        createSourceNode(buffer, computedPlaybackRate, settings.reversed)
       _ <- IO(sourceNode.connect(gainNode))
       _ <- configureGainNode(when, gainNode, settings)
       _ <- configureSourceNode(when, sourceNode, settings)

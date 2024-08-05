@@ -18,26 +18,24 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.SamplePlayer
-import org.soundsofscala.instrument.Sampler
+import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
 object ExampleSong2:
   val musicalEvent: MusicalEvent =
-    D2 + A2 + F2 + A3 + D4 + F2 + D5 + D2
-
+    C2
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
       volume = 1,
       playbackRate = 1,
-      reversed = false,
-      loop = None, // Some(Loop(start = 1, end = 1.5)),
+      reversed = true,
+      loop = None,
       fadeIn = 0,
-      fadeOut = 0.5,
-      startTime = 0,
-      offset = 0,
-      duration = Some(1)
+      fadeOut = 0,
+      startDelay = 0,
+      offset = 5,
+      length = Some(2)
     )
 
   def play(): AudioContext ?=> IO[Unit] =
@@ -45,7 +43,7 @@ object ExampleSong2:
       piano <- Sampler.piano
       song = Song(
         title = Title("Rhubarb Loop"),
-        tempo = Tempo(110),
+        tempo = Tempo(60),
         swing = Swing(0),
         mixer = Mixer(
           Track(

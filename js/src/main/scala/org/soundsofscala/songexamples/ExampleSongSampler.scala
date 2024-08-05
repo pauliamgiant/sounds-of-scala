@@ -18,11 +18,11 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.Sampler
+import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong1:
+object ExampleSongSampler:
 
   val vinylHihat: MusicalEvent =
     RestEighth + C4.eighth + RestEighth + C4.eighth + RestQuarter + RestSixteenth + C4.sixteenth + RestEighth
@@ -39,6 +39,9 @@ object ExampleSong1:
   val sparklesTrack: MusicalEvent =
     TwoBarRest + TwoBarRest + C3 + TwoBarRest + TwoBarRest
 
+  val sparklesTrackReversed: MusicalEvent =
+    C3 + TwoBarRest + C3 + TwoBarRest
+
   val kickTrack: MusicalEvent =
     C2.eighth + C2.eighth + RestQuarter + OneBarRest + RestHalf + C2.eighth + RestEighth + RestQuarter + OneBarRest + RestHalf
 
@@ -46,8 +49,18 @@ object ExampleSong1:
     (RestQuarter + C2.eighth + RestEighth).repeat(
       7) + RestSixteenth + C2.sixteenth + RestEighth + C2.eighth + RestEighth
 
-  val rimTrack: MusicalEvent =
-    RestHalf + RestSixteenth + C3.eighth + RestSixteenth + RestQuarter + RestHalf + RestSixteenth + C3.eighth + RestEighth + C3.eighth + RestSixteenth + RestHalf + RestSixteenth + C3.eighth + RestSixteenth + RestQuarter + OneBarRest
+  val customSettings: SamplePlayer.Settings =
+    SamplePlayer.Settings(
+      volume = 1,
+      playbackRate = 1,
+      reversed = true,
+      loop = None, // Some(Loop(start = 1, end = 1.5)),
+      fadeIn = 0.2,
+      fadeOut = 0,
+      startDelay = 0,
+      offset = 2,
+      length = Some(1)
+    )
 
   def play(): AudioContext ?=> IO[Unit] =
     for
@@ -56,7 +69,6 @@ object ExampleSong1:
       sparkles <- Sampler.sparkles
       kick <- Sampler.kickDrum
       snare <- Sampler.snareDrum
-      rim <- Sampler.rimShot
       song = Song(
         title = Title("Rhubarb"),
         tempo = Tempo(110),
@@ -66,12 +78,16 @@ object ExampleSong1:
           Track(Title("RhubarbLow"), rhubarbLow.loop, rhubarb),
           Track(Title("Vinyl"), vinylTrack.loop, vinyl),
           Track(Title("Sparkles"), sparklesTrack.loop, sparkles),
+          Track(
+            Title("SparklesReversed"),
+            sparklesTrackReversed.loop,
+            sparkles,
+            customSettings = Some(customSettings)),
           Track(Title("Kick"), kickTrack.loop, kick),
           Track(Title("Snare"), snareTrack.loop, snare),
           Track(Title("VinylHihat"), vinylHihat.loop, vinyl)
-          // Track(Title("Rim"), rimTrack.loop, rim)
         )
       )
       a <- song.play()
     yield a
-end ExampleSong1
+end ExampleSongSampler

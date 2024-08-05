@@ -29,13 +29,13 @@ object ExampleSong3:
     SamplePlayer.Settings(
       volume = 1,
       playbackRate = 1,
-      reversed = false,
+      reversed = true,
       loop = None, // Some(Loop(start = 2, end = 6)),
       fadeIn = 0,
       fadeOut = 0,
-      startTime = 0,
+      startDelay = 0,
       offset = 0,
-      duration = Some(1)
+      length = Some(1)
     )
 
   val musicalEvent: MusicalEvent =
