@@ -17,15 +17,13 @@
 package org.soundsofscala.instrument
 
 import cats.effect.IO
-
 import org.scalajs.dom
-import org.scalajs.dom.AudioBuffer
-import org.scalajs.dom.AudioContext
+import org.scalajs.dom.{AudioBuffer, AudioContext}
 import org.soundsofscala.models.AtomicMusicalEvent
+
 import scala.scalajs.js.typedarray.Float32Array
 import scala.scalajs.js.JSConverters.iterableOnceConvertible2JSRichIterableOnce
 import org.soundsofscala.playback.*
-
 import org.soundsofscala.models.*
 
 trait SamplePlayer extends Instrument[SamplePlayer.Settings] {}
@@ -56,9 +54,10 @@ object SamplePlayer:
 
     val startTime = settings.startTime
     val offset = settings.offset
+    val computedPlaybackRate = playbackRate * settings.playbackRate
     val duration = settings.duration match
       case Some(d) => d
-      case None => (buffer.duration / math.abs(playbackRate)) - offset
+      case None => (buffer.duration) - offset
 
     def createGainNode(volume: Double): IO[dom.GainNode] =
       for
@@ -92,17 +91,20 @@ object SamplePlayer:
 
     def configureGainNode(gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO:
       val currentTime = audioContext.currentTime
-      if settings.fadeIn > 0 then
-        gainNode.gain.setValueAtTime(0, currentTime)
-        gainNode.gain.linearRampToValueAtTime(settings.volume, currentTime + settings.fadeIn)
-      else
-        gainNode.gain.setValueAtTime(settings.volume, currentTime)
-
-      if settings.fadeOut > 0 then
-        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration - settings.fadeOut)
-        gainNode.gain.linearRampToValueAtTime(0, currentTime + duration)
-      else
-        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration)
+      def setFadeIn(): Unit =
+        if settings.fadeIn > 0 then
+          gainNode.gain.setValueAtTime(0, currentTime)
+          gainNode.gain.linearRampToValueAtTime(settings.volume, currentTime + settings.fadeIn)
+        else
+          gainNode.gain.setValueAtTime(settings.volume, currentTime)
+      def setFadeOut(): Unit =
+        if settings.fadeOut > 0 then
+          gainNode.gain.linearRampToValueAtTime(
+            settings.volume,
+            startTime + duration - settings.fadeOut)
+          gainNode.gain.linearRampToValueAtTime(0, startTime + duration)
+      setFadeIn()
+      setFadeOut()
 
     def configureSourceNode(sourceNode: dom.AudioBufferSourceNode, settings: Settings): IO[Unit] =
       IO:
@@ -114,12 +116,12 @@ object SamplePlayer:
             sourceNode.start(startTime, start)
           case None =>
             sourceNode.loop = false
-            sourceNode.start(startTime, offset, duration)
+            sourceNode.start(startTime, offset, duration + settings.fadeOut)
 
     for
       gainNode <- createGainNode(settings.volume)
       sourceNode <-
-        createSourceNode(buffer, settings.playbackRate * playbackRate, settings.reversed)
+        createSourceNode(buffer, computedPlaybackRate, settings.reversed)
       _ <- IO(sourceNode.connect(gainNode))
       _ <- configureGainNode(gainNode, settings)
       _ <- configureSourceNode(sourceNode, settings)

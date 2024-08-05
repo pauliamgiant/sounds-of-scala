@@ -25,7 +25,7 @@ import org.soundsofscala.syntax.all.*
 
 object ExampleSong2:
   val musicalEvent: MusicalEvent =
-    D2 + A2 + F2 + A3 + D4 + F2 + D5 + D2
+    D2 + D3 + A3
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
@@ -33,11 +33,11 @@ object ExampleSong2:
       playbackRate = 1,
       reversed = false,
       loop = None, // Some(Loop(start = 1, end = 1.5)),
-      fadeIn = 0,
-      fadeOut = 0.5,
+      fadeIn = 1,
+      fadeOut = 1,
       startTime = 0,
       offset = 0,
-      duration = Some(1)
+      duration = Some(2)
     )
 
   def play(): AudioContext ?=> IO[Unit] =
