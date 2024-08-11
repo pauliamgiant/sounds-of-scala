@@ -20,23 +20,65 @@ import cats.effect.IO
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
+import org.soundsofscala.graph.AudioNode.*
+import org.soundsofscala.graph.AudioParam
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.ExponentialRampToValueAtTime
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.LinearRampToValueAtTime
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime
 import org.soundsofscala.models
 import org.soundsofscala.models.AtomicMusicalEvent.Note
-import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.*
-import org.soundsofscala.synthesis.Oscillator.*
 
 final case class ScalaSynth()(using audioContext: AudioContext)
     extends Synth(using audioContext: AudioContext):
-  override def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit] =
+  override def attackRelease(
+      when: Double,
+      note: Note,
+      tempo: Tempo,
+      attack: Attack,
+      release: Release): IO[Unit] =
     IO:
-      val keyNote = note.frequency
-      val sineVelocity = note.velocity.getNormalisedVelocity
-      val triangleVelocity = note.velocity.getNormalisedVelocity / 4
-      val oscillators = Seq(
-        SineOscillator(Hertz(keyNote), Volume(sineVelocity)),
-        TriangleOscillator(Hertz(keyNote * 2), Volume(triangleVelocity))
-      )
-      oscillators.foreach: osc =>
-        osc.play(when)
-        osc.stop(when + note.durationToSeconds(tempo))
+      val synthVelocity = note.velocity.getNormalisedVelocity
+      println(s"Playing note ${note.frequency} at velocity $synthVelocity")
+
+      val filter = lowPassFilter.withFrequency(AudioParam(Vector(
+        ExponentialRampToValueAtTime(1000, when),
+        LinearRampToValueAtTime(10000, when + note.durationToSeconds(tempo)))))
+
+      val squareGain =
+        Gain(
+          List.empty,
+          AudioParam(Vector(
+            ExponentialRampToValueAtTime(synthVelocity, when),
+            LinearRampToValueAtTime(0.000001, when + note.durationToSeconds(tempo)))))
+
+      val sawGain =
+        Gain(
+          List.empty,
+          AudioParam(Vector(
+            ExponentialRampToValueAtTime(synthVelocity / 4, when),
+            LinearRampToValueAtTime(0.000001, when + note.durationToSeconds(tempo))))
+        )
+
+      val osc1Square =
+        squareOscillator(
+          when,
+          note.durationToSeconds(tempo)).withFrequency(
+          AudioParam(Vector(SetValueAtTime(
+            note.frequency,
+            when))))
+
+      val osc2Saw =
+        sawtoothOscillator(
+          when,
+          note.durationToSeconds(tempo)).withFrequency(
+          AudioParam(Vector(SetValueAtTime(
+            note.frequency,
+            when))))
+
+      val graph1 = osc1Square --> filter --> squareGain
+      val graph2 = osc2Saw --> filter --> sawGain
+      graph1.create
+      graph2.create
+    .void
+end ScalaSynth

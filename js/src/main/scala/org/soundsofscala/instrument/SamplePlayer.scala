@@ -17,16 +17,15 @@
 package org.soundsofscala.instrument
 
 import cats.effect.IO
-
 import org.scalajs.dom
 import org.scalajs.dom.AudioBuffer
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.AtomicMusicalEvent
-import scala.scalajs.js.typedarray.Float32Array
-import scala.scalajs.js.JSConverters.iterableOnceConvertible2JSRichIterableOnce
+import org.soundsofscala.models.*
 import org.soundsofscala.playback.*
 
-import org.soundsofscala.models.*
+import scala.scalajs.js.JSConverters.iterableOnceConvertible2JSRichIterableOnce
+import scala.scalajs.js.typedarray.Float32Array
 
 trait SamplePlayer extends Instrument[SamplePlayer.Settings] {}
 
@@ -52,13 +51,15 @@ object SamplePlayer:
       playbackRate: Double,
       musicalEvent: AtomicMusicalEvent,
       when: Double,
-      settings: Settings)(using audioContext: AudioContext): IO[Unit] =
+      settings: Settings,
+      tempo: Tempo)(using audioContext: AudioContext): IO[Unit] =
 
-    val startTime = settings.startTime
+//    val startTime = settings.startTime
     val offset = settings.offset
-    val duration = settings.duration match
-      case Some(d) => d
-      case None => (buffer.duration / math.abs(playbackRate)) - offset
+    val duration = musicalEvent.durationToSeconds(tempo)
+//    val duration = settings.duration match
+//      case Some(d) => d
+//      case None => (buffer.duration / math.abs(playbackRate)) - offset
 
     def createGainNode(volume: Double): IO[dom.GainNode] =
       for
@@ -90,39 +91,43 @@ object SamplePlayer:
         newBuffer.copyToChannel(typedArr, channel, 0)
       newBuffer
 
-    def configureGainNode(gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO:
-      val currentTime = audioContext.currentTime
+    def configureGainNode(when: Double, gainNode: dom.GainNode, settings: Settings): IO[Unit] = IO:
+//      val currentTime = audioContext.currentTime
       if settings.fadeIn > 0 then
-        gainNode.gain.setValueAtTime(0, currentTime)
-        gainNode.gain.linearRampToValueAtTime(settings.volume, currentTime + settings.fadeIn)
+        gainNode.gain.setValueAtTime(0, when)
+        gainNode.gain.linearRampToValueAtTime(settings.volume, when + settings.fadeIn)
       else
-        gainNode.gain.setValueAtTime(settings.volume, currentTime)
+        gainNode.gain.setValueAtTime(settings.volume, when)
 
       if settings.fadeOut > 0 then
-        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration - settings.fadeOut)
-        gainNode.gain.linearRampToValueAtTime(0, currentTime + duration)
+        gainNode.gain.setValueAtTime(settings.volume, when + duration - settings.fadeOut)
+        gainNode.gain.linearRampToValueAtTime(0, when + (duration - 0.01))
       else
-        gainNode.gain.setValueAtTime(settings.volume, currentTime + duration)
+        gainNode.gain.exponentialRampToValueAtTime(0.001, when + duration + 0.4)
 
-    def configureSourceNode(sourceNode: dom.AudioBufferSourceNode, settings: Settings): IO[Unit] =
+    def configureSourceNode(
+        when: Double,
+        sourceNode: dom.AudioBufferSourceNode,
+        settings: Settings): IO[Unit] =
       IO:
         settings.loop match
           case Some(Loop(start, end)) =>
             sourceNode.loop = true
             sourceNode.loopStart = start
             sourceNode.loopEnd = end
-            sourceNode.start(startTime, start)
+            sourceNode.start(when, start, duration)
+            sourceNode.stop(when + duration)
           case None =>
             sourceNode.loop = false
-            sourceNode.start(startTime, offset, duration)
-
+            sourceNode.start(when, offset, duration)
+            sourceNode.stop(when + (duration + 0.1))
     for
       gainNode <- createGainNode(settings.volume)
       sourceNode <-
         createSourceNode(buffer, settings.playbackRate * playbackRate, settings.reversed)
       _ <- IO(sourceNode.connect(gainNode))
-      _ <- configureGainNode(gainNode, settings)
-      _ <- configureSourceNode(sourceNode, settings)
+      _ <- configureGainNode(when, gainNode, settings)
+      _ <- configureSourceNode(when, sourceNode, settings)
     yield ()
     end for
   end playSample

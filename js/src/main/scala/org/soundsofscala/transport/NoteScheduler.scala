@@ -26,28 +26,33 @@ import org.soundsofscala.models.*
 
 import scala.concurrent.duration.DurationDouble
 
-case class NoteScheduler(
+/**
+ * The `NoteScheduler` is responsible for scheduling the notes of a single track. It uses the
+ * `ScheduleStatus` to determine if the next note should be scheduled. We can start them at a
+ * precise time with the currentTime property of the AudioContext. The method of scheduling notes in
+ * the browser is derived from the following: https://web.dev/articles/audio-scheduling
+ * https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques#playing_the_audio_in_time
+ *
+ * @param tempo
+ *   The tempo of the song. This is needed to determine the how many seconds a note is played for
+ * @param lookAheadMs
+ *   The time in milliseconds to look ahead to determine if the next note should be scheduled
+ * @param scheduleAheadTimeSeconds
+ *   The time window in seconds in which to schedule notes ahead of time
+ */
+final case class NoteScheduler(
     tempo: Tempo,
     lookAheadMs: LookAhead,
     scheduleAheadTimeSeconds: ScheduleWindow):
-
-  enum ScheduleState:
-    case Ready extends ScheduleState
-    case Waiting extends ScheduleState
-
-  object ScheduleState:
-    def apply(nextNoteTime: NextNoteTime)(using audioContext: AudioContext): ScheduleState =
-      if nextNoteTime.value < audioContext.currentTime + scheduleAheadTimeSeconds.value then
-        Ready
-      else Waiting
 
   def scheduleInstrument[Settings](
       musicalEvent: MusicalEvent,
       instrument: Instrument[Settings],
       settings: Settings)(
       using audioContext: AudioContext): IO[Unit] =
-    val initialNextNoteValue = NextNoteTime(audioContext.currentTime)
-    scheduler(musicalEvent, initialNextNoteValue, instrument, settings) >> IO.println(
+
+    val startingNoteTime = NextNoteTime(audioContext.currentTime)
+    scheduler(musicalEvent, startingNoteTime, instrument, settings) >> IO.println(
       "Sequence finished")
 
   private def scheduler[Settings](
@@ -55,21 +60,30 @@ case class NoteScheduler(
       nextNoteTime: NextNoteTime,
       instrument: Instrument[Settings],
       settings: Settings): AudioContext ?=> IO[Unit] =
-    ScheduleState(nextNoteTime) match
-      case ScheduleState.Ready =>
+    // check if we can schedule the next note
+    ScheduleStatus(nextNoteTime, scheduleAheadTimeSeconds) match
+      case ScheduleStatus.Ready =>
         musicalEvent match
+          // for a sequence, schedule the first note, and then schedule the rest of the sequence
           case sequence: Sequence =>
-            val time = NextNoteTime(nextNoteTime.value + sequence.head.durationToSeconds(tempo))
+            // time that rest of the sequence will be scheduled
+            val nextNextNoteTime =
+              NextNoteTime(nextNoteTime.value + sequence.head.durationToSeconds(tempo))
+            // schedule the first note
             scheduleAtomicEvent(sequence.head, nextNoteTime, instrument, settings) >>
-              scheduler(sequence.tail, time, instrument, settings)
+              // schedule the rest of the sequence
+              scheduler(sequence.tail, nextNextNoteTime, instrument, settings)
           case atomicEvent: AtomicMusicalEvent =>
             scheduleAtomicEvent(atomicEvent, nextNoteTime, instrument, settings)
-      case ScheduleState.Waiting =>
-        IO.sleep(lookAheadMs.value.millis) >> scheduler(
-          musicalEvent,
-          nextNoteTime,
-          instrument,
-          settings)
+
+      case ScheduleStatus.Waiting =>
+        // no note to schedule, wait for specified time and look ahead again
+        IO.sleep(lookAheadMs.value.millis)
+          >> scheduler(
+            musicalEvent,
+            nextNoteTime,
+            instrument,
+            settings)
 
   private def scheduleAtomicEvent[Settings](
       musicalEvent: AtomicMusicalEvent,

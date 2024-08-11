@@ -18,13 +18,19 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.{SamplePlayer, Sampler}
+import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
 object ExampleSong0:
 
-  val customSettings: SamplePlayer.Settings =
+//  private val synthSettings: Synth.Settings =
+//    Synth.Settings(
+//      attack = Attack(0.1),
+//      release = Release(0.1)
+//    )
+
+  private val samplerSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
       volume = 1,
       playbackRate = 1,
@@ -37,22 +43,61 @@ object ExampleSong0:
       duration = Some(1)
     )
 
-  val musicalEvent: MusicalEvent =
-    `C-2`.sixteenth + `C-1`.sixteenth + C0.sixteenth + C1.sixteenth |
-      C2.sixteenth + C3.sixteenth + C4.sixteenth + C5.sixteenth |
-      C6.sixteenth + C7.sixteenth + C8.sixteenth |
-      C4.flat + C4 + G4.sharp + G4 + A4.sharp + A4 + G4.half |
-      F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
+  val anotherOneBitesTheRust: MusicalEvent =
+    E1.eighth +
+      RestEighth +
+      E1.eighth +
+      RestEighth +
+      E1.eighth +
+      RestEighth +
+      RestEighth.eighthDotted +
+      E1.sixteenth +
+      (E1.eighth.repeat(2)) +
+      G1.eighth +
+      E1.sixteenth +
+      A1.quarter +
+      RestEighth.eighthDotted +
+      A1.sixteenth +
+      G1.sixteenth
+//    A2.soft + A2.soft + A2.soft + A2.soft |
+//      G2.soft + G2.soft + G2.soft + G2.soft |
+//      F2.soft + F2.soft + F2.soft + F2.soft |
+//      G2.soft + G2.soft + G2.soft + G2.soft
+
+  val kd = (C2 + RestQuarter).repeat(8)
+  val sd = (RestQuarter + D2).repeat(8)
+  val ht = E2.eighth.repeat(32)
+
+  private def drumSampler(): AudioContext ?=> IO[Sampler] = Sampler.fromPaths(
+    List(
+      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/drums/NeonKick.wav",
+      SampleKey(Pitch.D, Accidental.Natural, Octave(2)) -> "resources/audio/drums/NeonSnare.wav",
+      SampleKey(Pitch.E, Accidental.Natural, Octave(2)) -> "resources/audio/drums-808/Hats808.wav"
+    )
+  )
 
   def play(): AudioContext ?=> IO[Unit] =
     for
       piano <- Sampler.piano
+      drums <- drumSampler()
       song = Song(
-        title = Title("Something We Used to Know"),
+        title = Title("Something We All Know"),
         tempo = Tempo(110),
         swing = Swing(0),
         mixer = Mixer(
-          Track(Title("Single Synth Voice"), musicalEvent, piano)
+          Track(Title("Kick"), kd, drums, customSettings = Some(samplerSettings)),
+          Track(Title("Snare"), sd, drums, customSettings = Some(samplerSettings)),
+          Track(Title("Hats"), ht, drums, customSettings = Some(samplerSettings)),
+//          Track(
+//            Title("Single Synth Voice"),
+//            anotherOneBitesTheRust.repeat(2),
+//            ScalaSynth(),
+//            customSettings = Some(synthSettings)),
+          Track(
+            Title("Single Piano Voice"),
+            anotherOneBitesTheRust.repeat(2),
+            piano,
+            customSettings = Some(samplerSettings))
         )
       )
       a <- song.play()

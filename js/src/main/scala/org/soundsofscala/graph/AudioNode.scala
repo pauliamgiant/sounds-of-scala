@@ -18,9 +18,12 @@ package org.soundsofscala.graph
 
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.AudioTypes.{FilterModel, WaveType}
+import org.soundsofscala.models.AudioTypes.FilterModel
+import org.soundsofscala.models.AudioTypes.WaveType
+import org.soundsofscala.models.DrumVoice.*
 
 import scala.annotation.targetName
+import scala.scalajs.js.typedarray.Float32Array
 
 sealed trait AudioNode:
   import AudioNode.*
@@ -28,6 +31,11 @@ sealed trait AudioNode:
   /**
    * Create the described audio graph with the given `AudioContext`.
    */
+
+  final def play(using context: dom.AudioContext): dom.AudioContext ?=> Unit =
+    val node = create
+    println(s"Playing node: $node")
+    node.connect(context.destination)
 
   final def create(using context: dom.AudioContext): dom.AudioNode =
     this match
@@ -55,29 +63,41 @@ sealed trait AudioNode:
         sources.foreach(source => source.create.connect(filterNode))
         filterNode
 
-      case SineOscillator(frequency, detune) =>
-        buildOscillatorNode(WaveType.Sine, frequency, detune)
+      case SineOscillator(when, duration, frequency, detune) =>
+        buildOscillatorNode(when, duration, WaveType.Sine, frequency, detune)
 
-      case SawtoothOscillator(frequency, detune) =>
-        buildOscillatorNode(WaveType.Sawtooth, frequency, detune)
+      case SawtoothOscillator(when, duration, frequency, detune) =>
+        buildOscillatorNode(when, duration, WaveType.Sawtooth, frequency, detune)
 
-      case TriangleOscillator(frequency, detune) =>
-        buildOscillatorNode(WaveType.Triangle, frequency, detune)
+      case TriangleOscillator(when, duration, frequency, detune) =>
+        buildOscillatorNode(when, duration, WaveType.Triangle, frequency, detune)
 
-      case SquareOscillator(frequency, detune) =>
-        buildOscillatorNode(WaveType.Square, frequency, detune)
+      case SquareOscillator(when, duration, frequency, detune) =>
+        buildOscillatorNode(when, duration, WaveType.Square, frequency, detune)
+
+      case WaveTableOscillator(when, duration, frequency, detune, realArray, imagArray) =>
+        val waveTable = context.createPeriodicWave(realArray, imagArray)
+        val oscillatorNode: dom.OscillatorNode = context.createOscillator()
+        oscillatorNode.setPeriodicWave(waveTable)
+        detune.set(oscillatorNode.detune)
+        frequency.set(oscillatorNode.frequency)
+        oscillatorNode.start(when)
+        oscillatorNode.stop(when + duration + 0.4)
+        oscillatorNode
 
   private def buildOscillatorNode(
+      when: Double,
+      duration: Double,
       waveType: WaveType,
       frequency: AudioParam,
       detune: AudioParam)(using context: AudioContext): dom.OscillatorNode =
     val oscillatorNode = context.createOscillator()
-    oscillatorNode.`type` = waveType.toString
+    oscillatorNode.`type` = waveType.toString.toLowerCase
     detune.set(oscillatorNode.detune)
     frequency.set(oscillatorNode.frequency)
-    oscillatorNode.start()
+    oscillatorNode.start(when)
+    oscillatorNode.stop(when + duration)
     oscillatorNode
-
 end AudioNode
 object AudioNode:
 
@@ -85,23 +105,43 @@ object AudioNode:
   // Constructors
   // ------------------------------------------------------
 
-  val sine: SineOscillator =
-    SineOscillator(AudioParam.empty, AudioParam.empty)
+  def sineOscillator(when: Double, duration: Double): SineOscillator =
+    SineOscillator(when, duration, AudioParam.empty, AudioParam.empty)
 
-  val sawtooth: SawtoothOscillator =
-    SawtoothOscillator(AudioParam.empty, AudioParam.empty)
+  def sawtoothOscillator(when: Double, duration: Double): SawtoothOscillator =
+    SawtoothOscillator(when, duration, AudioParam.empty, AudioParam.empty)
 
-  val triangle: TriangleOscillator =
-    TriangleOscillator(AudioParam.empty, AudioParam.empty)
+  def triangleOscillator(when: Double, duration: Double): TriangleOscillator =
+    TriangleOscillator(when, duration, AudioParam.empty, AudioParam.empty)
 
-  val square: SquareOscillator =
-    SquareOscillator(AudioParam.empty, AudioParam.empty)
+  def squareOscillator(when: Double, duration: Double): SquareOscillator =
+    SquareOscillator(when, duration, AudioParam.empty, AudioParam.empty)
+
+  def waveTableOscillator(
+      when: Double,
+      duration: Double,
+      realArray: Float32Array,
+      imaginaryArray: Float32Array): WaveTableOscillator =
+    WaveTableOscillator(
+      when,
+      duration,
+      AudioParam.empty,
+      AudioParam.empty,
+      realArray,
+      imaginaryArray)
 
   val bandPassFilter: Filter = Filter(
     List.empty,
     AudioParam(Vector.empty),
     AudioParam(Vector.empty),
     FilterModel.BandPass
+  )
+
+  val lowPassFilter: Filter = Filter(
+    List.empty,
+    AudioParam(Vector.empty),
+    AudioParam(Vector.empty),
+    FilterModel.LowPass
   )
 
   // ------------------------------------------------------
@@ -140,22 +180,35 @@ object AudioNode:
       this.copy(bandWidth = bandWidth)
   end Filter
 
-  final case class SineOscillator(frequency: AudioParam, detune: AudioParam) extends AudioSource:
+  final case class SineOscillator(
+      when: Double,
+      duration: Double,
+      frequency: AudioParam,
+      detune: AudioParam)
+      extends AudioSource:
     def withFrequency(frequency: AudioParam): SineOscillator =
       this.copy(frequency = frequency)
 
     def withDetune(detune: AudioParam): SineOscillator =
       this.copy(detune = detune)
 
-  final case class SawtoothOscillator(frequency: AudioParam, detune: AudioParam)
-      extends AudioSource:
+  final case class SawtoothOscillator(
+      when: Double,
+      duration: Double,
+      frequency: AudioParam,
+      detune: AudioParam
+  ) extends AudioSource:
     def withFrequency(frequency: AudioParam): SawtoothOscillator =
       this.copy(frequency = frequency)
 
     def withDetune(detune: AudioParam): SawtoothOscillator =
       this.copy(detune = detune)
 
-  final case class TriangleOscillator(frequency: AudioParam, detune: AudioParam)
+  final case class TriangleOscillator(
+      when: Double,
+      duration: Double,
+      frequency: AudioParam,
+      detune: AudioParam)
       extends AudioSource:
     def withFrequency(frequency: AudioParam): TriangleOscillator =
       this.copy(frequency = frequency)
@@ -163,11 +216,30 @@ object AudioNode:
     def withDetune(detune: AudioParam): TriangleOscillator =
       this.copy(detune = detune)
 
-  final case class SquareOscillator(frequency: AudioParam, detune: AudioParam) extends AudioSource:
+  final case class SquareOscillator(
+      when: Double,
+      duration: Double,
+      frequency: AudioParam,
+      detune: AudioParam)
+      extends AudioSource:
     def withFrequency(frequency: AudioParam): SquareOscillator =
       this.copy(frequency = frequency)
 
     def withDetune(detune: AudioParam): SquareOscillator =
       this.copy(detune = detune)
 
+  final case class WaveTableOscillator(
+      when: Double,
+      duration: Double,
+      frequency: AudioParam,
+      detune: AudioParam,
+      realArray: Float32Array,
+      imaginaryArray: Float32Array)
+      extends AudioSource:
+
+    def withFrequency(frequency: AudioParam): WaveTableOscillator =
+      this.copy(frequency = frequency)
+
+    def withDetune(detune: AudioParam): WaveTableOscillator =
+      this.copy(detune = detune)
 end AudioNode

@@ -61,7 +61,7 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
         val frequency = note.frequency
         val (closestF, closestKey, buffer) = closestFrequency(orderedSamples, frequency)
         val playbackRatePitchFix = frequency / closestF
-        SamplePlayer.playSample(buffer, playbackRatePitchFix, musicEvent, when, settings)
+        SamplePlayer.playSample(buffer, playbackRatePitchFix, musicEvent, when, settings, tempo)
       case _ => IO.println("This musical event is not a note.")
 end Sampler
 

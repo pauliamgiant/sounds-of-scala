@@ -23,38 +23,39 @@ import org.soundsofscala.instrument.Sampler
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong2:
-  val musicalEvent: MusicalEvent =
-    D2 + A2 + F2 + A3 + D4 + F2 + D5 + D2
+object ExampleSong3:
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
       volume = 1,
       playbackRate = 1,
       reversed = false,
-      loop = None, // Some(Loop(start = 1, end = 1.5)),
+      loop = None, // Some(Loop(start = 2, end = 6)),
       fadeIn = 0,
-      fadeOut = 0.5,
+      fadeOut = 0,
       startTime = 0,
       offset = 0,
       duration = Some(1)
     )
 
+  val musicalEvent: MusicalEvent =
+    `C-2`.sixteenth + `C-1`.sixteenth + C0.sixteenth + C1.sixteenth |
+      C2.sixteenth + C3.sixteenth + C4.sixteenth + C5.sixteenth |
+      C6.sixteenth + C7.sixteenth + C8.sixteenth |
+      C4.flat + C4 + G4.sharp + G4 + A4.sharp + A4 + G4.half |
+      F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
+
   def play(): AudioContext ?=> IO[Unit] =
     for
       piano <- Sampler.piano
       song = Song(
-        title = Title("Rhubarb Loop"),
+        title = Title("Dissonant Twinkle Twinkle"),
         tempo = Tempo(110),
         swing = Swing(0),
         mixer = Mixer(
-          Track(
-            Title("rhubarb D3"),
-            musicalEvent,
-            piano,
-            customSettings = Some(customSettings))
+          Track(Title("Single Synth Voice"), musicalEvent, piano)
         )
       )
       a <- song.play()
     yield a
-end ExampleSong2
+end ExampleSong3
