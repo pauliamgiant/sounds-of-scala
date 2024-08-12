@@ -35,7 +35,7 @@ trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
       settings: Synth.Settings)(using audioContext: dom.AudioContext): IO[Unit] =
     musicEvent match
       case note: AtomicMusicalEvent.Note =>
-        this.attackRelease(when, note, tempo, settings.release)
+        this.attackRelease(when, note, tempo, settings.attack, settings.release)
       case chord: AtomicMusicalEvent.Harmony =>
         chord.notes.parTraverse(note =>
           playWithSettings(note.note, when, tempo, settings)).void
@@ -44,14 +44,17 @@ trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
   /**
    * Plays the note via an oscillator (or many)
    */
-  def attackRelease(when: Double, note: Note, tempo: Tempo, release: Release): IO[Unit]
+  def attackRelease(
+      when: Double,
+      note: Note,
+      tempo: Tempo,
+      attack: Attack,
+      release: Release): IO[Unit]
 end Synth
 
 object Synth:
   def apply()(using audioContext: AudioContext): Synth = ScalaSynth()
   def default()(using audioContext: AudioContext): Synth = Synth()
-  def simpleSine()(using audioContext: AudioContext): Synth = SineSynth()
-  def simpleSawtooth()(using audioContext: AudioContext): Synth = SawtoothSynth()
 
   final case class Settings(attack: Attack, release: Release)
 

@@ -20,6 +20,7 @@ import cats.effect.unsafe.implicits.global
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.soundsofscala.graph.AudioNode.*
+import org.soundsofscala.graph.AudioNode.squareOscillator
 import org.soundsofscala.graph.AudioParam
 import org.soundsofscala.graph.AudioParam.AudioParamEvent
 import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime
@@ -49,7 +50,8 @@ object Main extends App:
         (_: dom.MouseEvent) =>
           given audioContext: AudioContext = new AudioContext()
           // your actions here
-          ExampleSong2.play().unsafeRunAndForget()
+          ExampleSong4Beethoven.play().unsafeRunAndForget()
+//          ExampleSong0.play().unsafeRunAndForget()
       )
 
       val audioGraphButtonWrapper = document.createElement("div")
@@ -59,41 +61,83 @@ object Main extends App:
       audioGraphButton.addEventListener(
         "click",
         (_: dom.MouseEvent) =>
-          given audioContext: AudioContext = new AudioContext()
-          // your actions here
-          ExampleSong2.play().unsafeRunAndForget()
-          val startFrequency = 220.0
-          val endFrequency = 110.0
-          val step = 5.0
-          val initialTime = audioContext.currentTime
-          val timeStep = 0.2
-
-          val descendingValues: Vector[AudioParamEvent] =
-            createSetValueAtTime(startFrequency, endFrequency, step, initialTime, timeStep)
-          val finalFrequencies = (110 to 220 by 5).toVector
-          val finalTimes = finalFrequencies.indices.toVector.map(i =>
-            initialTime + ((startFrequency - endFrequency) / step + 1) * timeStep + i * timeStep)
-          val ascendingValues =
-            finalFrequencies.zip(finalTimes).map { case (freq, time) => SetValueAtTime(freq, time) }
-
-          val valuesPattern = Vector(0.0, 0.5, 0.1, 0.5)
-
           console.log("Button clicked")
-          val sawOscillator =
-            sawtooth.withFrequency(AudioParam(descendingValues ++ ascendingValues))
+          given audioContext: AudioContext = new AudioContext()
+
+          val initialTime = audioContext.currentTime
+
+          val noteList = Vector(
+            SetValueAtTime(220, initialTime),
+            SetValueAtTime(110, initialTime + 0.5),
+            SetValueAtTime(55, initialTime + 1),
+            SetValueAtTime(110, initialTime + 1.5),
+            SetValueAtTime(220, initialTime + 2),
+            SetValueAtTime(440, initialTime + 2.5),
+            SetValueAtTime(880, initialTime + 3),
+            SetValueAtTime(440, initialTime + 3.5),
+            SetValueAtTime(220, initialTime + 4),
+            SetValueAtTime(110, initialTime + 4.5),
+            SetValueAtTime(55, initialTime + 5),
+            SetValueAtTime(110, initialTime + 5.5),
+            SetValueAtTime(220, initialTime + 6),
+            SetValueAtTime(440, initialTime + 6.5),
+            SetValueAtTime(880, initialTime + 7),
+            SetValueAtTime(440, initialTime + 7.5),
+            SetValueAtTime(220, initialTime + 8),
+            SetValueAtTime(110, initialTime + 8.5),
+            SetValueAtTime(55, initialTime + 9),
+            SetValueAtTime(110, initialTime + 9.5),
+            SetValueAtTime(220, initialTime + 10),
+            SetValueAtTime(440, initialTime + 10.5),
+            SetValueAtTime(880, initialTime + 11),
+            SetValueAtTime(440, initialTime + 11.5),
+            SetValueAtTime(220, initialTime + 12)
+          )
+
+          // build a sawtooth oscillator using noteList
+          val sqOsc =
+            squareOscillator(initialTime, 0.5).withFrequency(AudioParam(noteList))
 
           // build a band pass filter
           val bandpass = bandPassFilter.withFrequency(
-            AudioParam(filterEvents))
+            AudioParam(Vector(
+              SetValueAtTime(100, 0),
+              SetValueAtTime(200, 0.5),
+              SetValueAtTime(300, 1),
+              SetValueAtTime(400, 1.5),
+              SetValueAtTime(500, 2),
+              SetValueAtTime(600, 2.5),
+              SetValueAtTime(700, 3),
+              SetValueAtTime(800, 3.5),
+              SetValueAtTime(900, 4),
+              SetValueAtTime(1000, 4.5),
+              SetValueAtTime(1500, 5),
+              SetValueAtTime(2000, 5.5),
+              SetValueAtTime(2500, 6),
+              SetValueAtTime(3000, 6.5),
+              SetValueAtTime(3500, 7),
+              SetValueAtTime(4000, 7.5),
+              SetValueAtTime(4500, 8),
+              SetValueAtTime(5000, 8.5),
+              SetValueAtTime(5500, 9),
+              SetValueAtTime(6000, 9.5),
+              SetValueAtTime(7500, 10),
+              SetValueAtTime(9000, 10.5),
+              SetValueAtTime(10500, 11),
+              SetValueAtTime(12000, 11.5),
+              SetValueAtTime(13500, 12)
+            )))
 
           // build a gain node
+          val valuesPattern = Vector(0.0, 0.5, 0.1, 0.5)
+
           val gainNode =
             Gain(
               List.empty,
-              AudioParam(generateSetValueAtTime(initialTime, timeStep, valuesPattern, 20.0)))
+              AudioParam(generateSetValueAtTime(initialTime, 0.2, valuesPattern, 20.0)))
 
           // connect the nodes
-          val graph = sawOscillator --> bandpass --> gainNode
+          val graph = sqOsc --> bandpass --> gainNode
 
           // create the graph
           graph.create
@@ -118,40 +162,6 @@ object Main extends App:
       document.body.appendChild(homeDiv)
   )
 end Main
-
-private def createSetValueAtTime(
-    start: Double,
-    end: Double,
-    step: Double,
-    initialTime: Double,
-    timeStep: Double): Vector[AudioParamEvent] =
-  (0 to ((start - end) / step).toInt).toVector.map: i =>
-    val frequency = start - (i * step)
-    val time = initialTime + (i * timeStep)
-    SetValueAtTime(frequency, time)
-
-val filterEvents = Vector(
-  AudioParamEvent.SetValueAtTime(100, 0),
-  AudioParamEvent.SetValueAtTime(200, 0.5),
-  AudioParamEvent.SetValueAtTime(300, 1),
-  AudioParamEvent.SetValueAtTime(400, 1.5),
-  AudioParamEvent.SetValueAtTime(500, 2),
-  AudioParamEvent.SetValueAtTime(600, 2.5),
-  AudioParamEvent.SetValueAtTime(700, 3),
-  AudioParamEvent.SetValueAtTime(800, 3.5),
-  AudioParamEvent.SetValueAtTime(900, 4),
-  AudioParamEvent.SetValueAtTime(1000, 4.5),
-  AudioParamEvent.SetValueAtTime(1500, 5),
-  AudioParamEvent.SetValueAtTime(2000, 5.5),
-  AudioParamEvent.SetValueAtTime(2500, 6),
-  AudioParamEvent.SetValueAtTime(3000, 6.5),
-  AudioParamEvent.SetValueAtTime(3500, 7),
-  AudioParamEvent.SetValueAtTime(4000, 7.5),
-  AudioParamEvent.SetValueAtTime(4500, 8),
-  AudioParamEvent.SetValueAtTime(5000, 8.5),
-  AudioParamEvent.SetValueAtTime(5500, 9),
-  AudioParamEvent.SetValueAtTime(6000, 9.5)
-)
 
 private def generateSetValueAtTime(
     initialTime: Double,

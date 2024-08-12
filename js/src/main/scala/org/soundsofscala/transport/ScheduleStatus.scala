@@ -16,26 +16,17 @@
 
 package org.soundsofscala.transport
 
-import cats.effect.IO
-import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.LookAhead
+import org.soundsofscala.models.NextNoteTime
 import org.soundsofscala.models.ScheduleWindow
-import org.soundsofscala.models.Song
 
-/**
- * The sequencer is responsible for scheduling the notes of every track in the song in parallel. It
- * uses a `NoteScheduler` which responsible for scheduling the notes of a single track.
- * @param song
- *   The song to be played.
- */
+enum ScheduleStatus:
+  case Ready extends ScheduleStatus
+  case Waiting extends ScheduleStatus
 
-case class Sequencer():
-  def playSong(song: Song)(using audioContext: AudioContext): IO[Unit] =
-    val noteScheduler = NoteScheduler(song.tempo, LookAhead(25), ScheduleWindow(0.1))
-    song
-      .mixer
-      .tracks
-      .parTraverse: track =>
-        noteScheduler.scheduleInstrument(track.musicalEvent, track.instrument, track.settings)
-      .void
+private object ScheduleStatus:
+  def apply(nextNoteTime: NextNoteTime, scheduleAheadTimeSeconds: ScheduleWindow)(using
+  audioContext: AudioContext): ScheduleStatus =
+    if nextNoteTime.value < audioContext.currentTime + scheduleAheadTimeSeconds.value then
+      Ready
+    else Waiting
