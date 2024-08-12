@@ -62,6 +62,15 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
         val (closestF, closestKey, buffer) = closestFrequency(orderedSamples, frequency)
         val playbackRatePitchFix = frequency / closestF
         SamplePlayer.playSample(buffer, playbackRatePitchFix, musicEvent, when, settings, tempo)
+      case harmony: AtomicMusicalEvent.Harmony =>
+        harmony.notes.toList.traverse_ { harmonyTiming =>
+          playWithSettings(
+            harmonyTiming.note,
+            when + harmonyTiming.timingOffset.value,
+            tempo,
+            settings)
+        }
+
       case _ => IO.println("This musical event is not a note.")
 end Sampler
 

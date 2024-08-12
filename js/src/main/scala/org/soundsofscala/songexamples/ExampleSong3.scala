@@ -39,11 +39,7 @@ object ExampleSong3:
     )
 
   val musicalEvent: MusicalEvent =
-    `C-2`.sixteenth + `C-1`.sixteenth + C0.sixteenth + C1.sixteenth |
-      C2.sixteenth + C3.sixteenth + C4.sixteenth + C5.sixteenth |
-      C6.sixteenth + C7.sixteenth + C8.sixteenth |
-      C4.flat + C4 + G4.sharp + G4 + A4.sharp + A4 + G4.half |
-      F3.flat + F3 + E3.sharp + E3 + D3.flat + D3 + C3.half
+    Dmin7 + Amin7 + Dmin7 + Amin7 + Dmin7 + Amin7 + Dmin7 + Amin7
 
   def play(): AudioContext ?=> IO[Unit] =
     for
