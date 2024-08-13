@@ -17,7 +17,7 @@
 package org.soundsofscala.graph
 
 import org.scalajs.dom
-import org.scalajs.dom.AudioContext
+import org.scalajs.dom.{AudioContext, DelayNode}
 import org.soundsofscala.models.AudioTypes.FilterModel
 import org.soundsofscala.models.AudioTypes.WaveType
 import org.soundsofscala.models.DrumVoice.*
@@ -62,6 +62,12 @@ sealed trait AudioNode:
         bandWidth.set(filterNode.Q)
         sources.foreach(source => source.create.connect(filterNode))
         filterNode
+
+      case Delay(sources, delayTime) =>
+        val delayNode: DelayNode = context.createDelay(maxDelayTime = 100)
+        delayTime.set(delayNode.delayTime)
+        sources.foreach(source => source.create.connect(delayNode))
+        delayNode
 
       case SineOscillator(when, duration, frequency, detune) =>
         buildOscillatorNode(when, duration, WaveType.Sine, frequency, detune)
@@ -144,6 +150,11 @@ object AudioNode:
     FilterModel.LowPass
   )
 
+  val delay: Delay = Delay(
+    List.empty,
+    AudioParam(Vector.empty)
+  )
+
   // ------------------------------------------------------
   // Types
   // ------------------------------------------------------
@@ -162,6 +173,13 @@ object AudioNode:
 
     def withGain(gain: AudioParam): Gain =
       this.copy(gain = gain)
+
+  final case class Delay(sources: List[AudioSource], delayTime: AudioParam) extends AudioPipe:
+    def addSource(source: AudioSource): AudioPipe =
+      this.copy(sources = sources :+ source)
+
+    def withDelayTime(delayTime: AudioParam): Delay =
+      this.copy(delayTime = delayTime)
 
   final case class Filter(
       sources: List[AudioSource],

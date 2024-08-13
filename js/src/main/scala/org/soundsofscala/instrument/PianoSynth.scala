@@ -80,8 +80,8 @@ final case class PianoSynth()(using audioContext: AudioContext)
           List.empty,
           AudioParam(Vector(
             SetValueAtTime(0, when),
-            LinearRampToValueAtTime(velocity, when + 0.011), // Slightly longer fade-in (10ms)
-            LinearRampToValueAtTime(keySoftenVelocity, when + 0.01), // Initial decay
+            LinearRampToValueAtTime(velocity, when + 0.011), // Slightly longer fade-in (11ms)
+            LinearRampToValueAtTime(keySoftenVelocity, when + 0.011), // Initial decay
             ExponentialRampToValueAtTime(
               0.0001,
               when + (4 * note.durationToSeconds(tempo))
