@@ -20,8 +20,6 @@ inThisBuild(
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSonatypeUseLegacyHost := false,
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     tlSitePublishBranch := Some("main"),
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
