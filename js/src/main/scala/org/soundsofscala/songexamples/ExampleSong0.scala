@@ -24,11 +24,11 @@ import org.soundsofscala.syntax.all.*
 
 object ExampleSong0:
 
-//  private val synthSettings: Synth.Settings =
-//    Synth.Settings(
-//      attack = Attack(0.1),
-//      release = Release(0.1)
-//    )
+  private val synthSettings: Synth.Settings =
+    Synth.Settings(
+      attack = Attack(0.1),
+      release = Release(0.1)
+    )
 
   private val samplerSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(
@@ -88,16 +88,16 @@ object ExampleSong0:
           Track(Title("Kick"), kd, drums, customSettings = Some(samplerSettings)),
           Track(Title("Snare"), sd, drums, customSettings = Some(samplerSettings)),
           Track(Title("Hats"), ht, drums, customSettings = Some(samplerSettings)),
-//          Track(
-//            Title("Single Synth Voice"),
-//            anotherOneBitesTheRust.repeat(2),
-//            ScalaSynth(),
-//            customSettings = Some(synthSettings)),
           Track(
-            Title("Single Piano Voice"),
+            Title("Single Synth Voice"),
             anotherOneBitesTheRust.repeat(2),
-            piano,
-            customSettings = Some(samplerSettings))
+            ScalaSynth(),
+            customSettings = Some(synthSettings))
+//          Track(
+//            Title("Single Piano Voice"),
+//            anotherOneBitesTheRust.repeat(2),
+//            piano,
+//            customSettings = Some(samplerSettings))
         )
       )
       a <- song.play()

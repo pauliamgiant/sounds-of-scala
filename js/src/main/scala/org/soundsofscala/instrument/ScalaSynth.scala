@@ -45,6 +45,11 @@ final case class ScalaSynth()(using audioContext: AudioContext)
         ExponentialRampToValueAtTime(1000, when),
         LinearRampToValueAtTime(10000, when + note.durationToSeconds(tempo)))))
 
+      val delayFilter = bandPassFilter.withFrequency(AudioParam(Vector(
+        ExponentialRampToValueAtTime(500, when),
+        LinearRampToValueAtTime(6000, when + note.durationToSeconds(tempo))
+      )))
+
       val squareGain =
         Gain(
           List.empty,
@@ -76,7 +81,13 @@ final case class ScalaSynth()(using audioContext: AudioContext)
             note.frequency,
             when))))
 
-      val graph1 = osc1Square --> filter --> squareGain
+      val delayValue = Duration.Quarter.toSeconds(tempo)
+      val delayNode = delay.withDelayTime(AudioParam(Vector(
+        SetValueAtTime(delayValue, when),
+        LinearRampToValueAtTime(0.1, when + note.durationToSeconds(tempo))
+      )))
+
+      val graph1 = osc1Square --> delayNode --> delayFilter --> squareGain
       val graph2 = osc2Saw --> filter --> sawGain
       graph1.create
       graph2.create
