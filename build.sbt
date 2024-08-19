@@ -20,8 +20,8 @@ inThisBuild(
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSonatypeUseLegacyHost := false,
-    tlCiReleaseBranches := List(),
     tlSitePublishBranch := Some("main"),
+    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
       tlGitHubDev("noelwelsh", "Noel Welsh"),
@@ -45,7 +45,8 @@ commands += Command.command("build") { state =>
     "headerCreateAll" ::
     "githubWorkflowGenerate" ::
     "docs / tlSite" ::
-    "reload plugins; reload return" ::
+    "dependencyUpdates" ::
+    "reload plugins; dependencyUpdates; reload return" ::
     state
 }
 
