@@ -33,6 +33,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
+      - name: Install sbt
+        if: contains(runner.os, 'macos')
+        run: brew install sbt
+
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
@@ -54,9 +58,13 @@ jobs:
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 
-      - name: Check headers and formatting
+      - name: Check formatting
         if: matrix.java == 'temurin@17' && matrix.os == 'ubuntu-latest'
-        run: sbt '++ ${{ matrix.scala }}' headerCheckAll scalafmtCheckAll 'project /' scalafmtSbtCheck
+        run: sbt '++ ${{ matrix.scala }}' scalafmtCheckAll 'project /' scalafmtSbtCheck
+
+      - name: Check scalafix lints
+        if: matrix.java == 'temurin@17' && matrix.os == 'ubuntu-latest'
+        run: sbt '++ ${{ matrix.scala }}' 'scalafixAll --check'
 
       - name: Test
         run: sbt '++ ${{ matrix.scala }}' test
@@ -70,15 +78,15 @@ jobs:
         run: sbt '++ ${{ matrix.scala }}' doc
 
       - name: Make target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
         run: mkdir -p target js/target jvm/target project/target
 
       - name: Compress target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
         run: tar cf targets.tar target js/target jvm/target project/target
 
       - name: Upload target directories
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
         uses: actions/upload-artifact@v4
         with:
           name: target-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.scala }}
@@ -87,13 +95,17 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
+    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
     strategy:
       matrix:
         os: [ubuntu-latest]
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install sbt
+        if: contains(runner.os, 'macos')
+        run: brew install sbt
+
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
@@ -155,6 +167,10 @@ jobs:
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install sbt
+        if: contains(runner.os, 'macos')
+        run: brew install sbt
+
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:
@@ -187,6 +203,10 @@ jobs:
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install sbt
+        if: contains(runner.os, 'macos')
+        run: brew install sbt
+
       - name: Checkout current branch (full)
         uses: actions/checkout@v4
         with:

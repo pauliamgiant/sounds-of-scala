@@ -19,8 +19,12 @@ inThisBuild(
     scalaVersion := "3.4.2",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
-    tlSonatypeUseLegacyHost := false,
     tlSitePublishBranch := Some("main"),
+    tlUntaggedAreSnapshots := false,
+    tlFatalWarnings := sys.env.get("GITHUB_ACTIONS").contains("true"),
+    tlCiScalafmtCheck := true,
+    tlCiScalafixCheck := true,
+    tlJdkRelease := Some(8),
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
