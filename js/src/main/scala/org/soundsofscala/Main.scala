@@ -20,7 +20,6 @@ import cats.effect.unsafe.implicits.global
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.soundsofscala.graph.AudioNode.*
-import org.soundsofscala.graph.AudioNode.squareOscillator
 import org.soundsofscala.graph.AudioParam
 import org.soundsofscala.graph.AudioParam.AudioParamEvent
 import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime

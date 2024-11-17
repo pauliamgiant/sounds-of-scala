@@ -21,9 +21,9 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
 import org.soundsofscala.models
+import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 import org.soundsofscala.models.DrumVoice.*
-import org.soundsofscala.models.*
 import org.soundsofscala.synthesis.DrumGeneration
 
 final case class Simple80sDrumMachine() extends Instrument[Default.NoSettings]:
