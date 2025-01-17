@@ -1,5 +1,6 @@
 resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
+addSbtPlugin("ch.epfl.scala" % "sbt-version-policy" % "3.2.1")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.16.0")
 addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.1+36-2d9cbce2-SNAPSHOT")
