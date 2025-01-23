@@ -1,9 +1,7 @@
-import laika.sbt.LaikaPlugin.autoImport.laikaTheme
 import laika.helium.Helium
+import laika.helium.config.{HeliumIcon, IconLink}
+import laika.sbt.LaikaPlugin.autoImport.laikaTheme
 import laika.theme.config.Color
-import laika.helium.config.HeliumIcon
-import laika.helium.config.IconLink
-import sbt.ThisBuild
 
 import scala.collection.Seq
 
@@ -56,10 +54,11 @@ commands += Command.command("build") { state =>
 
 lazy val root = project
   .in(file("."))
-  .aggregate(sos.js, sos.jvm)
+  .aggregate(sosJS, sosJVM)
   .settings(
     name := "sounds-of-scala",
-    publish := {}
+    publish := {},
+    mimaPreviousArtifacts := Set.empty
   )
 
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
@@ -91,6 +90,13 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))
+
+lazy val sosJS = sos.js
+
+lazy val sosJVM = sos.jvm
+  .settings(
+    mimaPreviousArtifacts := Set("org.soundsofscala" %% "sounds-of-scala" % "0.1.0")
+  )
 
 lazy val docs =
   project.in(file("docs")).settings(
