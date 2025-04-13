@@ -10,13 +10,13 @@ Run sbt
 
     $ sbt
 
-Once in sbt you will see the self explaining [SBT Welcome](https://github.com/reibitto/sbt-welcome) menu with shortcuts for common commands. 
+Once sbt is running you will see the self explaining [SBT Welcome](https://github.com/reibitto/sbt-welcome) menu with shortcuts for common commands. 
 
 Start by entering ```f``` which is a shortcut for ```~fastOptJS / webpack``` and will build and compile to javascript.
 
     sbt:sounds-of-scala> f
 
-This will start the build process and you should see the following output:
+This will start the build process, and you should see the following output:
     
         [info] Fast optimizing /home/<YOUR_HOME_AND_PATH>/sounds-of-scala/target/scala-3.1.0-RC1/sounds-of-scala-fastopt.js
         [success] Total time: 1 s, completed 23 Mar 2024, 08:10:04
