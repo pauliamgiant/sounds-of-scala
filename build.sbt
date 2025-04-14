@@ -9,7 +9,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
-    tlBaseVersion := "0.1",
+    tlBaseVersion := "0.2",
     startYear := Some(2024),
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
