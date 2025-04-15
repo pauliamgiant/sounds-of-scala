@@ -49,7 +49,7 @@ object Main extends App:
         "click",
         (_: dom.MouseEvent) =>
           given audioContext: AudioContext = new AudioContext()
-          // your actions here
+          // Try out your songs/code here
           ExampleSongSampler.play().unsafeRunAndForget()
       )
 
