@@ -50,7 +50,7 @@ object Main extends App:
         (_: dom.MouseEvent) =>
           given audioContext: AudioContext = new AudioContext()
           // Try out your songs/code here
-          ExampleSongSampler.play().unsafeRunAndForget()
+          ExampleSong5.play().unsafeRunAndForget()
       )
 
       val audioGraphButtonWrapper = document.createElement("div")
