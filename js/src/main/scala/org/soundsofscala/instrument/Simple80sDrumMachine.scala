@@ -39,12 +39,12 @@ final case class Simple80sDrumMachine() extends Instrument[Default.NoSettings]:
       case drumStroke: AtomicMusicalEvent.DrumStroke =>
         drumStroke.drum match
           case Kick =>
-            DrumGeneration.generateKick808(drumStroke, when)
+            DrumGeneration.generateElectroKick(drumStroke, when)
           case Snare =>
-            DrumGeneration.generateSnare808(drumStroke, when)
+            DrumGeneration.generateElectroSnare(drumStroke, when)
           case HiHatClosed =>
-            DrumGeneration.generateHats808(drumStroke, when)
+            DrumGeneration.generateElectroHiHat(drumStroke, when)
           case Clap =>
-            DrumGeneration.generateClap808(drumStroke, when)
-          case _ => DrumGeneration.generateKick808(drumStroke, when)
+            DrumGeneration.generateElectroClap(drumStroke, when)
+          case _ => DrumGeneration.generateElectroKick(drumStroke, when)
       case _ => IO.unit

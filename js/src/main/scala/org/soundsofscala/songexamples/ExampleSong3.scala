@@ -43,7 +43,7 @@ object ExampleSong3:
 
   def play(): AudioContext ?=> IO[Unit] =
     for
-      piano <- Sampler.piano
+      piano <- Sampler.guitar
       song = Song(
         title = Title("Dissonant Twinkle Twinkle"),
         tempo = Tempo(110),
