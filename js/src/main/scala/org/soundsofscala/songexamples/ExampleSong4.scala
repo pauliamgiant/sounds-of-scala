@@ -18,7 +18,7 @@ package org.soundsofscala.songexamples
 
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.instrument.{ScalaSynth, Simple80sDrumMachine}
+import org.soundsofscala.instrument.{PianoSynth, Simple80sDrumMachine}
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
@@ -29,7 +29,7 @@ object ExampleSong4:
   val ht = HatsClosed.eighth.loop
 
   val musicalEvent: MusicalEvent =
-    C1.wholeDotted.softest + D1.wholeDotted.softest + E1.wholeDotted.softest + B0.wholeDotted.softest
+    C1.wholeDotted.onFull + D1.wholeDotted.onFull + E1.wholeDotted.onFull + B0.wholeDotted.onFull
 
   def play(): AudioContext ?=> IO[Unit] =
 
@@ -38,7 +38,7 @@ object ExampleSong4:
       tempo = Tempo(110),
       swing = Swing(0),
       mixer = Mixer(
-        Track(Title("Single Synth Voice"), musicalEvent.loop, ScalaSynth()),
+        Track(Title("Single Synth Voice"), musicalEvent.loop, PianoSynth()),
         Track(Title("Kick"), FourBarRest + kd, Simple80sDrumMachine()),
         Track(Title("Snare"), FourBarRest + sd, Simple80sDrumMachine()),
         Track(Title("Hats"), FourBarRest + ht, Simple80sDrumMachine())

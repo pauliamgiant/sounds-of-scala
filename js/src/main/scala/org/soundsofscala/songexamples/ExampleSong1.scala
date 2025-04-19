@@ -26,46 +26,75 @@ object ExampleSong1:
 
   private val synthSettings: Synth.Settings =
     Synth.Settings(
+      volume = 0.6,
       attack = Attack(0.1),
       release = Release(0.1),
-      pan = 0.5
+      pan = 0.0
+    )
+
+  private val samplerSettings: SamplePlayer.Settings =
+    SamplePlayer.Settings(
+      volume = 1,
+      playbackRate = 1,
+      reversed = false,
+      loop = None, // Some(Loop(start = 2, end = 6)),
+      fadeIn = 0,
+      fadeOut = 1,
+      startDelay = 0,
+      offset = 0,
+      length = Some(200)
     )
 
   val anotherOneBitesTheRust: MusicalEvent =
-    E1.eighth +
+    E1.eighth.soft +
       RestEighth +
-      E1.eighth +
+      E1.eighth.soft +
       RestEighth +
-      E1.eighth +
+      E1.eighth.soft +
       RestEighth +
       RestEighth.eighthDotted +
-      E1.sixteenth +
-      (E1.eighth.repeat(2)) +
-      G1.eighth +
-      E1.sixteenth +
-      A1.quarter +
+      E1.sixteenth.soft +
+      (E1.eighth.soft.repeat(2)) +
+      G1.eighth.soft +
+      E1.sixteenth.soft +
+      A1.quarter.softest +
       RestEighth.eighthDotted +
-      A1.sixteenth +
-      G1.sixteenth
+      A1.sixteenth.soft +
+      G1.sixteenth.soft
 
-  private val kd = (KickDrum + RestQuarter).repeat(8)
-  private val sd = (RestQuarter + SnareDrum).repeat(8)
-  private val ht = HatsClosed.eighth.repeat(32)
+  val kd = (C2 + RestQuarter.onFull).repeat(16)
+  val sd = (RestQuarter + D2).repeat(16)
+  val ht = (E2.eighth.medium * 4).repeat(16)
+
+  private def drumSampler(): AudioContext ?=> IO[Sampler] = Sampler.fromPaths(
+    List(
+      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/drums/KickDrum.wav",
+      SampleKey(Pitch.D, Accidental.Natural, Octave(2)) -> "resources/audio/drums/SnareDrum.wav",
+      SampleKey(
+        Pitch.E,
+        Accidental.Natural,
+        Octave(2)) -> "resources/audio/drums-electro/HatsVintageElectro.wav"
+    )
+  )
 
   def play(): AudioContext ?=> IO[Unit] =
-    Song(
-      title = Title("Something We All Know"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(Title("Kick"), kd, Simple80sDrumMachine()),
-        Track(Title("Snare"), sd, Simple80sDrumMachine()),
-        Track(Title("Hats"), ht, Simple80sDrumMachine()),
-        Track(
-          Title("Single Synth Voice"),
-          anotherOneBitesTheRust.repeat(2),
-          ScalaSynth(),
-          customSettings = Some(synthSettings))
+    for
+      drums <- drumSampler()
+      song = Song(
+        title = Title("Something We All Know"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(
+          Track(Title("Kick"), kd, drums, customSettings = Some(samplerSettings)),
+          Track(Title("Snare"), sd, drums, customSettings = Some(samplerSettings)),
+          Track(Title("Hats"), ht, drums, customSettings = Some(samplerSettings)),
+          Track(
+            Title("Single Synth Voice"),
+            TwoBarRest + anotherOneBitesTheRust.repeat(2),
+            ScalaSynth(),
+            customSettings = Some(synthSettings))
+        )
       )
-    ).play()
+      a <- song.play()
+    yield a
 end ExampleSong1

@@ -29,7 +29,7 @@ import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
  */
 object DrumGeneration:
 
-  def generateKick808(
+  def generateElectroKick(
       drumStroke: DrumStroke,
       when: Double
   )(using audioContext: AudioContext): IO[Unit] =
@@ -56,7 +56,7 @@ object DrumGeneration:
       osc.start(when)
       osc.stop(when + 0.9)
 
-  def generateClap808(
+  def generateElectroClap(
       drumStroke: DrumStroke,
       when: Double
   )(using audioContext: AudioContext): IO[Unit] =
@@ -97,7 +97,7 @@ object DrumGeneration:
       noiseSource.start(when)
       noiseSource.stop(when + 0.2)
 
-  def generateHats808(
+  def generateElectroHiHat(
       drumStroke: DrumStroke,
       when: Double
   )(using audioContext: AudioContext): IO[Unit] =
@@ -129,7 +129,7 @@ object DrumGeneration:
       noise.start(when)
       noise.stop(when + 0.05)
 
-  def generateSnare808(drumStroke: DrumStroke, when: Double)(
+  def generateElectroSnare(drumStroke: DrumStroke, when: Double)(
       using audioContext: AudioContext): IO[Unit] =
     IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity

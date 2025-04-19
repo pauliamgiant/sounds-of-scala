@@ -56,9 +56,9 @@ object Synth:
   def apply()(using audioContext: AudioContext): Synth = ScalaSynth()
   def default()(using audioContext: AudioContext): Synth = Synth()
 
-  final case class Settings(attack: Attack, release: Release, pan: Double)
+  final case class Settings(attack: Attack, release: Release, pan: Double, volume: Double)
 
   object Settings:
     given Default[Settings] with
-      val default: Settings = Settings(Attack(0), Release(0.9), 0)
+      val default: Settings = Settings(Attack(0), Release(0.9), 0, 0.5)
 end Synth
