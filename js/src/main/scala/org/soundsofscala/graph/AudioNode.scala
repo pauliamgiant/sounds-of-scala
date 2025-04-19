@@ -47,6 +47,13 @@ sealed trait AudioNode:
         gainNode.connect(context.destination)
         gainNode
 
+      case Panner(sources, panParam) =>
+        val pannerNode = context.createStereoPanner()
+        panParam.set(pannerNode.pan)
+        sources.foreach(source => source.create.connect(pannerNode))
+        pannerNode.connect(context.destination)
+        pannerNode
+
       case Filter(sources, frequency, bandWidth, filterModel) =>
         val filterNode = context.createBiquadFilter()
         frequency.set(filterNode.frequency)
@@ -136,6 +143,11 @@ object AudioNode:
       realArray,
       imaginaryArray)
 
+  val panControl: Panner = Panner(
+    List.empty,
+    AudioParam(Vector.empty)
+  )
+
   val bandPassFilter: Filter = Filter(
     List.empty,
     AudioParam(Vector.empty),
@@ -197,6 +209,16 @@ object AudioNode:
     def withBandWidth(bandWidth: AudioParam): Filter =
       this.copy(bandWidth = bandWidth)
   end Filter
+
+  final case class Panner(
+      sources: List[AudioSource],
+      pan: AudioParam)
+      extends AudioPipe:
+    def addSource(source: AudioSource): AudioPipe =
+      this.copy(sources = sources :+ source)
+
+    def withPan(pan: AudioParam): Panner =
+      this.copy(pan = pan)
 
   final case class SineOscillator(
       when: Double,

@@ -1,6 +1,6 @@
 {
   "dependencies": {
     "http-server": "^14.1.1",
-    "jsdom": "^9.9.0"
+    "jsdom": "9.9.0"
   }
 }

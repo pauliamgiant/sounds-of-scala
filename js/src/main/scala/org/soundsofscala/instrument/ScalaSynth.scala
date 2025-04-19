@@ -22,12 +22,10 @@ import org.scalajs.dom.AudioContext
 import org.soundsofscala
 import org.soundsofscala.graph.AudioNode.*
 import org.soundsofscala.graph.AudioParam
-import org.soundsofscala.graph.AudioParam.AudioParamEvent.ExponentialRampToValueAtTime
-import org.soundsofscala.graph.AudioParam.AudioParamEvent.LinearRampToValueAtTime
-import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.*
 import org.soundsofscala.models
-import org.soundsofscala.models.AtomicMusicalEvent.Note
 import org.soundsofscala.models.*
+import org.soundsofscala.models.AtomicMusicalEvent.Note
 
 final case class ScalaSynth()(using audioContext: AudioContext)
     extends Synth(using audioContext: AudioContext):
@@ -36,44 +34,20 @@ final case class ScalaSynth()(using audioContext: AudioContext)
       note: Note,
       tempo: Tempo,
       attack: Attack,
-      release: Release): IO[Unit] =
+      release: Release,
+      pan: Double): IO[Unit] =
     IO:
       val synthVelocity = note.velocity.getNormalisedVelocity
       println(s"Playing note ${note.frequency} at velocity $synthVelocity")
 
-      val filter = lowPassFilter.withFrequency(AudioParam(Vector(
-        ExponentialRampToValueAtTime(1000, when),
-        LinearRampToValueAtTime(10000, when + note.durationToSeconds(tempo)))))
-
-      val delayFilter = bandPassFilter.withFrequency(AudioParam(Vector(
-        ExponentialRampToValueAtTime(500, when),
-        LinearRampToValueAtTime(6000, when + note.durationToSeconds(tempo))
-      )))
-
-      val squareGain =
+      val gainControl =
         Gain(
           List.empty,
           AudioParam(Vector(
-            ExponentialRampToValueAtTime(synthVelocity, when),
-            LinearRampToValueAtTime(0.000001, when + note.durationToSeconds(tempo)))))
+            LinearRampToValueAtTime(synthVelocity, when),
+            LinearRampToValueAtTime(0.0001, when + note.durationToSeconds(tempo)))))
 
-      val sawGain =
-        Gain(
-          List.empty,
-          AudioParam(Vector(
-            ExponentialRampToValueAtTime(synthVelocity / 4, when),
-            LinearRampToValueAtTime(0.000001, when + note.durationToSeconds(tempo))))
-        )
-
-      val osc1Square =
-        squareOscillator(
-          when,
-          note.durationToSeconds(tempo)).withFrequency(
-          AudioParam(Vector(SetValueAtTime(
-            note.frequency,
-            when))))
-
-      val osc2Saw =
+      val osc1Saw =
         sawtoothOscillator(
           when,
           note.durationToSeconds(tempo)).withFrequency(
@@ -81,15 +55,19 @@ final case class ScalaSynth()(using audioContext: AudioContext)
             note.frequency,
             when))))
 
-      val delayValue = Duration.Quarter.toSeconds(tempo)
-      val delayNode = delay.withDelayTime(AudioParam(Vector(
-        SetValueAtTime(delayValue, when),
-        LinearRampToValueAtTime(0.1, when + note.durationToSeconds(tempo))
+      val sixteenthPulse = note.durationToSeconds(tempo) / 4
+      val panner = panControl.withPan(AudioParam(Vector(
+        LinearRampToValueAtTime(-1, when + sixteenthPulse),
+        LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 2),
+        LinearRampToValueAtTime(0.5, when + sixteenthPulse * 3),
+        LinearRampToValueAtTime(1, when + sixteenthPulse * 4),
+        LinearRampToValueAtTime(0, when + sixteenthPulse * 5),
+        LinearRampToValueAtTime(-1, when + sixteenthPulse * 6),
+        LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 7),
+        LinearRampToValueAtTime(0.5, when + sixteenthPulse * 8)
       )))
 
-      val graph1 = osc1Square --> delayNode --> delayFilter --> squareGain
-      val graph2 = osc2Saw --> filter --> sawGain
+      val graph1 = osc1Saw --> panner --> gainControl
       graph1.create
-      graph2.create
     .void
 end ScalaSynth

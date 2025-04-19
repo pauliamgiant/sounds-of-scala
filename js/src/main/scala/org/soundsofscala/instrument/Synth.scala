@@ -35,7 +35,7 @@ trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
       settings: Synth.Settings)(using audioContext: dom.AudioContext): IO[Unit] =
     musicEvent match
       case note: AtomicMusicalEvent.Note =>
-        this.attackRelease(when, note, tempo, settings.attack, settings.release)
+        this.attackRelease(when, note, tempo, settings.attack, settings.release, settings.pan)
       case chord: AtomicMusicalEvent.Harmony =>
         chord.notes.parTraverse(note =>
           playWithSettings(note.note, when, tempo, settings)).void
@@ -49,16 +49,17 @@ trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
       note: Note,
       tempo: Tempo,
       attack: Attack,
-      release: Release): IO[Unit]
+      release: Release,
+      pan: Double = 0.0): IO[Unit]
 end Synth
 
 object Synth:
   def apply()(using audioContext: AudioContext): Synth = ScalaSynth()
   def default()(using audioContext: AudioContext): Synth = Synth()
 
-  final case class Settings(attack: Attack, release: Release)
+  final case class Settings(attack: Attack, release: Release, pan: Double)
 
   object Settings:
     given Default[Settings] with
-      val default: Settings = Settings(Attack(0), Release(0.9))
+      val default: Settings = Settings(Attack(0), Release(0.9), 0)
 end Synth
