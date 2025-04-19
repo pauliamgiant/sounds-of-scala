@@ -22,9 +22,8 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
 import org.soundsofscala.models
-import org.soundsofscala.models.AtomicMusicalEvent.Harmony
-import org.soundsofscala.models.AtomicMusicalEvent.Note
 import org.soundsofscala.models.*
+import org.soundsofscala.models.AtomicMusicalEvent.Note
 
 trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
 

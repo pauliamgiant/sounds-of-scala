@@ -20,7 +20,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.soundsofscala.models.AtomicMusicalEvent.*
-import org.soundsofscala.models.Pitch.*
 import org.soundsofscala.syntax.all.*
 
 class PitchTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
