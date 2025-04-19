@@ -22,12 +22,13 @@ import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong0:
+object ExampleSong5:
 
   private val synthSettings: Synth.Settings =
     Synth.Settings(
       attack = Attack(0.1),
-      release = Release(0.1)
+      release = Release(0.1),
+      pan = 0.0
     )
 
   private val samplerSettings: SamplePlayer.Settings =
@@ -59,10 +60,6 @@ object ExampleSong0:
       RestEighth.eighthDotted +
       A1.sixteenth +
       G1.sixteenth
-//    A2.soft + A2.soft + A2.soft + A2.soft |
-//      G2.soft + G2.soft + G2.soft + G2.soft |
-//      F2.soft + F2.soft + F2.soft + F2.soft |
-//      G2.soft + G2.soft + G2.soft + G2.soft
 
   val kd = (C2 + RestQuarter).repeat(8)
   val sd = (RestQuarter + D2).repeat(8)
@@ -78,7 +75,6 @@ object ExampleSong0:
 
   def play(): AudioContext ?=> IO[Unit] =
     for
-      piano <- Sampler.piano
       drums <- drumSampler()
       song = Song(
         title = Title("Something We All Know"),
@@ -93,13 +89,8 @@ object ExampleSong0:
             anotherOneBitesTheRust.repeat(2),
             ScalaSynth(),
             customSettings = Some(synthSettings))
-//          Track(
-//            Title("Single Piano Voice"),
-//            anotherOneBitesTheRust.repeat(2),
-//            piano,
-//            customSettings = Some(samplerSettings))
         )
       )
       a <- song.play()
     yield a
-end ExampleSong0
+end ExampleSong5

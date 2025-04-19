@@ -27,7 +27,7 @@ import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.Note
 
-final case class ScalaSynth()(using audioContext: AudioContext)
+final case class QuirkyFilterSynth()(using audioContext: AudioContext)
     extends Synth(using audioContext: AudioContext):
   override def attackRelease(
       when: Double,
@@ -46,6 +46,11 @@ final case class ScalaSynth()(using audioContext: AudioContext)
           AudioParam(Vector(
             LinearRampToValueAtTime(synthVelocity, when),
             LinearRampToValueAtTime(0.0001, when + note.durationToSeconds(tempo)))))
+
+      val delayFilter = bandPassFilter.withFrequency(AudioParam(Vector(
+        ExponentialRampToValueAtTime(500, when),
+        LinearRampToValueAtTime(6000, when + note.durationToSeconds(tempo))
+      )))
 
       val osc1Saw =
         sawtoothOscillator(
@@ -67,7 +72,7 @@ final case class ScalaSynth()(using audioContext: AudioContext)
         LinearRampToValueAtTime(0.5, when + sixteenthPulse * 8)
       )))
 
-      val graph1 = osc1Saw --> panner --> gainControl
+      val graph1 = osc1Saw --> delayFilter --> panner --> gainControl
       graph1.create
     .void
-end ScalaSynth
+end QuirkyFilterSynth

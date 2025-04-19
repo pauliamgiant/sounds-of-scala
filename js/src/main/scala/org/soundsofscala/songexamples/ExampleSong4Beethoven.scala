@@ -28,7 +28,8 @@ object ExampleSong4Beethoven:
   val customSettings: instrument.Synth.Settings =
     Synth.Settings(
       attack = Attack(0.1),
-      release = Release(0.1)
+      release = Release(0.1),
+      pan = 0
     )
 
   private val beginningChord = Chord(G4, D4, B3, G3, G2).half
@@ -146,28 +147,21 @@ object ExampleSong4Beethoven:
   private val lowerVoice = bassClef1 + bassClef2 + bassClef3 + bassClef4
 
   def play(): AudioContext ?=> IO[Unit] =
-    for
-      piano <- Sampler.piano
-      song = Song(
-        title = Title("Something We All Know"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(
-//          Track(Title("Kick"), RestHalf + kd, Simple80sDrumMachine()),
-//          Track(Title("Snare"), RestHalf + sd, Simple80sDrumMachine()),
-//          Track(Title("Hats"), RestHalf + ht, Simple80sDrumMachine()),
-          Track(
-            Title("Beethoven Upper Voice"),
-            upperVoice,
-            PianoSynth(),
-            customSettings = Some(customSettings)),
-          Track(
-            Title("Beethoven Lower Voice"),
-            lowerVoice,
-            PianoSynth(),
-            customSettings = Some(customSettings))
-        )
+    Song(
+      title = Title("Something We All Know"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(
+          Title("Beethoven Upper Voice"),
+          upperVoice,
+          PianoSynth(),
+          customSettings = Some(customSettings)),
+        Track(
+          Title("Beethoven Lower Voice"),
+          lowerVoice,
+          PianoSynth(),
+          customSettings = Some(customSettings))
       )
-      a <- song.play()
-    yield a
+    ).play()
 end ExampleSong4Beethoven

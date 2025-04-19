@@ -34,26 +34,32 @@ body {
     align-content: center;
     justify-content: center;
     flex-direction: row;
-    padding: 2em;
+    padding: 1em;
     margin: 2em;
 }
 
 .button-pad {
-    padding: 2em;
+    padding: 1em;
     display: flex;
     align-content: center;
     justify-content: center;
 }
 
+.left-align {
+    font-size: x-large;
+    text-align: left;
+    margin-left: 3em;
+}
+
 h1 {
     text-align: center;
-    font-size: xxx-large;
+    font-size: x-large;
     margin: 2em;
 }
 
 h2 {
     text-align: center;
-    font-size: xx-large;
+    font-size: large;
 }
 
 h3 {
@@ -77,15 +83,21 @@ label {
 
 p {
     text-align: center;
-    font-size: x-large;
+    font-size: large;
     padding: 2em;
 }
 
+li {
+    font-size: large;
+    padding: 1em;
+    margin: 1em;
+}
+
+
 button {
     text-align: center;
-    font-size: 5em;
+    font-size: 1em;
     padding: 20px;
     margin: 10px;
-    width: 2em;
     border-radius: 10px;
 }
