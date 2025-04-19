@@ -37,7 +37,8 @@ final case class PianoSynth()(using audioContext: AudioContext)
       note: Note,
       tempo: Tempo,
       attack: Attack,
-      release: Release): IO[Unit] =
+      release: Release,
+      pan: Double): IO[Unit] =
     IO:
       /*
       are used to define the harmonic content of the waveform by specifying the coefficients
