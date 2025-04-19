@@ -14,7 +14,7 @@ inThisBuild(
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.4.2",
+    scalaVersion := "3.6.4",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSitePublishBranch := Some("main"),
@@ -54,10 +54,11 @@ commands += Command.command("build") { state =>
 
 lazy val root = project
   .in(file("."))
-  .aggregate(sosJS, sosJVM)
+  .aggregate(sos.js, sos.jvm)
   .settings(
     name := "sounds-of-scala",
-    publish := {}
+    publish := {},
+    mimaPreviousArtifacts := Set.empty
   )
 
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
@@ -66,12 +67,11 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",
-      "org.scalatest" %%% "scalatest" % "3.2.17" % Test,
-      "org.typelevel" %%% "cats-core" % "2.10.0",
-      "org.typelevel" %%% "cats-effect" % "3.5.2",
-      "io.kevinlee" %%% "refined4s-core" % "0.11.0",
-      "io.kevinlee" %%% "refined4s-cats" % "0.11.0",
-      "io.kevinlee" %%% "refined4s-pureconfig" % "0.11.0"
+      "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
+      "org.typelevel" %%% "cats-core" % "2.13.0",
+      "org.typelevel" %%% "cats-effect" % "3.6.1",
+      "io.kevinlee" %%% "refined4s-core" % "1.1.0",
+      "io.kevinlee" %%% "refined4s-cats" % "1.1.0"
     )
   )
   .jvmSettings(
@@ -89,10 +89,6 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))
-
-lazy val sosJS = sos.js
-lazy val sosJVM = sos.jvm
-  .settings(mimaPreviousArtifacts := Set("org.soundsofscala" %% "sounds-of-scala" % "0.2.1"))
 
 lazy val docs =
   project.in(file("docs")).settings(

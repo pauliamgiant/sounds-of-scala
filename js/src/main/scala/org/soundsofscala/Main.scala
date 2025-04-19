@@ -41,7 +41,7 @@ object Main extends App:
 
       homeDiv.append(logoImage)
       val heading = document.createElement("h1")
-      heading.textContent = "Sounds of Scala"
+      heading.textContent = "Welcome to Sounds of Scala"
 
       val exampleWebAppLabel = document.createElement("h2")
       exampleWebAppLabel.textContent =
