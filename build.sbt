@@ -54,15 +54,17 @@ commands += Command.command("build") { state =>
 
 lazy val root = project
   .in(file("."))
-  .aggregate(sosJS, sosJVM)
+  .aggregate(sos.js, sos.jvm)
   .settings(
     name := "sounds-of-scala",
-    publish := {}
+    publish := {},
+    mimaPreviousArtifacts := Set.empty
   )
 
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
+    mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",
@@ -89,10 +91,6 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     )
   )
   .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))
-
-lazy val sosJS = sos.js
-lazy val sosJVM = sos.jvm
-  .settings(mimaPreviousArtifacts := Set("org.soundsofscala" %% "sounds-of-scala" % "0.2.1"))
 
 lazy val docs =
   project.in(file("docs")).settings(

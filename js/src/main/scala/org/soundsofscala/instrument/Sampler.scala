@@ -107,6 +107,23 @@ object Sampler:
       })
     fromPaths(filePaths)
 
+  def bassGuitar(using AudioContext): IO[Sampler] =
+    val filePaths: List[(SampleKey, String)] =
+      List(Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G, Pitch.A, Pitch.B).flatMap { note =>
+        List(
+          SampleKey(
+            note,
+            Accidental.Natural,
+            Octave(0))
+            -> s"resources/audio/bass-live/${note}0-Bass.wav",
+          SampleKey(
+            note,
+            Accidental.Natural,
+            Octave(1)) -> s"resources/audio/bass-live/${note}1-Bass.wav"
+        )
+      }
+    fromPaths(filePaths)
+
   def rhubarb(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
       SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/rhubarbSample.wav"
