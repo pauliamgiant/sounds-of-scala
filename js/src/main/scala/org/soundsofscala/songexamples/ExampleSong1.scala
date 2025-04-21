@@ -17,6 +17,7 @@
 package org.soundsofscala.songexamples
 
 import cats.effect.IO
+import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
@@ -24,48 +25,88 @@ import org.soundsofscala.syntax.all.*
 
 object ExampleSong1:
 
-  private val synthSettings: Synth.Settings =
-    Synth.Settings(
-      attack = Attack(0.1),
-      release = Release(0.1),
-      pan = 0.5
+  private val guitarSamplerSettings: SamplePlayer.Settings =
+    SamplePlayer.Settings(
+      volume = 0.2,
+      playbackRate = 1,
+      reversed = false,
+      loop = none, // Some(Loop(start = 2, end = 6)),
+      fadeIn = 0,
+      fadeOut = 0,
+      startDelay = 0,
+      offset = 0,
+      length = none
     )
 
-  val anotherOneBitesTheRust: MusicalEvent =
-    E1.eighth +
-      RestEighth +
-      E1.eighth +
-      RestEighth +
-      E1.eighth +
-      RestEighth +
-      RestEighth.eighthDotted +
-      E1.sixteenth +
-      (E1.eighth.repeat(2)) +
-      G1.eighth +
-      E1.sixteenth +
-      A1.quarter +
-      RestEighth.eighthDotted +
-      A1.sixteenth +
-      G1.sixteenth
+  private val drumSamplerSettings: SamplePlayer.Settings =
+    SamplePlayer.Settings(
+      volume = 0.8,
+      playbackRate = 1,
+      reversed = false,
+      loop = none, // Some(Loop(start = 2, end = 6)),
+      fadeIn = 0,
+      fadeOut = 0,
+      startDelay = 0,
+      offset = 0,
+      length = none
+    )
 
-  private val kd = (KickDrum + RestQuarter).repeat(8)
-  private val sd = (RestQuarter + SnareDrum).repeat(8)
-  private val ht = HatsClosed.eighth.repeat(32)
+  private val bassline: MusicalEvent =
+    D1.eighth + C1.eighth + A0.eighth + A0.eighth + C1.eighth + C1.eighth + A0.eighth + C1.eighth
+
+  private val guitarPart: MusicalEvent =
+    (Chord(D3, F3, A2).quarterDotted + Chord(C3, E3, G3).half + RestEighth).repeat(4)
+
+  private val verseMelody: MusicalEvent =
+    RestQuarter.quarterDotted + A4.eighth + D5.eighth + E5.quarter + F5.quarterDotted +
+      E5.eighth + RestEighth + D5.eighth + C5.eighth + D5.quarter + D5.quarter + RestQuarter + RestHalf + OneBarRest
+
+  val kd = (C2 + RestQuarter.onFull).loop
+  val sd = (RestQuarter + D2).loop
+  val ht = (E2.eighth.medium * 4).loop
+
+  private def drumSampler(): AudioContext ?=> IO[Sampler] = Sampler.fromPaths(
+    List(
+      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/drums/KickDrum.wav",
+      SampleKey(Pitch.D, Accidental.Natural, Octave(2)) -> "resources/audio/drums/SnareDrum.wav",
+      SampleKey(
+        Pitch.E,
+        Accidental.Natural,
+        Octave(2)) -> "resources/audio/drums-electro/HatsVintageElectro.wav"
+    )
+  )
 
   def play(): AudioContext ?=> IO[Unit] =
-    Song(
-      title = Title("Something We All Know"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(Title("Kick"), kd, Simple80sDrumMachine()),
-        Track(Title("Snare"), sd, Simple80sDrumMachine()),
-        Track(Title("Hats"), ht, Simple80sDrumMachine()),
-        Track(
-          Title("Single Synth Voice"),
-          anotherOneBitesTheRust.repeat(2),
-          ScalaSynth(),
-          customSettings = Some(synthSettings))
+    for
+      drums <- drumSampler()
+      bassGuitar <- Sampler.bassGuitar
+      guitar <- Sampler.guitar
+      song = Song(
+        title = Title("Song Example 1"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(
+          Track(Title("Kick"), kd, drums, customSettings = Some(drumSamplerSettings)),
+          Track(Title("Snare"), sd, drums, customSettings = Some(drumSamplerSettings)),
+          Track(Title("Hats"), ht, drums, customSettings = Some(drumSamplerSettings)),
+          Track(
+            Title("Live Bass Guitar"),
+            TwoBarRest + bassline.repeat(12),
+            bassGuitar
+          ),
+          Track(
+            Title("Live Guitar"),
+            FourBarRest + TwoBarRest + guitarPart,
+            guitar,
+            customSettings = guitarSamplerSettings.some
+          ),
+          Track(
+            Title("Lead Line"),
+            FourBarRest + verseMelody.repeat(4),
+            PianoSynth()
+          )
+        )
       )
-    ).play()
+      a <- song.play()
+    yield a
 end ExampleSong1

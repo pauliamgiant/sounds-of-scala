@@ -64,6 +64,7 @@ lazy val root = project
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
+    mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",

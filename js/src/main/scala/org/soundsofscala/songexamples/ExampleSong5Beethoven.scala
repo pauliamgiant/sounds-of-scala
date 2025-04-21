@@ -23,13 +23,14 @@ import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
 
-object ExampleSong4Beethoven:
+object ExampleSong5Beethoven:
 
   val customSettings: instrument.Synth.Settings =
     Synth.Settings(
       attack = Attack(0.1),
       release = Release(0.1),
-      pan = 0
+      pan = 0,
+      volume = 0.7
     )
 
   private val beginningChord = Chord(G4, D4, B3, G3, G2).half
@@ -164,4 +165,4 @@ object ExampleSong4Beethoven:
           customSettings = Some(customSettings))
       )
     ).play()
-end ExampleSong4Beethoven
+end ExampleSong5Beethoven

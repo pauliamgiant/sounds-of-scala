@@ -94,13 +94,13 @@ object Main extends App:
       val beethovenButtonWrapper = document.createElement("div")
       beethovenButtonWrapper.classList.add("button-pad")
       val beethovenButtonDiv = document.createElement("button")
-      beethovenButtonDiv.textContent = "ExampleSong4Beethoven ▶︎"
+      beethovenButtonDiv.textContent = "ExampleSong5Beethoven ▶︎"
       beethovenButtonDiv.addEventListener(
         "click",
         (_: dom.MouseEvent) =>
           given audioContext: AudioContext = new AudioContext()
           // For a quick start create a song file and replace this Example song here
-          ExampleSong4Beethoven.play().unsafeRunAndForget()
+          ExampleSong5Beethoven.play().unsafeRunAndForget()
       )
 
       val audioGraphButtonWrapper = document.createElement("div")

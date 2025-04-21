@@ -46,8 +46,6 @@ bin/
 .history
 .scala_dependencies
 .cache-main
-js/resources/audio/
-
 
 # general
 *.class

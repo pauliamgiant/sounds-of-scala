@@ -18,9 +18,7 @@ package org.soundsofscala.instrument
 
 import cats.effect.IO
 import org.scalajs.dom
-import org.scalajs.dom.AudioBuffer
-import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.AtomicMusicalEvent
+import org.scalajs.dom.{AudioBuffer, AudioContext}
 import org.soundsofscala.models.*
 import org.soundsofscala.playback.*
 
@@ -44,7 +42,17 @@ object SamplePlayer:
 
   object Settings:
     given Default[Settings] with
-      val default: Settings = Settings(1, 0, 0, 1.0, false, None, 0, 0, None)
+      val default: Settings = Settings(
+        volume = 0.5,
+        fadeIn = 0,
+        fadeOut = 0,
+        playbackRate = 1.0,
+        reversed = false,
+        loop = None,
+        startDelay = 0,
+        offset = 0,
+        length = None
+      )
 
   def playSample(
       buffer: AudioBuffer,
@@ -56,7 +64,8 @@ object SamplePlayer:
 
     val computedPlaybackRate = playbackRate * settings.playbackRate
     val offset = settings.offset
-    val length = settings.length.getOrElse((buffer.duration / math.abs(playbackRate)) - offset)
+//    val length = settings.length.getOrElse((buffer.duration / math.abs(playbackRate)) - offset)
+    val length = musicalEvent.durationToSeconds(tempo)
 
     def createGainNode(volume: Double): IO[dom.GainNode] =
       for
@@ -106,7 +115,9 @@ object SamplePlayer:
         gainNode.gain.setValueAtTime(
           settings.volume,
           when + settings.startDelay + length - 0.1)
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, when + settings.startDelay + length)
+        gainNode.gain.exponentialRampToValueAtTime(
+          0.0001,
+          when + settings.startDelay + (length + 0.3))
 
     def configureSourceNode(
         when: Double,
