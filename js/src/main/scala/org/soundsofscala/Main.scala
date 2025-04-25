@@ -23,6 +23,7 @@ import org.soundsofscala.graph.AudioNode.*
 import org.soundsofscala.graph.AudioParam
 import org.soundsofscala.graph.AudioParam.AudioParamEvent
 import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime
+import org.soundsofscala.playback.SimpleAudioPlayer
 import org.soundsofscala.songexamples.*
 
 object Main extends App:
@@ -30,6 +31,8 @@ object Main extends App:
   document.addEventListener(
     "DOMContentLoaded",
     (e: dom.Event) =>
+
+      given audioContext: AudioContext = new AudioContext()
 
       val homeDiv = document.createElement("div")
       homeDiv.classList.add("home-div")
@@ -54,6 +57,10 @@ object Main extends App:
       val beethovenText = document.createElement("p")
       beethovenText.textContent =
         "Click the ExampleSong4Beethoven button to hear WaveTable synthesis."
+
+      val simpleAudioPlayerText = document.createElement("p")
+      simpleAudioPlayerText.textContent =
+        "This demos the SimpleAudioPlayer for playing, pausing, and stopping an audio file."
 
       val thingsToTryLabel = document.createElement("h2")
       thingsToTryLabel.classList.add("left-align")
@@ -86,7 +93,6 @@ object Main extends App:
       actionButtonDiv.addEventListener(
         "click",
         (_: dom.MouseEvent) =>
-          given audioContext: AudioContext = new AudioContext()
           // For a quick start create a song file and replace this Example song here
           ExampleSong1.play().unsafeRunAndForget()
       )
@@ -102,6 +108,46 @@ object Main extends App:
           // For a quick start create a song file and replace this Example song here
           ExampleSong5Beethoven.play().unsafeRunAndForget()
       )
+
+      val audioPlayer = SimpleAudioPlayer("resources/audio/play-me.mp3")
+
+      val playButtonWrapper = document.createElement("div")
+      playButtonWrapper.classList.add("button-pad")
+      val simpleAudioPlayerPlayButton = document.createElement("button")
+      simpleAudioPlayerPlayButton.textContent = "▶︎"
+      simpleAudioPlayerPlayButton.addEventListener(
+        "click",
+        (_: dom.MouseEvent) =>
+          audioPlayer.play().unsafeRunAndForget()
+      )
+
+      val stopWrapper = document.createElement("div")
+      stopWrapper.classList.add("button-pad")
+      val stopButton = document.createElement("button")
+      stopButton.textContent = "◼︎"
+      stopButton.addEventListener(
+        "click",
+        (_: dom.MouseEvent) =>
+          audioPlayer.stop().unsafeRunAndForget()
+      )
+
+      val pauseWrapper = document.createElement("div")
+      pauseWrapper.classList.add("button-pad")
+      val pauseButton = document.createElement("button")
+      pauseButton.textContent = "⏸︎"
+      pauseButton.addEventListener(
+        "click",
+        (_: dom.MouseEvent) =>
+          audioPlayer.pause().unsafeRunAndForget()
+      )
+
+      playButtonWrapper.append(simpleAudioPlayerPlayButton)
+      stopWrapper.append(stopButton)
+      pauseWrapper.append(pauseButton)
+
+      val transportDiv = document.createElement("div")
+      transportDiv.classList.add("transport")
+      transportDiv.append(playButtonWrapper, stopWrapper, pauseWrapper)
 
       val audioGraphButtonWrapper = document.createElement("div")
       audioGraphButtonWrapper.classList.add("button-pad")
@@ -161,7 +207,7 @@ object Main extends App:
               List.empty,
               AudioParam(generateSetValueAtTime(
                 initialTime = initialTime,
-                timeStep = 0.05,
+                timeStep = 1.0,
                 valuesPattern = valuesPattern,
                 endTime = noteLength)))
 
@@ -186,6 +232,9 @@ object Main extends App:
         document.createElement("hr"),
         beethovenText,
         beethovenButtonWrapper,
+        document.createElement("hr"),
+        simpleAudioPlayerText,
+        transportDiv,
         document.createElement("hr"),
         thingsToTryLabel,
         exampleList,

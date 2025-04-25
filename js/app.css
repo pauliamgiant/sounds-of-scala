@@ -101,3 +101,11 @@ button {
     margin: 10px;
     border-radius: 10px;
 }
+
+.transport {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    color: white;
+    border: none;
+}
