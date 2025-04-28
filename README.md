@@ -1,7 +1,24 @@
-# Welcome to the Sounds of Scala project!
-
+# Welcome to the Sounds of Scala project
 
 ## A Web Music & Audio library for Scala
+
+The fastest way to make some sound emanate from your device is with the SimpleAudioPlayer.
+
+Add the following to your build.sbt file:
+
+```scala 3
+libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.4.0"
+```
+Then in the code of your Scala.js project pass the path to an audio file to the SimpleAudioPlayer constructor.
+
+```scala 3
+val audioPlayer = SimpleAudioPlayer("<PATH_TO_LOCAL_AUDIO_FILE>")
+audioPlayer.play()
+audioPlayer.pause()
+audioPlayer.play()
+audioPlayer.stop()
+```
+
 
 ### What are we doing?
 Building a library that uses the web audio api to build music applications. 

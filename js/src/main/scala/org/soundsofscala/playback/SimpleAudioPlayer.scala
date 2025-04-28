@@ -1,72 +1,74 @@
 package org.soundsofscala.playback
 
-import cats.effect.{IO, Ref}
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
 import org.scalajs.dom
-import org.scalajs.dom.{AudioBuffer, AudioBufferSourceNode, AudioContext}
+import org.scalajs.dom.{AudioBuffer, AudioBufferSourceNode, AudioContext, GainNode}
 import org.soundsofscala.instrument.SampleLoader
+import org.soundsofscala.models.{PauseOffset, StartTime}
 
-object SimpleAudioPlayer:
-  def apply(path: String)(using audioContext: AudioContext): SimpleAudioPlayer =
-    // In a Scala.js environment (browser, single-threaded)
-    // Not doing concurrent, cross-thread mutation
-    // No risk of preemptive effects or race conditions
-
-    val pauseOffsetRef = Ref.unsafe[IO, Double](0.0)
-    val sourceNodeRef = Ref.unsafe[IO, Option[AudioBufferSourceNode]](none)
-    val startTimeRef = Ref.unsafe[IO, Option[Double]](none)
-
-    new SimpleAudioPlayer(path, pauseOffsetRef, sourceNodeRef, startTimeRef)
-
-case class SimpleAudioPlayer(
-    path: String,
-    pauseOffsetRef: Ref[IO, Double],
-    sourceNodeRef: Ref[IO, Option[AudioBufferSourceNode]],
-    startTimeRef: Ref[IO, Option[Double]]
-)(using audioContext: AudioContext):
+final case class SimpleAudioPlayer(path: String)(using audioContext: AudioContext):
 
   private val audioBuffer: IO[AudioBuffer] = SampleLoader.loadSample(path)
 
-  def play(): IO[Unit] =
+  // scalafix:off DisableSyntax.var
+  private var pauseOffset: PauseOffset = PauseOffset(0.0)
+  private var sourceNode: Option[AudioBufferSourceNode] = none
+  private var gainNode: Option[GainNode] = none
+  private var startTime: Option[StartTime] = none
+  // scalafix:on
+
+  private val fadeTime = 0.02
+
+  def play(): Unit = playAudio().unsafeRunAndForget()
+
+  private def playAudio(): IO[Unit] =
     for
       _ <- stopPlayback()
       buffer <- audioBuffer
       source = audioContext.createBufferSource()
-      pauseOffset <- pauseOffsetRef.get
-      _ <- IO.println(s"pauseOffset at start of play method: $pauseOffset")
-      _ <- IO {
-        source.buffer = buffer
-        source.connect(audioContext.destination)
-        source.start(0, pauseOffset)
-
-      }
-      _ <- startTimeRef.set((audioContext.currentTime - pauseOffset).some)
-      _ <- sourceNodeRef.set(source.some)
+      gain = audioContext.createGain()
+      _ = gain.gain.setValueAtTime(0.0, audioContext.currentTime)
+      _ = gain.gain.linearRampToValueAtTime(1.0, audioContext.currentTime + fadeTime)
+      _ = source.buffer = buffer
+      _ = source.connect(gain)
+      _ = gain.connect(audioContext.destination)
+      _ = source.start(0, pauseOffset.value)
+      _ = startTime = StartTime(audioContext.currentTime - pauseOffset.value).some
+      _ = sourceNode = source.some
+      _ = gainNode = gain.some
     yield ()
 
-  def stop(): IO[Unit] =
+  def stop(): Unit = stopAudio().unsafeRunAndForget()
+
+  private def stopAudio(): IO[Unit] =
     for
       _ <- stopPlayback()
-      _ <- pauseOffsetRef.set(0.0)
-      _ <- startTimeRef.set(none)
+      _ = pauseOffset = PauseOffset(0.0)
+      _ = startTime = none
     yield ()
 
-  def pause(): IO[Unit] =
+  def pause(): Unit = pauseSong().unsafeRunAndForget()
+
+  private def pauseSong(): IO[Unit] =
     for
-      startTime <- startTimeRef.get
-      _ <- pauseOffsetRef.set(audioContext.currentTime - startTime.getOrElse(0.0))
-      pauseOffset <- pauseOffsetRef.get
-      _ = println(s"pauseOffset is: $pauseOffset")
       _ <- stopPlayback()
+      _ = pauseOffset =
+        PauseOffset(audioContext.currentTime - startTime.getOrElse(StartTime(0.0)).value)
+      _ <- IO.println(s"pauseOffset is: $pauseOffset")
     yield ()
 
   private def stopPlayback(): IO[Unit] =
-    for
-      maybeNode <- sourceNodeRef.get
-      _ <- IO.println(
-        s"Calling stopPlayback. Source node is ${if maybeNode.isDefined then "" else "not"} defined: ")
-      _ <- IO(maybeNode.foreach(_.stop()))
-      _ <- sourceNodeRef.set(none)
-      _ <- IO(startTimeRef.set(none))
-    yield ()
+    IO {
+      gainNode.foreach { gain =>
+        val now = audioContext.currentTime
+        gain.gain.setValueAtTime(gain.gain.value, now)
+        gain.gain.linearRampToValueAtTime(0.0, now + fadeTime)
+      }
+      sourceNode.foreach(_.stop(audioContext.currentTime + fadeTime))
+      sourceNode = none
+      gainNode = none
+      startTime = none
+    }
 end SimpleAudioPlayer
