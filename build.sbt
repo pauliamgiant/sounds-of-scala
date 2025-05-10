@@ -64,6 +64,7 @@ lazy val root = project
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
+    scalaVersion := "3.6.4",
     mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(

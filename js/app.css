@@ -84,7 +84,7 @@ label {
 p {
     text-align: center;
     font-size: large;
-    padding: 2em;
+    padding: 1em;
 }
 
 li {
@@ -108,4 +108,15 @@ button {
     gap: 1em;
     color: white;
     border: none;
+}
+
+.language-scala {
+    padding: 0.7em;
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    color: darkred;
+    border: none;
+    font-size: 1.2em;
+
 }

@@ -5,14 +5,15 @@ import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.{AudioBuffer, AudioBufferSourceNode, AudioContext, GainNode}
 import org.soundsofscala.instrument.SampleLoader
+import org.soundsofscala.models.{FilePath, PauseOffset, StartTime}
 
 case class FunctionalAudioPlayer(
-    path: String,
+    path: FilePath,
     audioBuffer: AudioBuffer,
-    pauseOffset: Ref[IO, Double],
+    pauseOffset: Ref[IO, PauseOffset],
     sourceNode: Ref[IO, Option[AudioBufferSourceNode]],
     gainNode: Ref[IO, Option[GainNode]],
-    startTime: Ref[IO, Option[Double]]
+    startTime: Ref[IO, Option[StartTime]]
 )(using audioContext: AudioContext):
 
   private val fadeTime = 0.02
@@ -29,9 +30,9 @@ case class FunctionalAudioPlayer(
         source.buffer = audioBuffer
         source.connect(gain)
         gain.connect(audioContext.destination)
-        source.start(0, offset)
+        source.start(0, offset.value)
       }
-      _ <- startTime.set((audioContext.currentTime - offset).some)
+      _ <- startTime.set(StartTime(audioContext.currentTime - offset.value).some)
       _ <- sourceNode.set(source.some)
       _ <- gainNode.set(gain.some)
     yield ()
@@ -39,17 +40,17 @@ case class FunctionalAudioPlayer(
   def stop(): IO[Unit] =
     for
       _ <- stopPlayback()
-      _ <- pauseOffset.set(0.0)
-      _ <- startTime.set(None)
+      _ <- pauseOffset.set(PauseOffset(0.0))
+      _ <- startTime.set(none)
     yield ()
 
   def pause(): IO[Unit] =
     for
       _ <- stopPlayback()
       startOpt <- startTime.get
-      offset = audioContext.currentTime - startOpt.getOrElse(0.0)
-      _ <- pauseOffset.set(offset)
-      _ <- IO.println(s"pauseOffset is: $offset")
+      offset = audioContext.currentTime - startOpt.getOrElse(StartTime(0.0)).value
+      _ <- pauseOffset.set(PauseOffset(offset))
+      _ <- IO.println(s"Pause offset is: $offset")
     yield ()
 
   private def stopPlayback(): IO[Unit] =
@@ -66,21 +67,21 @@ case class FunctionalAudioPlayer(
         }
       }
       _ <- sourceOpt.traverse(source => IO(source.stop(audioContext.currentTime + fadeTime)))
-      _ <- sourceNode.set(None)
-      _ <- gainNode.set(None)
-      _ <- startTime.set(None)
+      _ <- sourceNode.set(none)
+      _ <- gainNode.set(none)
+      _ <- startTime.set(none)
     yield ()
 end FunctionalAudioPlayer
 
 object AudioPlayer:
 
-  def apply(audioFilePath: String)(using audioContext: AudioContext): IO[FunctionalAudioPlayer] =
+  def apply(audioFilePath: FilePath)(using audioContext: AudioContext): IO[FunctionalAudioPlayer] =
     for
-      buffer <- SampleLoader.loadSample(audioFilePath)
-      pauseOffset <- Ref.of[IO, Double](0.0)
-      sourceNode <- Ref.of[IO, Option[AudioBufferSourceNode]](None)
-      gainNode <- Ref.of[IO, Option[GainNode]](None)
-      startTime <- Ref.of[IO, Option[Double]](None)
+      buffer <- SampleLoader.loadSample(audioFilePath.value)
+      pauseOffset <- Ref.of[IO, PauseOffset](PauseOffset(0.0))
+      sourceNode <- Ref.of[IO, Option[AudioBufferSourceNode]](none)
+      gainNode <- Ref.of[IO, Option[GainNode]](none)
+      startTime <- Ref.of[IO, Option[StartTime]](none)
     yield FunctionalAudioPlayer(
       audioFilePath,
       buffer,
