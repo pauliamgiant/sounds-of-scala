@@ -9,12 +9,12 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
-    tlBaseVersion := "0.3",
+    tlBaseVersion := "0.4",
     startYear := Some(2024),
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.6.4",
+    scalaVersion := "3.7.0",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSitePublishBranch := Some("main"),
