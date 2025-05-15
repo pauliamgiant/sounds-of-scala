@@ -35,13 +35,25 @@ type Title = Title.Type
 
 object Title extends Newtype[String]
 
+type FilePath = FilePath.Type
+
+object FilePath extends Newtype[String]
+
 type TimingOffset = TimingOffset.Type
 
 object TimingOffset extends Newtype[Double]
 
+type PauseOffset = PauseOffset.Type
+
+object PauseOffset extends Newtype[Double]
+
 type NextNoteTime = NextNoteTime.Type
 
 object NextNoteTime extends Newtype[Double]
+
+type StartTime = StartTime.Type
+
+object StartTime extends Newtype[Double]
 
 type Tempo = Tempo.Type
 

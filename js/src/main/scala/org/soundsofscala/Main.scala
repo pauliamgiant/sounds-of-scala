@@ -13,48 +13,181 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.soundsofscala
 
 import cats.effect.unsafe.implicits.global
+import cats.effect.{ExitCode, IO, IOApp}
 import org.scalajs.dom
 import org.scalajs.dom.*
-import org.soundsofscala.graph.AudioNode.*
-import org.soundsofscala.graph.AudioParam
-import org.soundsofscala.graph.AudioParam.AudioParamEvent
-import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime
+import org.soundsofscala.graph.AudioGraphDemoCode
+import org.soundsofscala.models.FilePath
+import org.soundsofscala.playback.AudioPlayer
 import org.soundsofscala.songexamples.*
 
-object Main extends App:
+object Main extends IOApp:
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    (e: dom.Event) =>
+  def run(args: List[String]): IO[ExitCode] =
+    IO {
+      document.addEventListener(
+        "DOMContentLoaded",
+        (_: dom.Event) =>
+          given AudioContext = new AudioContext()
 
-      val homeDiv = document.createElement("div")
-      homeDiv.classList.add("home-div")
+          setupPage().unsafeRunAndForget()
+      )
+    }.as(ExitCode.Success)
 
-      val logoImage = document.createElement("img")
-      logoImage.setAttribute("src", "resources/images/sounds_of_scala_logo.png")
-      logoImage.setAttribute("alt", "Sounds of Scala Logo")
-      logoImage.setAttribute("style", "width: 8em; height: auto; display: block; margin: 0 auto;")
+  private def setupPage(): AudioContext ?=> IO[Unit] =
+    for
+      audioPlayer <- AudioPlayer(FilePath("resources/audio/sounds-of-scala.mp3"))
 
-      homeDiv.append(logoImage)
-      val heading = document.createElement("h1")
-      heading.textContent = "Welcome to Sounds of Scala"
+      homeDiv <- IO(document.createElement("div"))
+      _ <- IO(homeDiv.classList.add("home-div"))
+      logoImage <- buildLogo
+      heading <- buildHeading
+      quickStart <- buildSimpleAudioPlayerDirections
+      introText <- buildIntroductionText
+      beethovenText <- buildBeethovenText
+      audioPlayerText <- buildAudioplayerText
+      thingsToTry <- buildThingsToTry()
 
-      val exampleWebAppLabel = document.createElement("h2")
-      exampleWebAppLabel.textContent =
-        "Test section - Quickstart - You can run this Main method locally to try out the library features and example songs."
+      playButton <- buildButton(label = "▶︎", buttonAction = audioPlayer.play())
+      stopButton <- buildButton(label = "◼︎", buttonAction = audioPlayer.stop())
+      pauseButton <- buildButton(label = "⏸︎", buttonAction = audioPlayer.pause())
+      playExampleSong1Button <- buildButton(
+        label = "▶︎ ExampleSong1",
+        buttonAction = ExampleSong1.play()
+      )
+      beethovenButton <- buildButton(
+        label = "▶︎ ExampleSong4Beethoven",
+        buttonAction = ExampleSong5Beethoven.play()
+      )
+      audioGraphButton <- buildButton(
+        label = "Audio Graph in action ▶",
+        buttonAction = AudioGraphDemoCode.buildAudioGraphDemo
+      )
 
-      val exampleMoreInfoText = document.createElement("p")
-      exampleMoreInfoText.textContent =
-        "Click the First play button here to play ExampleSong1 you'll find in scala/org/soundsofscala/songexamples."
+      transportDiv <- buildTransport(playButton, stopButton, pauseButton)
+      _ <- addElementsToHomeDiv(
+        logoImage,
+        heading,
+        quickStart,
+        document.createElement("hr"),
+        introText,
+        playExampleSong1Button,
+        document.createElement("hr"),
+        beethovenText,
+        beethovenButton,
+        document.createElement("hr"),
+        audioPlayerText,
+        transportDiv,
+        document.createElement("hr"),
+        thingsToTry,
+        audioGraphButton
+      )(homeDiv)
+    yield ()
 
-      val beethovenText = document.createElement("p")
-      beethovenText.textContent =
-        "Click the ExampleSong4Beethoven button to hear WaveTable synthesis."
+  private def buildHeading = IO {
+    val title = document.createElement("h1")
+    title.textContent = "Welcome to Sounds of Scala"
+    title
+  }
 
+  private def buildSimpleAudioPlayerDirections: IO[dom.Element] = IO {
+
+    val div = document.createElement("div")
+
+    val title = document.createElement("h1")
+    title.textContent = "Make sound fast with the Simple Audio Player"
+
+    val fastestWayText = document.createElement("p")
+    fastestWayText.textContent =
+      "The fastest way to make some sound emanate from your device is with the SimpleAudioPlayer."
+
+    val addToSbt = document.createElement("p")
+    addToSbt.textContent = "Add the following to your build.sbt file:"
+
+    val codeStringSbt: String =
+      """|
+         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.3.1""".stripMargin
+
+    val addToCode = document.createElement("p")
+    addToCode.textContent =
+      "Then in your code pass the path to the audio file to the SimpleAudioPlayer constructor."
+
+    val codeString: String =
+      """|val audioPlayer = SimpleAudioPlayer("<PATH_TO_LOCAL_AUDIO_FILE>")
+         |audioPlayer.play()
+         |audioPlayer.pause()
+         |audioPlayer.play()
+         |audioPlayer.stop()
+         |""".stripMargin
+
+    val preSbt = document.createElement("pre").asInstanceOf[dom.HTMLPreElement]
+    val preCode = document.createElement("pre").asInstanceOf[dom.HTMLPreElement]
+    val codeSbt = document.createElement("code").asInstanceOf[dom.HTMLPreElement]
+    val code = document.createElement("code").asInstanceOf[dom.HTMLPreElement]
+    codeSbt.classList.add("language-scala")
+    code.classList.add("language-scala")
+    codeSbt.textContent = codeStringSbt
+    code.textContent = codeString
+    preSbt.append(codeSbt)
+    preCode.append(code)
+    div.append(title, fastestWayText, addToSbt, preSbt, addToCode, preCode)
+    div
+  }
+
+  private def buildLogo = IO {
+    val logoImage = document.createElement("img")
+    logoImage.setAttribute("src", "resources/images/sounds_of_scala_logo.png")
+    logoImage.setAttribute("alt", "Sounds of Scala Logo")
+    logoImage.setAttribute("style", "width: 8em; height: auto; display: block; margin: 0 auto;")
+    logoImage
+  }
+
+  private def buildAudioplayerText = IO {
+    val audioPlayerText = document.createElement("p")
+    audioPlayerText.textContent =
+      "This demos the AudioPlayer for playing, pausing, and stopping an audio file."
+    audioPlayerText
+  }
+
+  private def buildBeethovenText = IO {
+    val beethovenText = document.createElement("p")
+    beethovenText.textContent =
+      "Click the ExampleSong4Beethoven button to hear an example of WaveTable synthesis used to create an Electric Piano sound."
+    beethovenText
+  }
+
+  private def buildTransport(buttons: Element*) = IO {
+    val div = document.createElement("div")
+    div.classList.add("transport")
+    buttons.foreach(div.appendChild)
+    div
+  }
+
+  private def addElementsToHomeDiv(elements: Element*)(homeDiv: Element) = IO {
+    elements.foreach(homeDiv.append(_))
+    document.body.appendChild(homeDiv)
+  }
+
+  private def buildIntroductionText = IO {
+    val textDiv = document.createElement("div")
+
+    val exampleWebAppLabel = document.createElement("h2")
+    exampleWebAppLabel.textContent =
+      "Test section - Quickstart - You can run this Main method locally to try out the library features and example songs."
+
+    val exampleMoreInfoText = document.createElement("p")
+    exampleMoreInfoText.textContent =
+      "Click the play button here to play ExampleSong1 which you'll find in scala/org/soundsofscala/songexamples."
+    textDiv.append(exampleWebAppLabel, exampleMoreInfoText)
+    textDiv
+  }
+
+  private def buildThingsToTry() =
+    IO {
+      val thingsToTryDiv = document.createElement("div")
       val thingsToTryLabel = document.createElement("h2")
       thingsToTryLabel.classList.add("left-align")
       thingsToTryLabel.textContent = "Things to try"
@@ -76,133 +209,25 @@ object Main extends App:
 
       val listItem4 = document.createElement("li")
       listItem4.textContent =
-        "You can also try out the AudioGraph example by clicking the second play button below. This will create a band pass filter with a frequency sweep and a gain node with a tremolo effect. You can change the parameters in the code to create different sounds."
+        "You can also try out the AudioGraph example by clicking the play button below. This will create a band pass filter with a frequency sweep and a gain node with a tremolo effect. You can change the parameters in the code to create different sounds."
       exampleList.append(listItem4)
-
-      val buttonWrapper = document.createElement("div")
-      buttonWrapper.classList.add("button-pad")
-      val actionButtonDiv = document.createElement("button")
-      actionButtonDiv.textContent = "ExampleSong1 ▶︎"
-      actionButtonDiv.addEventListener(
-        "click",
-        (_: dom.MouseEvent) =>
-          given audioContext: AudioContext = new AudioContext()
-          // For a quick start create a song file and replace this Example song here
-          ExampleSong1.play().unsafeRunAndForget()
-      )
-
-      val beethovenButtonWrapper = document.createElement("div")
-      beethovenButtonWrapper.classList.add("button-pad")
-      val beethovenButtonDiv = document.createElement("button")
-      beethovenButtonDiv.textContent = "ExampleSong5Beethoven ▶︎"
-      beethovenButtonDiv.addEventListener(
-        "click",
-        (_: dom.MouseEvent) =>
-          given audioContext: AudioContext = new AudioContext()
-          // For a quick start create a song file and replace this Example song here
-          ExampleSong5Beethoven.play().unsafeRunAndForget()
-      )
-
-      val audioGraphButtonWrapper = document.createElement("div")
-      audioGraphButtonWrapper.classList.add("button-pad")
-      val audioGraphButton = document.createElement("button")
-      audioGraphButton.textContent = "Audio Graph in action ▶︎"
-      audioGraphButton.addEventListener(
-        "click",
-        (_: dom.MouseEvent) =>
-          given audioContext: AudioContext = new AudioContext()
-
-          val initialTime = audioContext.currentTime
-
-          val noteLength = 12.0
-
-          val listOfNotePitchFrequencies = Vector(220, 110, 55, 110, 220, 440, 880, 440, 220, 110,
-            55, 110, 220, 440, 880, 440, 220, 110, 55, 110, 220, 440, 880, 440, 220)
-
-          // We are creating frequency change events every 0.5 seconds
-          val pitchList = listOfNotePitchFrequencies.zipWithIndex.map {
-            case (freq, idx) =>
-              SetValueAtTime(freq, initialTime + (idx * 0.5))
-          } :+ SetValueAtTime(220, initialTime + noteLength)
-
-          // build a sawtooth oscillator using the list of changing pitches
-
-          val sawToothOsc =
-            sawtoothOscillator(initialTime, noteLength).withFrequency(AudioParam(pitchList))
-
-          // This is an example of a band pass filter with a frequency sweep
-          // We use the Audioparam to change the frequency of the band pass filter over time
-
-          val startFrequency = 100
-          val endFrequency = 13500
-          val steps = 25
-
-          val frequencies: Vector[Double] = (0 until steps).map { index =>
-            startFrequency * Math.pow(
-              endFrequency.toDouble / startFrequency,
-              index.toDouble / (steps - 1))
-          }.toVector
-
-          // build the band pass filter
-
-          val bandpass = bandPassFilter.withFrequency(
-            AudioParam(generateSetValueAtTime(
-              initialTime = 0,
-              timeStep = 0.5,
-              valuesPattern = frequencies,
-              endTime = noteLength))
-          )
-
-          // build the gain node and have the volume change over time to create a tremolo effect
-          val valuesPattern = Vector(0.0, 0.5, 0.1, 0.5)
-
-          val gainNode =
-            Gain(
-              List.empty,
-              AudioParam(generateSetValueAtTime(
-                initialTime = initialTime,
-                timeStep = 0.05,
-                valuesPattern = valuesPattern,
-                endTime = noteLength)))
-
-          // connect the nodes
-          val graph = sawToothOsc --> bandpass --> gainNode
-
-          // create the graph
-          graph.create
-      )
-
-      buttonWrapper.append(actionButtonDiv)
-      audioGraphButtonWrapper.append(audioGraphButton)
-      beethovenButtonWrapper.append(beethovenButtonDiv)
-
-      document.createElement("hr")
-
-      homeDiv.append(
-        heading,
-        exampleWebAppLabel,
-        exampleMoreInfoText,
-        buttonWrapper,
-        document.createElement("hr"),
-        beethovenText,
-        beethovenButtonWrapper,
-        document.createElement("hr"),
+      thingsToTryDiv.append(
         thingsToTryLabel,
-        exampleList,
-        audioGraphButtonWrapper,
-        document.createElement("hr")
+        exampleList
       )
-      document.body.appendChild(homeDiv)
-  )
-end Main
+      thingsToTryDiv
+    }
 
-private def generateSetValueAtTime(
-    initialTime: Double,
-    timeStep: Double,
-    valuesPattern: Vector[Double],
-    endTime: Double): Vector[SetValueAtTime] =
-  val numberOfSteps = ((endTime - initialTime) / timeStep).toInt + 1
-  (0 until numberOfSteps).toVector.map: i =>
-    val value = valuesPattern(i % valuesPattern.size)
-    val time = initialTime + (i * timeStep)
-    SetValueAtTime(value, time)
+  private def buildButton(label: String, buttonAction: IO[Unit]): IO[Element] =
+    for
+      buttonContainer <- IO(document.createElement("div"))
+      _ <- IO(buttonContainer.classList.add("button-pad"))
+      button <- IO(document.createElement("button"))
+      _ <- IO {
+        button.textContent = label
+        button.addEventListener("click", (_: dom.MouseEvent) => buttonAction.unsafeRunAndForget())
+        buttonContainer.appendChild(button)
+      }
+    yield buttonContainer
+
+end Main

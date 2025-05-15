@@ -5,6 +5,7 @@
 # metals
 project/metals.sbt
 .metals
+.cursor
 
 # vs code
 .vscode

@@ -144,7 +144,10 @@ object Sampler:
 
   def kickDrum(using AudioContext): IO[Sampler] =
     val filePaths: List[(SampleKey, String)] = List(
-      SampleKey(Pitch.C, Accidental.Natural, Octave(2)) -> "resources/audio/misc/kickTL.wav"
+      SampleKey(
+        Pitch.C,
+        Accidental.Natural,
+        Octave(2)) -> "resources/audio/drums-electro/KickVintageElectro.wav"
     )
     fromPaths(filePaths)
 
