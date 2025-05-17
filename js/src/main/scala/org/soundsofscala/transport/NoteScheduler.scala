@@ -17,7 +17,6 @@
 package org.soundsofscala.transport
 
 import cats.effect.IO
-import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.Instrument
 import org.soundsofscala.models

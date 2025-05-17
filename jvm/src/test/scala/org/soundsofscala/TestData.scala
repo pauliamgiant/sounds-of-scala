@@ -20,7 +20,6 @@ import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.Quarter
 import org.soundsofscala.models.Velocity.OnFull
-import org.soundsofscala.models.*
 
 object TestData:
   val quarterKickDrum: DrumStroke = DrumStroke(Kick, Quarter, OnFull)

@@ -15,6 +15,7 @@ inThisBuild(
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
     scalaVersion := "3.7.0",
+    dependencyOverrides += "org.scala-lang" %% "scala3-library" % scalaVersion.value,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSitePublishBranch := Some("main"),
@@ -64,7 +65,7 @@ lazy val root = project
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
-    scalaVersion := "3.6.4",
+    scalaVersion := "3.7.0",
     mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
