@@ -18,20 +18,19 @@ package org.soundsofscala.instrument
 
 import cats.effect.IO
 import cats.syntax.parallel.catsSyntaxParallelTraverse1
-import org.scalajs.dom
 import org.scalajs.dom.AudioContext
 import org.soundsofscala
 import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.Note
 
-trait Synth(using AudioContext) extends Instrument[Synth.Settings]:
+trait Synth extends Instrument[Synth.Settings]:
 
   def playWithSettings(
       musicEvent: AtomicMusicalEvent,
       when: Double,
       tempo: Tempo,
-      settings: Synth.Settings)(using audioContext: dom.AudioContext): IO[Unit] =
+      settings: Synth.Settings)(using audioContext: AudioContext): IO[Unit] =
     musicEvent match
       case note: AtomicMusicalEvent.Note =>
         this.attackRelease(when, note, tempo, settings.attack, settings.release, settings.pan)

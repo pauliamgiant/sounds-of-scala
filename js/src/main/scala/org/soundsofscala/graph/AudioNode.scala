@@ -20,7 +20,6 @@ import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, DelayNode}
 import org.soundsofscala.models.AudioTypes.FilterModel
 import org.soundsofscala.models.AudioTypes.WaveType
-import org.soundsofscala.models.DrumVoice.*
 
 import scala.annotation.targetName
 import scala.scalajs.js.typedarray.Float32Array

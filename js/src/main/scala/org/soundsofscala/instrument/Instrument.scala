@@ -18,8 +18,6 @@ package org.soundsofscala.instrument
 
 import cats.effect.IO
 import org.scalajs.dom
-import org.soundsofscala
-import org.soundsofscala.models
 import org.soundsofscala.models.*
 
 trait Instrument[Settings]:

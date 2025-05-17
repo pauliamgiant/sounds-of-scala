@@ -19,8 +19,6 @@ package org.soundsofscala.synthesis
 import cats.effect.IO
 import org.scalajs.dom
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models
-import org.soundsofscala.models.AtomicMusicalEvent
 import org.soundsofscala.models.AtomicMusicalEvent.DrumStroke
 
 /**
@@ -63,7 +61,7 @@ object DrumGeneration:
     IO:
       val velocity = drumStroke.velocity.getNormalisedVelocity
 
-      def createNoiseBuffer(audioContext: dom.AudioContext): dom.AudioBuffer =
+      def createNoiseBuffer(audioContext: AudioContext): dom.AudioBuffer =
         val bufferSize = audioContext.sampleRate.toFloat // 1 second of audio
         val buffer =
           audioContext.createBuffer(1, bufferSize.toInt, audioContext.sampleRate.toInt)

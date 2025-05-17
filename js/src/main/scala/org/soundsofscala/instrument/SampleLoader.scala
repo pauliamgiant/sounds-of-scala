@@ -18,7 +18,7 @@ package org.soundsofscala.instrument
 
 import cats.effect.IO
 import org.scalajs.dom
-import org.scalajs.dom.{AudioBuffer, AudioContext, XMLHttpRequest}
+import org.scalajs.dom.{AudioBuffer, AudioContext}
 import org.soundsofscala.models.FileLoadingError
 
 import scala.scalajs.js.typedarray.ArrayBuffer
