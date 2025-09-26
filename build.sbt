@@ -2,6 +2,8 @@ import laika.helium.Helium
 import laika.helium.config.{HeliumIcon, IconLink}
 import laika.sbt.LaikaPlugin.autoImport.laikaTheme
 import laika.theme.config.Color
+import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
+import org.scalajs.jsenv.nodejs.NodeJSEnv
 
 import scala.collection.Seq
 
@@ -14,7 +16,8 @@ inThisBuild(
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.7.0",
+    scalaVersion := "3.7.3",
+    dependencyOverrides += "org.scala-lang" %% "scala3-library" % scalaVersion.value,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     tlSitePublishBranch := Some("main"),
@@ -61,17 +64,19 @@ lazy val root = project
     mimaPreviousArtifacts := Set.empty
   )
 
+// Task key definition
+lazy val processIndexHtml = taskKey[Unit]("Process index.html template")
+
 lazy val sos = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
-    scalaVersion := "3.6.4",
     mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
       "org.scalactic" %%% "scalactic" % "3.2.17",
       "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
       "org.typelevel" %%% "cats-core" % "2.13.0",
-      "org.typelevel" %%% "cats-effect" % "3.6.1",
+      "org.typelevel" %%% "cats-effect" % "3.6.3",
       "io.kevinlee" %%% "refined4s-core" % "1.1.0",
       "io.kevinlee" %%% "refined4s-cats" % "1.1.0"
     )
@@ -81,16 +86,42 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
   )
   .jsSettings(
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     Compile / mainClass := Some("org.soundsofscala.Main"),
-    Test / requireJsDomEnv := true,
-    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "2.8.0"),
-    npmExtraArgs ++= Seq(
-      "--registry=https://registry.npmjs.org/"
-    )
+    jsEnv := new JSDOMNodeJSEnv(),
+    Test / jsEnv := new NodeJSEnv(),
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.NoModule) },
+    
+    // Define and automatically update index.html before fastOptJS
+    processIndexHtml := {
+      val baseDir = (ThisBuild / baseDirectory).value
+      val indexTemplate = baseDir / "index.html"
+      val scalaVer = scalaVersion.value
+
+      if (indexTemplate.exists) {
+        val content = IO.read(indexTemplate)
+        val scalaVersionPattern = """/target/scala-([^/]+)/""".r
+        val currentVersionInFile = scalaVersionPattern.findFirstMatchIn(content).map(_.group(1))
+
+        currentVersionInFile match {
+          case Some(fileVersion) if fileVersion != scalaVer =>
+            val updatedContent =
+              content.replaceAll(s"/target/scala-$fileVersion/", s"/target/scala-$scalaVer/")
+            IO.write(indexTemplate, updatedContent)
+            println(s"Updated index.html: $fileVersion -> $scalaVer")
+          case Some(fileVersion) =>
+            println(s"index.html already has correct Scala version: $fileVersion")
+          case None =>
+            println("Could not find Scala version pattern in index.html")
+        }
+      }
+    },
+    Compile / fastOptJS := {
+      processIndexHtml.value
+      (Compile / fastOptJS).value
+    },
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "2.8.0")
   )
-  .jsConfigure(project => project.enablePlugins(ScalaJSBundlerPlugin))
 
 lazy val docs =
   project.in(file("docs")).settings(
@@ -135,7 +166,7 @@ logo :=
        |""".stripMargin
 
 usefulTasks := Seq(
-  UsefulTask("~fastOptJS / webpack", "Run fastOptJS for live updates").alias("f"),
+  UsefulTask("~fastOptJS", "Run fastOptJS for live updates").alias("f"),
   UsefulTask("reload", "run reload").alias("r"),
   UsefulTask("publishLocal", "Publish build locally").alias("pub"),
   UsefulTask("docs/tlSitePreview", "preview documentation").alias("doc"),

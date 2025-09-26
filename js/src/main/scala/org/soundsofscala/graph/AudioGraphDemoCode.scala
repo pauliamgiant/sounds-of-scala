@@ -1,7 +1,6 @@
 package org.soundsofscala.graph
 
 import cats.effect.IO
-import org.scalajs.dom
 import org.scalajs.dom.*
 import org.soundsofscala.graph.AudioNode.{Gain, bandPassFilter, sawtoothOscillator}
 import org.soundsofscala.graph.AudioParam.AudioParamEvent.SetValueAtTime

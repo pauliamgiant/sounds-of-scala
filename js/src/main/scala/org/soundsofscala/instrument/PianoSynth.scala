@@ -29,8 +29,7 @@ import org.soundsofscala.models.*
 
 import scala.scalajs.js
 
-final case class PianoSynth()(using audioContext: AudioContext)
-    extends Synth(using audioContext: AudioContext):
+final case class PianoSynth()(using audioContext: AudioContext) extends Synth:
 
   override def attackRelease(
       when: Double,

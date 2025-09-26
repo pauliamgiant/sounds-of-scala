@@ -23,6 +23,7 @@ target/
 node_modules/
 package-lock.json
 .npmrc
+js/package-lock.json
 
 # eclipse
 build/
