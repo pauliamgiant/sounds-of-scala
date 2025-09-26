@@ -56,14 +56,7 @@ type StartTime = StartTime.Type
 object StartTime extends Newtype[Double]
 
 type Tempo = Tempo.Type
-
-object Tempo extends Refined[Double]:
-  override inline def invalidReason(tempo: Double): String =
-    expectedMessage(
-      "is an Int between 1 and 300. If you want to exceed 300 you need to re-think your life.")
-
-  override inline def predicate(tempo: Double): Boolean =
-    33 <= tempo && tempo <= 300
+object Tempo extends Newtype[Double]
 
 type Swing = Swing.Type
 

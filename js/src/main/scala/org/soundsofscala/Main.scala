@@ -89,7 +89,7 @@ object Main extends IOApp:
 
   private def buildHeading = IO {
     val title = document.createElement("h1")
-    title.textContent = "Welcome to Sounds of Scala"
+    title.textContent = "Welcome to Sounds of Scala!"
     title
   }
 
@@ -98,7 +98,7 @@ object Main extends IOApp:
     val div = document.createElement("div")
 
     val title = document.createElement("h1")
-    title.textContent = "Make sound fast with the Simple Audio Player"
+    title.textContent = "Make sound fast with the Simple Audio Player!!!"
 
     val fastestWayText = document.createElement("p")
     fastestWayText.textContent =

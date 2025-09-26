@@ -1,6 +1,17 @@
 {
+  "type": "module",
   "dependencies": {
     "http-server": "^14.1.1",
     "jsdom": "9.9.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@scala-js/vite-plugin-scalajs": "^1.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "sbt fastOptJS && vite build",
+    "build-full": "sbt fullOptJS && vite build",
+    "preview": "vite preview"
   }
 }
