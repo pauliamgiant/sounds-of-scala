@@ -7,7 +7,7 @@ The fastest way to make some sound emanate from your device is with the SimpleAu
 Add the following to your build.sbt file:
 
 ```scala 3
-libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.4.0"
+libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.4.1"
 ```
 Then in the code of your Scala.js project pass the path to an audio file to the SimpleAudioPlayer constructor.
 

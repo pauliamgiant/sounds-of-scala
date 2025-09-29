@@ -109,7 +109,7 @@ object Main extends IOApp:
 
     val codeStringSbt: String =
       """|
-         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.3.1""".stripMargin
+         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.4.1""".stripMargin
 
     val addToCode = document.createElement("p")
     addToCode.textContent =
