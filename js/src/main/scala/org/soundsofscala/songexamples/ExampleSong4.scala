@@ -30,22 +30,26 @@ object ExampleSong4:
 
   val musicalEvent: MusicalEvent =
     C1.wholeDotted.onFull + D1.wholeDotted.onFull + E1.wholeDotted.onFull + B0.wholeDotted.onFull
+  val scalaSynthLine: MusicalEvent =
+    E4.quarter.softest + G4.quarter.soft + E4.quarter.medium + B4.quarter.assertively
 
-  def play(): AudioContext ?=> IO[Unit] =
+  def song(): AudioContext ?=> IO[Song] =
     for
+      simple80sDrumMachine <- Simple80sDrumMachine()
       liveBass <- Sampler.bassGuitar
-      song = Song(
+      scalaSynth <- QuirkyFilterSynth()
+      song <- Song(
         title = Title("long note"),
         tempo = Tempo(110),
         swing = Swing(0),
         mixer = Mixer(
           Track(Title("Live Bass"), musicalEvent.loop, liveBass),
-          Track(Title("Kick"), FourBarRest + kd, Simple80sDrumMachine()),
-          Track(Title("Snare"), FourBarRest + sd, Simple80sDrumMachine()),
-          Track(Title("Hats"), FourBarRest + ht, Simple80sDrumMachine())
+          Track(Title("Scala Synth Line"), scalaSynthLine.loop, scalaSynth),
+          Track(Title("Kick"), FourBarRest + kd, simple80sDrumMachine),
+          Track(Title("Snare"), FourBarRest + sd, simple80sDrumMachine),
+          Track(Title("Hats"), FourBarRest + ht, simple80sDrumMachine)
         )
       )
-      songUnit <- song.play()
-    yield songUnit
+    yield song
 
 end ExampleSong4

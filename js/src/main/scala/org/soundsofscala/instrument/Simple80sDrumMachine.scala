@@ -23,8 +23,18 @@ import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.synthesis.DrumGeneration
+import cats.effect.Ref
+import org.scalajs.dom.AudioNode
 
-final case class Simple80sDrumMachine() extends Instrument[Default.NoSettings]:
+object Simple80sDrumMachine:
+  def apply(): IO[Simple80sDrumMachine] =
+    for
+      activeNodesRef <- Ref.of[IO, Set[AudioNode]](Set.empty)
+    yield new Simple80sDrumMachine(activeNodesRef)
+
+final class Simple80sDrumMachine private (
+    protected val activeNodesRef: Ref[IO, Set[AudioNode]]
+) extends Instrument[Default.NoSettings]:
 
   final case class Settings(attack: Attack, release: Release)
 

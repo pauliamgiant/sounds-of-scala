@@ -95,11 +95,30 @@ li {
 
 
 button {
+    width: 3em;
     text-align: center;
     font-size: 1em;
     padding: 20px;
     margin: 10px;
     border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.audio-pause-button {
+    background-color: #cd5c00;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.5em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.audio-pause-button:hover {
+    background-color: #e8680a;
 }
 
 .transport {
@@ -118,5 +137,53 @@ button {
     color: darkred;
     border: none;
     font-size: 1.2em;
+}
 
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1em 0;
+}
+
+.button-group-label {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.button-group-buttons {
+    display: flex;
+    gap: 0.5em;
+}
+
+.play-button {
+    background-color: #015314;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.5em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.play-button:hover {
+    background-color: #006716;
+}
+
+.stop-button {
+    background-color: #9a0a19;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.5em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.stop-button:hover {
+    background-color: #c82333;
 }

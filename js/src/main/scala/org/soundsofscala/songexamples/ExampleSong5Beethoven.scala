@@ -33,112 +33,112 @@ object ExampleSong5Beethoven:
       volume = 0.7
     )
 
-  private val beginningChord = Chord(G4, D4, B3, G3, G2).half
+  private val beginningChord = Chord(G3, D3, B2, G2, G1).half
 
   private val triplets =
-    D4.eighthTriplet +
+    D3.eighthTriplet +
+      G3.eighthTriplet +
+      B3.eighthTriplet +
+      D4.eighthTriplet +
+      C4.eighthTriplet +
+      A3.eighthTriplet
+
+  private val bcTrillPart = B3.thirtySecond + C4.thirtySecond
+  private val bcTrill = bcTrillPart + bcTrillPart
+  private val trebClef1 =
+    beginningChord + triplets + G3 + G3 + F3.sharp + G3 +
+      A3.quarterDotted + A3.eighth + B3.quarterDotted + B3.eighth +
+      D4 + C4.eighth + bcTrill + B3 + RestQuarter
+
+  private val bassClef1 =
+    RestWhole + RestQuarter + B2 + A2 + G2 +
+      F2.sharp + D2 + G2 + F2 +
+      E2 + F2.sharp +
+      G2.eighth + G2.eighth + B2.eighth + D3.eighth
+
+  private val cbTrillPart = C5.thirtySecond + B4.thirtySecond
+  private val cbTrill = cbTrillPart + cbTrillPart
+  private val trebClef2 =
+    Chord(B3, D4, G4).half +
+      D4.eighthTriplet +
       G4.eighthTriplet +
       B4.eighthTriplet +
       D5.eighthTriplet +
       C5.eighthTriplet +
-      A4.eighthTriplet
-
-  private val bcTrillPart = B4.thirtySecond + C5.thirtySecond
-  private val bcTrill = bcTrillPart + bcTrillPart
-  private val trebClef1 =
-    beginningChord + triplets + G4 + G4 + F4.sharp + G4 +
-      A4.quarterDotted + A4.eighth + B4.quarterDotted + B4.eighth +
-      D5 + C5.eighth + bcTrill + B4 + RestQuarter
-
-  private val bassClef1 =
-    RestWhole + RestQuarter + B3 + A3 + G3 +
-      F3.sharp + D3 + G3 + F3 +
-      E3 + F3.sharp +
-      G3.eighth + G3.eighth + B3.eighth + D4.eighth
-
-  private val cbTrillPart = C6.thirtySecond + B5.thirtySecond
-  private val cbTrill = cbTrillPart + cbTrillPart
-  private val trebClef2 =
-    Chord(B4, D5, G5).half +
-      D5.eighthTriplet +
-      G5.eighthTriplet +
-      B5.eighthTriplet +
-      D6.eighthTriplet +
-      C6.eighthTriplet +
-      A5.eighthTriplet +
-      G5 + G5 + F5.sharp + G5 + A5.quarterDotted + A5.eighth + B5.quarterDotted + B5.eighth + D6.quarter + C6.eighth + cbTrill +
-      B5.eighth + C6.eighth +
-      C6.sharp.eighth + D6.eighth +
-      D6.sharp.eighth + E6.eighth +
-      RestEighth + E6.eighth +
-      D6.eighth + C6.eighth + B5.eighth + A5.eighth
-
-  private val bassClef2 =
-    Chord(G3, G4).half +
-      RestHalf + RestQuarter +
-      B4.eighth + D5.eighth +
-      A4.eighth + D5.eighth +
-      G4.eighth + D5.eighth +
-      F4.sharp.eighth + D5.eighth +
-      D4.eighth + D5.eighth +
-      G4.eighth + D5.eighth +
-      F4.eighth + D5.eighth +
-      E4.eighth + G4.eighth +
-      F4.sharp.eighth + A4.eighth +
-      G4 + RestQuarter + RestQuarter +
-      Chord(A4, E4, C4) +
-      RestHalf
-
-  private val trebleClef3 =
-    C6.sharp.eighth + D6.eighth +
-      RestEighth + D6.eighth +
-      C6.eighth + B5.eighth +
-      A5.eighth + G5.eighth +
-      F5.sharp.eighth + E5.eighth +
-      D5.eighth + C5.eighth +
-      B4.eighth + A4.eighth +
-      G4.eighth + F4.sharp.eighth +
-      G4.quarterDotted + A4.eighth +
+      A4.eighthTriplet +
+      G4 + G4 + F4.sharp + G4 + A4.quarterDotted + A4.eighth + B4.quarterDotted + B4.eighth + D5.quarter + C5.eighth + cbTrill +
       B4.eighth + C5.eighth +
       C5.sharp.eighth + D5.eighth +
       D5.sharp.eighth + E5.eighth +
       RestEighth + E5.eighth +
-      D5.eighth + C5.eighth +
-      B4.eighth + A4.eighth +
-      D5.sharp.eighth + E5.eighth +
-      RestEighth + E5.eighth +
-      E5.eighth + C5.sharp.eighth +
-      A4.eighth + G4.eighth
+      D5.eighth + C5.eighth + B4.eighth + A4.eighth
+
+  private val bassClef2 =
+    Chord(G2, G3).half +
+      RestHalf + RestQuarter +
+      B3.eighth + D4.eighth +
+      A3.eighth + D4.eighth +
+      G3.eighth + D4.eighth +
+      F3.sharp.eighth + D4.eighth +
+      D3.eighth + D4.eighth +
+      G3.eighth + D4.eighth +
+      F3.eighth + D4.eighth +
+      E3.eighth + G3.eighth +
+      F3.sharp.eighth + A3.eighth +
+      G3 + RestQuarter + RestQuarter +
+      Chord(A3, E3, C3) +
+      RestHalf
+
+  private val trebleClef3 =
+    C5.sharp.eighth + D5.eighth +
+      RestEighth + D5.eighth +
+      C5.eighth + B4.eighth +
+      A4.eighth + G4.eighth +
+      F4.sharp.eighth + E4.eighth +
+      D4.eighth + C4.eighth +
+      B3.eighth + A3.eighth +
+      G3.eighth + F3.sharp.eighth +
+      G3.quarterDotted + A3.eighth +
+      B3.eighth + C4.eighth +
+      C4.sharp.eighth + D4.eighth +
+      D4.sharp.eighth + E4.eighth +
+      RestEighth + E4.eighth +
+      D4.eighth + C4.eighth +
+      B3.eighth + A3.eighth +
+      D4.sharp.eighth + E4.eighth +
+      RestEighth + E4.eighth +
+      E4.eighth + C4.sharp.eighth +
+      A3.eighth + G3.eighth
 
   private val bassClef3 =
-    RestQuarter + Chord(G4, D4, B3).quarter +
+    RestQuarter + Chord(G3, D3, B2).quarter +
       RestHalf +
-      C4 + RestQuarter + D4 + RestQuarter +
-      G3 + RestQuarter + RestHalf +
-      RestQuarter + Chord(C3, E3, A3).quarter +
+      C3 + RestQuarter + D3 + RestQuarter +
+      G2 + RestQuarter + RestHalf +
+      RestQuarter + Chord(C2, E2, A2).quarter +
       RestHalf +
-      RestQuarter + Chord(C3.sharp, E3, A3).quarter +
+      RestQuarter + Chord(C2.sharp, E2, A2).quarter +
       RestHalf
 
   private val tripletA =
-    A5.eighthTriplet + F5.sharp.eighthTriplet + D5.eighthTriplet
+    A4.eighthTriplet + F4.sharp.eighthTriplet + D4.eighthTriplet
   private val tripletB =
-    A5.eighthTriplet + F5.sharp.eighthTriplet + C5.eighthTriplet
-  private val tripletC = G5.eighthTriplet + D5.eighthTriplet + B4.eighthTriplet
-  private val tripletD = D5.eighthTriplet + B4.eighthTriplet + G4.eighthTriplet
+    A4.eighthTriplet + F4.sharp.eighthTriplet + C4.eighthTriplet
+  private val tripletC = G4.eighthTriplet + D4.eighthTriplet + B3.eighthTriplet
+  private val tripletD = D4.eighthTriplet + B3.eighthTriplet + G3.eighthTriplet
 
   private val trebleClef4 =
-    F4.sharp + tripletA + C5 + tripletB +
-      B4 + tripletC + G4 + tripletD +
-      F4.sharp + tripletA + C5 + tripletB +
-      B4 + tripletC + G4 + tripletD
+    F3.sharp + tripletA + C4 + tripletB +
+      B3 + tripletC + G3 + tripletD +
+      F3.sharp + tripletA + C4 + tripletB +
+      B3 + tripletC + G3 + tripletD
 
   private val tripletEngineA =
-    D3.eighthTriplet + F3.sharp.eighthTriplet + A3.eighthTriplet
+    D2.eighthTriplet + F2.sharp.eighthTriplet + A2.eighthTriplet
   private val tripletEngineABar = tripletEngineA + tripletEngineA + tripletEngineA + tripletEngineA
 
   private val tripletEngineB =
-    D3.eighthTriplet + G3.eighthTriplet + B3.eighthTriplet
+    D2.eighthTriplet + G2.eighthTriplet + B2.eighthTriplet
   private val tripletEngineBBar = tripletEngineB + tripletEngineB + tripletEngineB + tripletEngineB
 
   private val bassClef4 =
@@ -147,22 +147,25 @@ object ExampleSong5Beethoven:
   private val upperVoice = trebClef1 + trebClef2 + trebleClef3 + trebleClef4
   private val lowerVoice = bassClef1 + bassClef2 + bassClef3 + bassClef4
 
-  def play(): AudioContext ?=> IO[Unit] =
-    Song(
-      title = Title("Something We All Know"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(
-          Title("Beethoven Upper Voice"),
-          upperVoice,
-          PianoSynth(),
-          customSettings = Some(customSettings)),
-        Track(
-          Title("Beethoven Lower Voice"),
-          lowerVoice,
-          PianoSynth(),
-          customSettings = Some(customSettings))
+  def song(): AudioContext ?=> IO[Song] =
+    for
+      sharedPiano <- PianoSynth()
+      song <- Song(
+        title = Title("Something We All Know"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(
+          Track(
+            Title("Beethoven Upper Voice"),
+            upperVoice,
+            sharedPiano,
+            customSettings = Some(customSettings)),
+          Track(
+            Title("Beethoven Lower Voice"),
+            lowerVoice,
+            sharedPiano,
+            customSettings = Some(customSettings))
+        )
       )
-    ).play()
+    yield song
 end ExampleSong5Beethoven

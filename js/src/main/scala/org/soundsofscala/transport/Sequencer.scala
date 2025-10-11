@@ -31,6 +31,13 @@ import org.soundsofscala.models.Song
  */
 
 case class Sequencer():
+
+  def stopSong(song: Song): IO[Unit] =
+    IO.println(s"Sequencer.stopSong() called for: ${song.title}") *>
+      song.mixer.tracks.parTraverse: track =>
+        track.instrument.stop.void
+      .void
+
   def playSong(song: Song)(using audioContext: AudioContext): IO[Unit] =
     val noteScheduler = NoteScheduler(song.tempo, LookAhead(25), ScheduleWindow(0.1))
     song

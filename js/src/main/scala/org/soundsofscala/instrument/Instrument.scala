@@ -16,17 +16,27 @@
 
 package org.soundsofscala.instrument
 
-import cats.effect.IO
+import cats.effect.{IO, Ref}
 import org.scalajs.dom
 import org.soundsofscala.models.*
+import org.scalajs.dom.AudioNode
 
 trait Instrument[Settings]:
+
+  protected def activeNodesRef: Ref[IO, Set[AudioNode]]
 
   final def play(
       musicEvent: AtomicMusicalEvent,
       when: Double,
       tempo: Tempo)(settings: Settings)(using audioContext: dom.AudioContext): IO[Unit] =
     playWithSettings(musicEvent, when, tempo, settings)
+
+  def stop: IO[Unit] =
+    for
+      nodes <- activeNodesRef.get
+      _ <- IO(nodes.foreach(_.disconnect()))
+      _ <- activeNodesRef.set(Set.empty)
+    yield ()
 
   protected def playWithSettings(
       musicEvent: AtomicMusicalEvent,

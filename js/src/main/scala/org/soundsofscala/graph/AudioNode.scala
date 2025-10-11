@@ -43,14 +43,12 @@ sealed trait AudioNode:
         gainParam.set(gainNode.gain)
         println(s"Creating gain node with gain: ${gainNode.gain.value}")
         sources.foreach(source => source.create.connect(gainNode))
-        gainNode.connect(context.destination)
         gainNode
 
       case Panner(sources, panParam) =>
         val pannerNode = context.createStereoPanner()
         panParam.set(pannerNode.pan)
         sources.foreach(source => source.create.connect(pannerNode))
-        pannerNode.connect(context.destination)
         pannerNode
 
       case Filter(sources, frequency, bandWidth, filterModel) =>

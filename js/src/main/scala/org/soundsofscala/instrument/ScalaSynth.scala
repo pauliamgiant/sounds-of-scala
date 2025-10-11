@@ -16,8 +16,8 @@
 
 package org.soundsofscala.instrument
 
-import cats.effect.IO
-import org.scalajs.dom.AudioContext
+import cats.effect.{IO, Ref}
+import org.scalajs.dom.{AudioContext, AudioNode}
 import org.soundsofscala
 import org.soundsofscala.graph.AudioNode.*
 import org.soundsofscala.graph.AudioParam
@@ -26,46 +26,65 @@ import org.soundsofscala.models
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AtomicMusicalEvent.Note
 
-final case class ScalaSynth()(using audioContext: AudioContext) extends Synth:
+object ScalaSynth:
+  def apply()(using audioContext: AudioContext): IO[ScalaSynth] =
+    for
+      activeNodesRef <- Ref.of[IO, Set[AudioNode]](Set.empty)
+    yield new ScalaSynth(activeNodesRef)
+
+final class ScalaSynth private (
+    protected val activeNodesRef: Ref[IO, Set[AudioNode]]
+)(using audioContext: AudioContext)
+    extends Synth:
+
   override def attackRelease(
       when: Double,
       note: Note,
       tempo: Tempo,
       attack: Attack,
       release: Release,
-      pan: Double): IO[Unit] =
-    IO:
-      val synthVelocity = note.velocity.getNormalisedVelocity
-      println(s"Playing note ${note.frequency} at velocity $synthVelocity")
+      pan: Double,
+      volume: Double): IO[Unit] =
+    for
+      createdNodes <- IO {
+        val velocity = note.velocity.getNormalisedVelocity
+        val velocityModulatedVolume = volume * velocity
+        println(s"ScalaSynth: Playing note ${note.frequency} at velocity $velocity, volume $volume, final: $velocityModulatedVolume")
 
-      val gainControl =
-        Gain(
-          List.empty,
-          AudioParam(Vector(
-            LinearRampToValueAtTime(synthVelocity, when),
-            LinearRampToValueAtTime(0.0001, when + note.durationToSeconds(tempo)))))
+        val gainControl =
+          Gain(
+            List.empty,
+            AudioParam(Vector(
+              LinearRampToValueAtTime(velocityModulatedVolume, when),
+              LinearRampToValueAtTime(0.0001, when + note.durationToSeconds(tempo))))
+          )
 
-      val osc1Saw =
-        sawtoothOscillator(
-          when,
-          note.durationToSeconds(tempo)).withFrequency(
-          AudioParam(Vector(SetValueAtTime(
-            note.frequency,
-            when))))
+        val osc1Saw =
+          sawtoothOscillator(
+            when,
+            note.durationToSeconds(tempo)).withFrequency(
+            AudioParam(Vector(SetValueAtTime(
+              note.frequency,
+              when))))
 
-      val sixteenthPulse = note.durationToSeconds(tempo) / 4
-      val panner = panControl.withPan(AudioParam(Vector(
-        LinearRampToValueAtTime(-1, when + sixteenthPulse),
-        LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 2),
-        LinearRampToValueAtTime(0.5, when + sixteenthPulse * 3),
-        LinearRampToValueAtTime(1, when + sixteenthPulse * 4),
-        LinearRampToValueAtTime(0, when + sixteenthPulse * 5),
-        LinearRampToValueAtTime(-1, when + sixteenthPulse * 6),
-        LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 7),
-        LinearRampToValueAtTime(0.5, when + sixteenthPulse * 8)
-      )))
+        val sixteenthPulse = note.durationToSeconds(tempo) / 4
+        val panner = panControl.withPan(AudioParam(Vector(
+          LinearRampToValueAtTime(-1, when + sixteenthPulse),
+          LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 2),
+          LinearRampToValueAtTime(0.5, when + sixteenthPulse * 3),
+          LinearRampToValueAtTime(1, when + sixteenthPulse * 4),
+          LinearRampToValueAtTime(0, when + sixteenthPulse * 5),
+          LinearRampToValueAtTime(-1, when + sixteenthPulse * 6),
+          LinearRampToValueAtTime(-0.5, when + sixteenthPulse * 7),
+          LinearRampToValueAtTime(0.5, when + sixteenthPulse * 8)
+        )))
 
-      val graph1 = osc1Saw --> panner --> gainControl
-      graph1.create
-    .void
+        val graph1 = osc1Saw --> panner --> gainControl
+        val finalNode = graph1.create
+        finalNode.connect(audioContext.destination)
+        finalNode
+      }
+      nodes <- activeNodesRef.get
+      _ <- activeNodesRef.set(nodes + createdNodes)
+    yield ()
 end ScalaSynth
