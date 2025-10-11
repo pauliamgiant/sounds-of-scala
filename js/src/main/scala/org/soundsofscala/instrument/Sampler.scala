@@ -22,6 +22,8 @@ import org.scalajs.dom
 import org.scalajs.dom.AudioBuffer
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.*
+import cats.effect.Ref
+import org.scalajs.dom.AudioNode
 
 import scala.annotation.tailrec
 
@@ -30,6 +32,8 @@ final case class Sampler(samples: Map[SampleKey, AudioBuffer]) extends SamplePla
     samples.map { case (key, buffer) => (key.frequency, key, buffer) }.toArray.sortBy {
       case (f, key, buffer) => f
     }
+
+  protected val activeNodesRef: Ref[IO, Set[AudioNode]] = Ref.unsafe(Set.empty[AudioNode])
 
   private def closestFrequency(
       sampleFreqs: Array[(Double, SampleKey, AudioBuffer)],

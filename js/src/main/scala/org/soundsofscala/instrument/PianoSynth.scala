@@ -16,9 +16,8 @@
 
 package org.soundsofscala.instrument
 
-import cats.effect.IO
-import org.scalajs.dom.*
-import org.soundsofscala
+import cats.effect.{IO, Ref}
+import org.scalajs.dom.{AudioContext, AudioNode}
 import org.soundsofscala.graph.AudioNode.Gain
 import org.soundsofscala.graph.AudioNode.waveTableOscillator
 import org.soundsofscala.graph.AudioParam
@@ -29,7 +28,16 @@ import org.soundsofscala.models.*
 
 import scala.scalajs.js
 
-final case class PianoSynth()(using audioContext: AudioContext) extends Synth:
+object PianoSynth:
+  def apply()(using audioContext: AudioContext): IO[PianoSynth] =
+    for
+      activeNodesRef <- Ref.of[IO, Set[AudioNode]](Set.empty)
+    yield new PianoSynth(activeNodesRef)
+
+final class PianoSynth private (
+    protected val activeNodesRef: Ref[IO, Set[AudioNode]]
+)(using audioContext: AudioContext)
+    extends Synth:
 
   override def attackRelease(
       when: Double,
@@ -37,58 +45,73 @@ final case class PianoSynth()(using audioContext: AudioContext) extends Synth:
       tempo: Tempo,
       attack: Attack,
       release: Release,
-      pan: Double): IO[Unit] =
-    IO:
-      /*
-      are used to define the harmonic content of the waveform by specifying the coefficients
-      for the real (cosine) and imaginary (sine) components of the Fourier series that represents the waveform.
-       */
-      // An array of cosine terms (traditionally the A terms).
-      val realArray = new js.typedarray.Float32Array(js.Array(
-        0, // DC offset
-        0.6, // Fundamental frequency (C4)
-        0.4, // 2nd harmonic (C5)
-        0.2, // 3rd harmonic
-        0.1, // 4th harmonic
-        0.05, // 5th harmonic
-        0.03 // 6th harmonic
-      ).map(_.toFloat))
-      // An array of sine terms (traditionally the B terms).
-      val imaginaryArray = new js.typedarray.Float32Array(js.Array(
-        0, // DC offset
-        0.1, // Fundamental frequency (C4)
-        0.05, // 2nd harmonic (C5)
-        0.03, // 3rd harmonic
-        0.02, // 4th harmonic
-        0.01, // 5th harmonic
-        0.005 // 6th harmonic
-      ).map(_.toFloat))
-      val velocity = note.velocity.getNormalisedVelocity * .5
-      val keySoftenVelocity = velocity / 2
+      pan: Double,
+      volume: Double): IO[Unit] =
+    for
+      createdNodes <- IO {
+        /*
+        are used to define the harmonic content of the waveform by specifying the coefficients
+        for the real (cosine) and imaginary (sine) components of the Fourier series that represents the waveform.
+         */
+        // An array of cosine terms (traditionally the A terms).
+        val realArray = new js.typedarray.Float32Array(js.Array(
+          0, // DC offset
+          0.6, // Fundamental frequency (C4)
+          0.4, // 2nd harmonic (C5)
+          0.2, // 3rd harmonic
+          0.1, // 4th harmonic
+          0.05, // 5th harmonic
+          0.03 // 6th harmonic
+        ).map(_.toFloat))
+        // An array of sine terms (traditionally the B terms).
+        val imaginaryArray = new js.typedarray.Float32Array(js.Array(
+          0, // DC offset
+          0.1, // Fundamental frequency (C4)
+          0.05, // 2nd harmonic (C5)
+          0.03, // 3rd harmonic
+          0.02, // 4th harmonic
+          0.01, // 5th harmonic
+          0.005 // 6th harmonic
+        ).map(_.toFloat))
+        val velocity = note.velocity.getNormalisedVelocity
+        val velocityModulatedVolume =
+          volume * velocity * 0.5
+        val keySoftenVelocity = velocityModulatedVolume / 2
 
-      val wavetableOsc =
-        waveTableOscillator(
-          when = when,
-          duration = note.durationToSeconds(tempo),
-          realArray = realArray,
-          imaginaryArray = imaginaryArray).withFrequency(
-          AudioParam(Vector(SetValueAtTime(
-            note.frequency,
-            when))))
-      val gainNode =
-        Gain(
-          List.empty,
-          AudioParam(Vector(
-            SetValueAtTime(0, when),
-            LinearRampToValueAtTime(velocity, when + 0.011), // Slightly longer fade-in (11ms)
-            LinearRampToValueAtTime(keySoftenVelocity, when + 0.011), // Initial decay
-            ExponentialRampToValueAtTime(
-              0.0001,
-              when + (4 * note.durationToSeconds(tempo))
-            ) // Slow release
-          ))
-        )
-      (wavetableOsc --> gainNode).create
-    .void
+        val wavetableOsc =
+          waveTableOscillator(
+            when = when,
+            duration = note.durationToSeconds(tempo),
+            realArray = realArray,
+            imaginaryArray = imaginaryArray).withFrequency(
+            AudioParam(Vector(SetValueAtTime(
+              note.frequency,
+              when))))
+        val gainNode =
+          Gain(
+            List.empty,
+            AudioParam(Vector(
+              SetValueAtTime(
+                0.0001,
+                when
+              ),
+              ExponentialRampToValueAtTime(
+                velocityModulatedVolume,
+                when + 0.040
+              ),
+              LinearRampToValueAtTime(keySoftenVelocity, when + 0.080), // Gentle decay after 80ms
+              ExponentialRampToValueAtTime(
+                0.0001,
+                when + (4 * note.durationToSeconds(tempo))
+              )
+            ))
+          )
+        val audioGraph = wavetableOsc --> gainNode
+        val finalNode = audioGraph.create
+        finalNode.connect(audioContext.destination)
+        finalNode
+      }
+      nodes <- activeNodesRef.get
+      _ <- activeNodesRef.set(nodes + createdNodes)
+    yield ()
 end PianoSynth
-//

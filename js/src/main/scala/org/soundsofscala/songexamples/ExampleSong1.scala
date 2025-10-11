@@ -30,7 +30,7 @@ object ExampleSong1:
       volume = 0.2,
       playbackRate = 1,
       reversed = false,
-      loop = none, // Some(Loop(start = 2, end = 6)),
+      loop = none,
       fadeIn = 0,
       fadeOut = 0,
       startDelay = 0,
@@ -43,7 +43,7 @@ object ExampleSong1:
       volume = 0.8,
       playbackRate = 1,
       reversed = false,
-      loop = none, // Some(Loop(start = 2, end = 6)),
+      loop = none,
       fadeIn = 0,
       fadeOut = 0,
       startDelay = 0,
@@ -51,8 +51,19 @@ object ExampleSong1:
       length = none
     )
 
+  private val quirkySynthSettings: Synth.Settings =
+    Synth.Settings(
+      attack = Attack(0),
+      release = Release(0.9),
+      pan = 0,
+      volume = 0.3
+    )
+
   private val bassline: MusicalEvent =
     D1.eighth + C1.eighth + A0.eighth + A0.eighth + C1.eighth + C1.eighth + A0.eighth + C1.eighth
+
+  private val scalaSynthLine: MusicalEvent =
+    D1.eighth.softest + C2.eighth.soft + A1.eighth.medium + A2.eighth.softest + C3.eighth.soft + C3.eighth.medium + A2.eighth.softest + C3.eighth.soft
 
   private val guitarPart: MusicalEvent =
     (Chord(D3, F3, A2).quarterDotted + Chord(C3, E3, G3).half + RestEighth).repeat(4)
@@ -76,12 +87,14 @@ object ExampleSong1:
     )
   )
 
-  def play(): AudioContext ?=> IO[Unit] =
+  def song(): AudioContext ?=> IO[Song] =
     for
       drums <- drumSampler()
       bassGuitar <- Sampler.bassGuitar
+      quirkySynth <- QuirkyFilterSynth()
+      scalaSynth <- ScalaSynth()
       guitar <- Sampler.guitar
-      song = Song(
+      song <- Song(
         title = Title("Song Example 1"),
         tempo = Tempo(110),
         swing = Swing(0),
@@ -95,18 +108,23 @@ object ExampleSong1:
             bassGuitar
           ),
           Track(
+            Title("Scala Synth Bass Line"),
+            FourBarRest + scalaSynthLine.repeat(12),
+            scalaSynth
+          ),
+          Track(
             Title("Live Guitar"),
-            FourBarRest + TwoBarRest + guitarPart,
+            FourBarRest + (TwoBarRest + guitarPart).repeat(4),
             guitar,
             customSettings = guitarSamplerSettings.some
           ),
           Track(
             Title("Lead Line"),
             FourBarRest + verseMelody.repeat(4),
-            PianoSynth()
+            quirkySynth,
+            quirkySynthSettings.some
           )
         )
       )
-      a <- song.play()
-    yield a
+    yield song
 end ExampleSong1

@@ -67,6 +67,12 @@ object SamplePlayer:
 //    val length = settings.length.getOrElse((buffer.duration / math.abs(playbackRate)) - offset)
     val length = musicalEvent.durationToSeconds(tempo)
 
+    val velocityModulatedVolume = musicalEvent match
+      case note: AtomicMusicalEvent.Note =>
+        val velocity = note.velocity.getNormalisedVelocity
+        settings.volume * velocity
+      case _ => settings.volume
+
     def createGainNode(volume: Double): IO[dom.GainNode] =
       for
         gainNode <- IO(audioContext.createGain())
@@ -101,19 +107,19 @@ object SamplePlayer:
       if settings.fadeIn > 0 then
         gainNode.gain.setValueAtTime(0, when + settings.startDelay)
         gainNode.gain.linearRampToValueAtTime(
-          settings.volume,
+          velocityModulatedVolume,
           when + settings.startDelay + settings.fadeIn)
       else
-        gainNode.gain.setValueAtTime(settings.volume, when + settings.startDelay)
+        gainNode.gain.setValueAtTime(velocityModulatedVolume, when + settings.startDelay)
 
       if settings.fadeOut > 0 then
         gainNode.gain.setValueAtTime(
-          settings.volume,
+          velocityModulatedVolume,
           when + settings.startDelay + length - settings.fadeOut)
         gainNode.gain.linearRampToValueAtTime(0, when + settings.startDelay + length)
       else
         gainNode.gain.setValueAtTime(
-          settings.volume,
+          velocityModulatedVolume,
           when + settings.startDelay + length - 0.1)
         gainNode.gain.exponentialRampToValueAtTime(
           0.0001,
@@ -136,7 +142,7 @@ object SamplePlayer:
             sourceNode.start(when + settings.startDelay, offset, length)
             sourceNode.stop(when + settings.startDelay + (length + 0.1))
     for
-      gainNode <- createGainNode(settings.volume)
+      gainNode <- createGainNode(velocityModulatedVolume)
       sourceNode <-
         createSourceNode(buffer, computedPlaybackRate, settings.reversed)
       _ <- IO(sourceNode.connect(gainNode))

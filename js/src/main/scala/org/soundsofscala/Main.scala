@@ -51,16 +51,22 @@ object Main extends IOApp:
       audioPlayerText <- buildAudioplayerText
       thingsToTry <- buildThingsToTry()
 
+      // Transport buttons for the SimpleAudioPlayer
       playButton <- buildButton(label = "▶︎", buttonAction = audioPlayer.play())
       stopButton <- buildButton(label = "◼︎", buttonAction = audioPlayer.stop())
       pauseButton <- buildButton(label = "⏸︎", buttonAction = audioPlayer.pause())
-      playExampleSong1Button <- buildButton(
-        label = "▶︎ ExampleSong1",
-        buttonAction = ExampleSong1.play()
+
+      beethovenSong <- ExampleSong5Beethoven.song()
+      exampleSong1 <- ExampleSong1.song()
+      exampleSong1ButtonGroup <- buildButtonGroup(
+        label = "ExampleSong1",
+        playAction = exampleSong1.play(),
+        stopAction = exampleSong1.stop()
       )
-      beethovenButton <- buildButton(
-        label = "▶︎ ExampleSong4Beethoven",
-        buttonAction = ExampleSong5Beethoven.play()
+      beethovenButtonGroup <- buildButtonGroup(
+        label = "ExampleSong4Beethoven",
+        playAction = beethovenSong.play(),
+        stopAction = beethovenSong.stop()
       )
       audioGraphButton <- buildButton(
         label = "Audio Graph in action ▶",
@@ -74,10 +80,10 @@ object Main extends IOApp:
         quickStart,
         document.createElement("hr"),
         introText,
-        playExampleSong1Button,
+        exampleSong1ButtonGroup,
         document.createElement("hr"),
         beethovenText,
-        beethovenButton,
+        beethovenButtonGroup,
         document.createElement("hr"),
         audioPlayerText,
         transportDiv,
@@ -98,7 +104,7 @@ object Main extends IOApp:
     val div = document.createElement("div")
 
     val title = document.createElement("h1")
-    title.textContent = "Make sound fast with the Simple Audio Player!!!"
+    title.textContent = "Make sound fast with the Simple Audio Player"
 
     val fastestWayText = document.createElement("p")
     fastestWayText.textContent =
@@ -155,7 +161,7 @@ object Main extends IOApp:
   private def buildBeethovenText = IO {
     val beethovenText = document.createElement("p")
     beethovenText.textContent =
-      "Click the ExampleSong4Beethoven button to hear an example of WaveTable synthesis used to create an Electric Piano sound."
+      "Play this ExampleSong4Beethoven song to hear an example of WaveTable synthesis used to create an Electric Piano sound."
     beethovenText
   }
 
@@ -225,9 +231,53 @@ object Main extends IOApp:
       button <- IO(document.createElement("button"))
       _ <- IO {
         button.textContent = label
+        label match
+          case "▶︎" => button.classList.add("play-button")
+          case "◼︎" => button.classList.add("stop-button")
+          case "⏸︎" => button.classList.add("audio-pause-button")
+          case _ => ()
         button.addEventListener("click", (_: dom.MouseEvent) => buttonAction.unsafeRunAndForget())
         buttonContainer.appendChild(button)
       }
     yield buttonContainer
+
+  private def buildButtonGroup(
+      label: String,
+      playAction: IO[Unit],
+      stopAction: IO[Unit]): IO[Element] =
+    for
+      groupContainer <- IO(document.createElement("div"))
+      _ <- IO(groupContainer.classList.add("button-group"))
+
+      labelElement <- IO(document.createElement("div"))
+      _ <- IO {
+        labelElement.textContent = label
+        labelElement.classList.add("button-group-label")
+      }
+
+      buttonContainer <- IO(document.createElement("div"))
+      _ <- IO(buttonContainer.classList.add("button-group-buttons"))
+
+      playButton <- IO(document.createElement("button"))
+      _ <- IO {
+        playButton.textContent = "▶︎"
+        playButton.classList.add("play-button")
+        playButton.addEventListener("click", (_: dom.MouseEvent) => playAction.unsafeRunAndForget())
+      }
+
+      stopButton <- IO(document.createElement("button"))
+      _ <- IO {
+        stopButton.textContent = "◼︎"
+        stopButton.classList.add("stop-button")
+        stopButton.addEventListener("click", (_: dom.MouseEvent) => stopAction.unsafeRunAndForget())
+      }
+
+      _ <- IO {
+        buttonContainer.appendChild(playButton)
+        buttonContainer.appendChild(stopButton)
+        groupContainer.appendChild(labelElement)
+        groupContainer.appendChild(buttonContainer)
+      }
+    yield groupContainer
 
 end Main
