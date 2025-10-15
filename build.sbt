@@ -11,7 +11,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
-    tlBaseVersion := "0.4",
+    tlBaseVersion := "0.5",
     startYear := Some(2024),
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
@@ -172,7 +172,8 @@ usefulTasks := Seq(
   UsefulTask("docs/tlSitePreview", "preview documentation").alias("doc"),
   UsefulTask("clean", "run clean").alias("cln"),
   UsefulTask("compile", "run compile").alias("c"),
-  UsefulTask("test", "Run test").alias("t"),
+  UsefulTask("test", "Run test").alias("t"),  
+  UsefulTask("githubWorkflowGenerate", "Generate github workflows").alias("g"),
   UsefulTask("scalafmtAll", "Run scalafmtAll on the entire project").alias("fmt"),
   UsefulTask(
     "scalafmtCheckAll",
