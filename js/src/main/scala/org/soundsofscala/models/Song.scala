@@ -17,46 +17,36 @@
 package org.soundsofscala.models
 
 import cats.data.NonEmptyList
-import cats.effect.{IO, Ref}
+import cats.effect.IO
 import cats.effect.kernel.Fiber
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.transport.Sequencer
 
-object Song:
-  def apply(
-      title: Title,
-      tempo: Tempo = Tempo(120),
-      swing: Swing = Swing(0),
-      mixer: Mixer): IO[Song] =
-    for
-      runningSequencerRef <- Ref.of[IO, Option[Fiber[IO, Throwable, Unit]]](None)
-    yield new Song(title, tempo, swing, mixer, runningSequencerRef)
-
-final class Song private (
-    val title: Title,
-    val tempo: Tempo,
-    val swing: Swing,
-    val mixer: Mixer,
-    private val runningSequencerRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]]
+case class Song(
+    title: Title,
+    tempo: Tempo = Tempo(120),
+    swing: Swing = Swing(0),
+    mixer: Mixer
 ):
+  // scalafix:off DisableSyntax.var
+  private var runningSequencer: Option[Fiber[IO, Throwable, Unit]] = None
 
   def play()(using AudioContext): IO[Unit] =
     for
       _ <- IO.println(s"Playing: $title")
       _ <- stop() // Stop any currently running sequencer first
       fiber <- Sequencer().playSong(this).start
-      _ <- runningSequencerRef.set(Some(fiber))
+      _ <- IO { runningSequencer = Some(fiber) }
     yield ()
 
   def stop(): IO[Unit] =
     for
       _ <- IO.println(s"Song.stop() called for: $title")
-      currentSequencer <- runningSequencerRef.get
-      _ <- currentSequencer match
+      _ <- runningSequencer match
         case Some(fiber) =>
           IO.println("Cancelling running sequencer") *>
             fiber.cancel *>
-            runningSequencerRef.set(None)
+            IO { runningSequencer = None }
         case None =>
           IO.println("No running sequencer to cancel")
       _ <- Sequencer().stopSong(this) // Stop current oscillators

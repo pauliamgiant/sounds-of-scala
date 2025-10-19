@@ -38,7 +38,7 @@ object ExampleSong4:
       simple80sDrumMachine <- Simple80sDrumMachine()
       liveBass <- Sampler.bassGuitar
       scalaSynth <- QuirkyFilterSynth()
-      song <- Song(
+      song = Song(
         title = Title("long note"),
         tempo = Tempo(110),
         swing = Swing(0),
