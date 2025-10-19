@@ -45,3 +45,13 @@ trait Instrument[Settings]:
       settings: Settings
   )(using dom.AudioContext): IO[Unit]
 end Instrument
+
+final case class NoInstrument[Settings]() extends Instrument[Settings]:
+  override protected def activeNodesRef: Ref[IO, Set[AudioNode]] = Ref.unsafe(Set.empty)
+
+  override protected def playWithSettings(
+      musicEvent: AtomicMusicalEvent,
+      when: Double,
+      tempo: Tempo,
+      settings: Settings
+  )(using dom.AudioContext): IO[Unit] = IO.unit

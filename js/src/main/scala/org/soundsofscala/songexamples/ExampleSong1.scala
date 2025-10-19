@@ -94,7 +94,7 @@ object ExampleSong1:
       quirkySynth <- QuirkyFilterSynth()
       scalaSynth <- ScalaSynth()
       guitar <- Sampler.guitar
-      song <- Song(
+      song = Song(
         title = Title("Song Example 1"),
         tempo = Tempo(110),
         swing = Swing(0),

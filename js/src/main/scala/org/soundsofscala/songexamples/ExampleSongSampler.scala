@@ -69,7 +69,7 @@ object ExampleSongSampler:
       sparkles <- Sampler.sparkles
       kick <- Sampler.kickDrum
       snare <- Sampler.snareDrum
-      song <- Song(
+      song = Song(
         title = Title("Rhubarb"),
         tempo = Tempo(110),
         swing = Swing(0),
