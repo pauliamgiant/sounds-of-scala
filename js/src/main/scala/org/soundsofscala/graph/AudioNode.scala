@@ -41,6 +41,7 @@ sealed trait AudioNode:
       case Gain(sources, gainParam) =>
         val gainNode = context.createGain()
         gainParam.set(gainNode.gain)
+        println("sources size:   " + sources.size)
         println(s"Creating gain node with gain: ${gainNode.gain.value}")
         sources.foreach(source => source.create.connect(gainNode))
         gainNode
@@ -85,7 +86,7 @@ sealed trait AudioNode:
       case SquareOscillator(when, duration, frequency, detune) =>
         buildOscillatorNode(when, duration, WaveType.Square, frequency, detune)
 
-      case WaveTableOscillator(when, duration, frequency, detune, realArray, imagArray) =>
+      case WaveTableOscillator(when, duration, frequency, detune, realArray, imagArray, connectASourceToFrequencyOption) =>
         val waveTable = context.createPeriodicWave(realArray, imagArray)
         val oscillatorNode: dom.OscillatorNode = context.createOscillator()
         oscillatorNode.setPeriodicWave(waveTable)
@@ -93,7 +94,17 @@ sealed trait AudioNode:
         frequency.set(oscillatorNode.frequency)
         oscillatorNode.start(when)
         oscillatorNode.stop(when + duration + 0.4)
-        oscillatorNode
+        connectASourceToFrequencyOption match {
+          case None => {
+            println("NONE")
+            oscillatorNode
+          }
+          case Some(connectASourceToFrequency) => {
+            println("CONNECTED")
+            connectASourceToFrequency.create.connect(oscillatorNode.frequency)
+            oscillatorNode
+          }
+        }
 
   private def buildOscillatorNode(
       when: Double,
@@ -131,14 +142,18 @@ object AudioNode:
       when: Double,
       duration: Double,
       realArray: Float32Array,
-      imaginaryArray: Float32Array): WaveTableOscillator =
+      imaginaryArray: Float32Array,
+      connectASourceToFrequency: Option[AudioSource] = None
+                         ): WaveTableOscillator =
     WaveTableOscillator(
       when,
       duration,
       AudioParam.empty,
       AudioParam.empty,
       realArray,
-      imaginaryArray)
+      imaginaryArray,
+      connectASourceToFrequency
+    )
 
   val panControl: Panner = Panner(
     List.empty,
@@ -271,7 +286,9 @@ object AudioNode:
       frequency: AudioParam,
       detune: AudioParam,
       realArray: Float32Array,
-      imaginaryArray: Float32Array)
+      imaginaryArray: Float32Array,
+      connectASourceToFrequency: Option[AudioSource] = None
+                                      )
       extends AudioSource:
 
     def withFrequency(frequency: AudioParam): WaveTableOscillator =

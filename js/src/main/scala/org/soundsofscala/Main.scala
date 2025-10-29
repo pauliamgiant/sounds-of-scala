@@ -48,6 +48,7 @@ object Main extends IOApp:
       quickStart <- buildSimpleAudioPlayerDirections
       introText <- buildIntroductionText
       beethovenText <- buildBeethovenText
+      pagodasText <- buildPagodasText
       audioPlayerText <- buildAudioplayerText
       thingsToTry <- buildThingsToTry()
 
@@ -57,6 +58,7 @@ object Main extends IOApp:
       pauseButton <- buildButton(label = "⏸︎", buttonAction = audioPlayer.pause())
 
       beethovenSong <- ExampleSong5Beethoven.song()
+      pagodas <- ExampleSong6.song()
       exampleSong1 <- ExampleSong1.song()
       exampleSong1ButtonGroup <- buildButtonGroup(
         label = "ExampleSong1",
@@ -67,6 +69,11 @@ object Main extends IOApp:
         label = "ExampleSong4Beethoven",
         playAction = beethovenSong.play(),
         stopAction = beethovenSong.stop()
+      )
+      exampleSong5PagodasGroup <- buildButtonGroup(
+        label = "ExampleSong5Pagodas",
+        playAction = pagodas.play(),
+        stopAction = pagodas.stop()
       )
       audioGraphButton <- buildButton(
         label = "Audio Graph in action ▶",
@@ -84,6 +91,9 @@ object Main extends IOApp:
         document.createElement("hr"),
         beethovenText,
         beethovenButtonGroup,
+        document.createElement("hr"),
+        pagodasText,
+        exampleSong5PagodasGroup,
         document.createElement("hr"),
         audioPlayerText,
         transportDiv,
@@ -163,6 +173,13 @@ object Main extends IOApp:
     beethovenText.textContent =
       "Play this ExampleSong4Beethoven song to hear an example of WaveTable synthesis used to create an Electric Piano sound."
     beethovenText
+  }
+
+  private def buildPagodasText = IO {
+    val pagodasText = document.createElement("p")
+    pagodasText.textContent =
+      "ViolinSynthPagodas"
+    pagodasText
   }
 
   private def buildTransport(buttons: Element*) = IO {
