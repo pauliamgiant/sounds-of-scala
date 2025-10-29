@@ -74,7 +74,7 @@ final class ViolinSynth private (
             duration = durationSeconds + releaseTime,
             realArray = realArray,
             imaginaryArray = imaginaryArray,
-            None
+            Some(lfoGainNode)
           )
             .withFrequency(
               AudioParam(Vector(SetValueAtTime(note.frequency, when)))
