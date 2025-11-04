@@ -136,12 +136,10 @@ object AudioNode:
     SquareOscillator(when, duration, AudioParam.empty, AudioParam.empty)
 
   def waveTableOscillator(
-      sources: List[AudioSource] = List.empty,
       when: Double,
       duration: Double,
       realArray: Float32Array,
-      imaginaryArray: Float32Array,
-      connectASourceToFrequency: Option[AudioSource] = None
+      imaginaryArray: Float32Array
   ): WaveTableOscillator =
     WaveTableOscillator(
       when,
@@ -294,5 +292,5 @@ object AudioNode:
 
     def withDetune(detune: AudioParam): WaveTableOscillator =
       this.copy(detune = detune)
-  
+
 end AudioNode

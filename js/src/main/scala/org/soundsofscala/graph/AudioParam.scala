@@ -22,33 +22,33 @@ import org.soundsofscala.graph.AudioNode.AudioSource
 import org.soundsofscala.graph.AudioParam.AudioParamEvent.*
 
 final case class AudioParam(events: Vector[AudioParam.AudioParamEvent]):
-  self =>
-    import AudioParam.AudioParamEvent
+  import AudioParam.AudioParamEvent
 
-    /**
-     * Set all the values in this AudioParam to the given dom.AudioParam
-     */
-    def set(target: dom.AudioParam)(using context: AudioContext): Unit =
-      events.foreach:
-        case SetValueAtTime(value, startTime) =>
-          target.setValueAtTime(value, startTime)
-        case LinearRampToValueAtTime(value, endTime) =>
-          target.linearRampToValueAtTime(value, endTime)
-        case ExponentialRampToValueAtTime(value, endTime) =>
-          target.exponentialRampToValueAtTime(value, endTime)
-        case ConnectToAudioNode(audioSource) =>
-          connectToAudioNode(audioSource)(target)
+  /**
+   * Set all the values in this AudioParam to the given dom.AudioParam
+   */
+  def set(target: dom.AudioParam)(using context: AudioContext): Unit =
+    events.foreach:
+      case SetValueAtTime(value, startTime) =>
+        target.setValueAtTime(value, startTime)
+      case LinearRampToValueAtTime(value, endTime) =>
+        target.linearRampToValueAtTime(value, endTime)
+      case ExponentialRampToValueAtTime(value, endTime) =>
+        target.exponentialRampToValueAtTime(value, endTime)
+      case ConnectToAudioNode(audioSource) =>
+        connectToAudioNode(audioSource)(target)
 
-    def setValueAtTime(value: Double, startTime: Double): AudioParam =
-      this.copy(events = events :+ AudioParamEvent.SetValueAtTime(value, startTime))
+  def setValueAtTime(value: Double, startTime: Double): AudioParam =
+    this.copy(events = events :+ AudioParamEvent.SetValueAtTime(value, startTime))
 
-    def exponentialRampToValueAtTime(value: Double, endTime: Double): AudioParam =
-      this.copy(events = events :+ AudioParamEvent.ExponentialRampToValueAtTime(value, endTime))
+  def exponentialRampToValueAtTime(value: Double, endTime: Double): AudioParam =
+    this.copy(events = events :+ AudioParamEvent.ExponentialRampToValueAtTime(value, endTime))
 
-    def linearRampToValueAtTime(value: Double, endTime: Double): AudioParam =
-      this.copy(events = events :+ AudioParamEvent.LinearRampToValueAtTime(value, endTime))
+  def linearRampToValueAtTime(value: Double, endTime: Double): AudioParam =
+    this.copy(events = events :+ AudioParamEvent.LinearRampToValueAtTime(value, endTime))
 
-    def connectToAudioNode(audioSource: AudioSource)(using context: AudioContext): dom.AudioParam => Unit = ap => audioSource.create.connect(ap)
+  def connectToAudioNode(audioSource: AudioSource)(using
+  context: AudioContext): dom.AudioParam => Unit = ap => audioSource.create.connect(ap)
 
 object AudioParam:
   val empty: AudioParam = AudioParam(Vector.empty)
@@ -59,7 +59,6 @@ object AudioParam:
     case ExponentialRampToValueAtTime(value: Double, endTime: Double)
     case ConnectToAudioNode(audioSource: AudioSource)
 
-  extension (ap: AudioParam) {
+  extension (ap: AudioParam)
     def +(other: AudioParam): AudioParam =
       AudioParam(ap.events ++ other.events)
-  }
