@@ -86,14 +86,7 @@ sealed trait AudioNode:
       case SquareOscillator(when, duration, frequency, detune) =>
         buildOscillatorNode(when, duration, WaveType.Square, frequency, detune)
 
-      case WaveTableOscillator(
-            when,
-            duration,
-            frequency,
-            detune,
-            realArray,
-            imagArray
-          ) =>
+      case WaveTableOscillator(when, duration, frequency, detune, realArray, imagArray) =>
         val waveTable = context.createPeriodicWave(realArray, imagArray)
         val oscillatorNode: dom.OscillatorNode = context.createOscillator()
         oscillatorNode.setPeriodicWave(waveTable)
@@ -147,8 +140,7 @@ object AudioNode:
       AudioParam.empty,
       AudioParam.empty,
       realArray,
-      imaginaryArray
-    )
+      imaginaryArray)
 
   val panControl: Panner = Panner(
     List.empty,
@@ -284,8 +276,8 @@ object AudioNode:
       frequency: AudioParam,
       detune: AudioParam,
       realArray: Float32Array,
-      imaginaryArray: Float32Array
-  ) extends AudioSource:
+      imaginaryArray: Float32Array)
+      extends AudioSource:
 
     def withFrequency(frequency: AudioParam): WaveTableOscillator =
       this.copy(frequency = frequency)
