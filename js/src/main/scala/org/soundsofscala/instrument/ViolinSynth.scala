@@ -9,6 +9,7 @@ import org.soundsofscala.models
 import org.soundsofscala.models.AtomicMusicalEvent.Note
 import org.soundsofscala.models.*
 import org.soundsofscala.models.AudioTypes.FilterModel
+import org.soundsofscala.graph.AudioParam.+
 
 import scala.scalajs.js
 
@@ -61,7 +62,7 @@ final class ViolinSynth private (
         val lfo = sineOscillator(
           when = when,
           duration = durationSeconds + releaseTime
-        ).withFrequency(AudioParam(Vector(SetValueAtTime(5.0, when))))
+        ).withFrequency(AudioParam(Vector(SetValueAtTime(7, when))))
 
         val lfoGainNode = Gain(
           List(lfo),
@@ -73,8 +74,7 @@ final class ViolinSynth private (
             when = when,
             duration = durationSeconds + releaseTime,
             realArray = realArray,
-            imaginaryArray = imaginaryArray,
-            Some(lfoGainNode)
+            imaginaryArray = imaginaryArray
           )
             .withFrequency(
               AudioParam(Vector(SetValueAtTime(note.frequency, when)))
@@ -86,15 +86,15 @@ final class ViolinSynth private (
         // filter.connect(mainGain);
         // mainGain.connect(destination);
 
-        val filter = Filter(
-          List(wavetableOsc),
-          AudioParam(Vector(SetValueAtTime(1200, when))),
-          AudioParam(Vector(SetValueAtTime(1.5, when))),
-          FilterModel.BandPass)
+//        val filter = Filter(
+//          List(wavetableOsc),
+//          AudioParam(Vector(SetValueAtTime(1200, when))),
+//          AudioParam(Vector(SetValueAtTime(1.5, when))),
+//          FilterModel.BandPass)
 
         val gainNode =
           Gain(
-            List(filter),
+            List(wavetableOsc),
             AudioParam(Vector(
               SetValueAtTime(0.0001, when),
               ExponentialRampToValueAtTime(velocityModulatedVolume, when + attackTime),
@@ -104,7 +104,11 @@ final class ViolinSynth private (
           )
 
 //        lfoGainNode.create.connect()
-//        val audioGraph = wavetableOsc --> filter --> gainNode
+        val audioGraph = wavetableOsc --> gainNode
+
+        val wtoscPipe = lfoGainNode --> (x => wavetableOsc.copy(frequency = wavetableOsc.frequency + x))
+
+        audioGraph.create
         val finalNode = gainNode.create
 
         finalNode.connect(audioContext.destination)

@@ -18,6 +18,7 @@ package org.soundsofscala.graph
 
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, DelayNode}
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.ConnectToAudioNode
 import org.soundsofscala.models.AudioTypes.FilterModel
 import org.soundsofscala.models.AudioTypes.WaveType
 
@@ -30,7 +31,6 @@ sealed trait AudioNode:
   /**
    * Create the described audio graph with the given `AudioContext`.
    */
-
   final def play(using context: dom.AudioContext): dom.AudioContext ?=> Unit =
     val node = create
     println(s"Playing node: $node")
@@ -86,7 +86,14 @@ sealed trait AudioNode:
       case SquareOscillator(when, duration, frequency, detune) =>
         buildOscillatorNode(when, duration, WaveType.Square, frequency, detune)
 
-      case WaveTableOscillator(when, duration, frequency, detune, realArray, imagArray, connectASourceToFrequencyOption) =>
+      case WaveTableOscillator(
+            when,
+            duration,
+            frequency,
+            detune,
+            realArray,
+            imagArray
+          ) =>
         val waveTable = context.createPeriodicWave(realArray, imagArray)
         val oscillatorNode: dom.OscillatorNode = context.createOscillator()
         oscillatorNode.setPeriodicWave(waveTable)
@@ -94,17 +101,7 @@ sealed trait AudioNode:
         frequency.set(oscillatorNode.frequency)
         oscillatorNode.start(when)
         oscillatorNode.stop(when + duration + 0.4)
-        connectASourceToFrequencyOption match {
-          case None => {
-            println("NONE")
-            oscillatorNode
-          }
-          case Some(connectASourceToFrequency) => {
-            println("CONNECTED")
-            connectASourceToFrequency.create.connect(oscillatorNode.frequency)
-            oscillatorNode
-          }
-        }
+        oscillatorNode
 
   private def buildOscillatorNode(
       when: Double,
@@ -119,9 +116,9 @@ sealed trait AudioNode:
     oscillatorNode.start(when)
     oscillatorNode.stop(when + duration)
     oscillatorNode
+
 end AudioNode
 object AudioNode:
-
   // ------------------------------------------------------
   // Constructors
   // ------------------------------------------------------
@@ -139,20 +136,20 @@ object AudioNode:
     SquareOscillator(when, duration, AudioParam.empty, AudioParam.empty)
 
   def waveTableOscillator(
+      sources: List[AudioSource] = List.empty,
       when: Double,
       duration: Double,
       realArray: Float32Array,
       imaginaryArray: Float32Array,
       connectASourceToFrequency: Option[AudioSource] = None
-                         ): WaveTableOscillator =
+  ): WaveTableOscillator =
     WaveTableOscillator(
       when,
       duration,
       AudioParam.empty,
       AudioParam.empty,
       realArray,
-      imaginaryArray,
-      connectASourceToFrequency
+      imaginaryArray
     )
 
   val panControl: Panner = Panner(
@@ -187,6 +184,10 @@ object AudioNode:
     @targetName("pipeTo")
     def -->(sink: AudioPipe): AudioPipe =
       sink.addSource(this)
+
+    @targetName("pipeTo")
+    def -->(sink: AudioParam => AudioSource): AudioSource =
+      sink(AudioParam(events = Vector(ConnectToAudioNode(this))))
 
   sealed trait AudioPipe extends AudioSource:
     def addSource(source: AudioSource): AudioPipe
@@ -279,21 +280,19 @@ object AudioNode:
 
     def withDetune(detune: AudioParam): SquareOscillator =
       this.copy(detune = detune)
-
   final case class WaveTableOscillator(
       when: Double,
       duration: Double,
       frequency: AudioParam,
       detune: AudioParam,
       realArray: Float32Array,
-      imaginaryArray: Float32Array,
-      connectASourceToFrequency: Option[AudioSource] = None
-                                      )
-      extends AudioSource:
+      imaginaryArray: Float32Array
+  ) extends AudioSource:
 
     def withFrequency(frequency: AudioParam): WaveTableOscillator =
       this.copy(frequency = frequency)
 
     def withDetune(detune: AudioParam): WaveTableOscillator =
       this.copy(detune = detune)
+  
 end AudioNode
