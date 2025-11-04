@@ -65,7 +65,7 @@ final class ViolinSynth private (
         ).withFrequency(AudioParam(Vector(SetValueAtTime(7, when))))
 
         val lfoGainNode = Gain(
-          List(lfo),
+          List.empty,
           AudioParam(Vector(SetValueAtTime(4.0, when)))
         )
 
@@ -94,7 +94,7 @@ final class ViolinSynth private (
 
         val gainNode =
           Gain(
-            List(wavetableOsc),
+            List.empty,
             AudioParam(Vector(
               SetValueAtTime(0.0001, when),
               ExponentialRampToValueAtTime(velocityModulatedVolume, when + attackTime),
@@ -103,10 +103,11 @@ final class ViolinSynth private (
             ))
           )
 
-//        lfoGainNode.create.connect()
-        val audioGraph = wavetableOsc --> gainNode
+        val lfoNew = lfo --> lfoGainNode
 
-        val wtoscPipe = lfoGainNode --> (x => wavetableOsc.copy(frequency = wavetableOsc.frequency + x))
+        val wtocNew = lfoNew --> (x => wavetableOsc.copy(frequency = wavetableOsc.frequency + x))
+
+        val audioGraph = wtocNew --> gainNode
 
         audioGraph.create
         val finalNode = gainNode.create
