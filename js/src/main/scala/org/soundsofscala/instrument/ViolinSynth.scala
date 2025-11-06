@@ -91,9 +91,7 @@ final class ViolinSynth private (
           AudioParam(Vector(SetValueAtTime(1200, when))),
           AudioParam(Vector(SetValueAtTime(1.5, when))),
           FilterModel.BandPass)
-
-        val noise =
-
+        
         val gainNode =
           Gain(
             List.empty,
