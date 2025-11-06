@@ -41,7 +41,6 @@ sealed trait AudioNode:
       case Gain(sources, gainParam) =>
         val gainNode = context.createGain()
         gainParam.set(gainNode.gain)
-        println("sources size:   " + sources.size)
         println(s"Creating gain node with gain: ${gainNode.gain.value}")
         sources.foreach(source => source.create.connect(gainNode))
         gainNode
@@ -132,8 +131,7 @@ object AudioNode:
       when: Double,
       duration: Double,
       realArray: Float32Array,
-      imaginaryArray: Float32Array
-  ): WaveTableOscillator =
+      imaginaryArray: Float32Array): WaveTableOscillator =
     WaveTableOscillator(
       when,
       duration,

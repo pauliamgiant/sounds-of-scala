@@ -62,7 +62,7 @@ final class ViolinSynth private (
         val lfo = sineOscillator(
           when = when,
           duration = durationSeconds + releaseTime
-        ).withFrequency(AudioParam(Vector(SetValueAtTime(7, when))))
+        ).withFrequency(AudioParam(Vector(SetValueAtTime(15, when))))
 
         val lfoGainNode = Gain(
           List.empty,
@@ -86,11 +86,13 @@ final class ViolinSynth private (
         // filter.connect(mainGain);
         // mainGain.connect(destination);
 
-//        val filter = Filter(
-//          List(wavetableOsc),
-//          AudioParam(Vector(SetValueAtTime(1200, when))),
-//          AudioParam(Vector(SetValueAtTime(1.5, when))),
-//          FilterModel.BandPass)
+        val filter = Filter(
+          List(wavetableOsc),
+          AudioParam(Vector(SetValueAtTime(1200, when))),
+          AudioParam(Vector(SetValueAtTime(1.5, when))),
+          FilterModel.BandPass)
+
+        val noise =
 
         val gainNode =
           Gain(
@@ -105,12 +107,12 @@ final class ViolinSynth private (
 
         val lfoNew = lfo --> lfoGainNode
 
-        val wtocNew = lfoNew --> (x => wavetableOsc.copy(frequency = wavetableOsc.frequency + x))
+        val audioGraph = lfoNew --> (audioParam =>
+          wavetableOsc.copy(frequency = wavetableOsc.frequency + audioParam)) --> filter --> gainNode
 
-        val audioGraph = wtocNew --> gainNode
-
-        audioGraph.create
-        val finalNode = gainNode.create
+//        val audioGraph = wtocNew --> gainNode
+//
+        val finalNode = audioGraph.create
 
         finalNode.connect(audioContext.destination)
         finalNode
