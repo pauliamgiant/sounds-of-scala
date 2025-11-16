@@ -80,12 +80,6 @@ final class ViolinSynth private (
               AudioParam(Vector(SetValueAtTime(note.frequency, when)))
             )
 
-        //// lfo.connect(lfoGain);
-        // lfoGain.connect(mainOsc.frequency);
-        // mainOsc.connect(filter);
-        // filter.connect(mainGain);
-        // mainGain.connect(destination);
-
         val filter = Filter(
           List(wavetableOsc),
           AudioParam(Vector(SetValueAtTime(1200, when))),
@@ -108,14 +102,12 @@ final class ViolinSynth private (
         val audioGraph = lfoNew --> (audioParam =>
           wavetableOsc.copy(frequency = wavetableOsc.frequency + audioParam)) --> filter --> gainNode
 
-//        val audioGraph = wtocNew --> gainNode
-//
         val finalNode = audioGraph.create
 
         finalNode.connect(audioContext.destination)
         finalNode
       }
-      nodes <- activeNodesRef.update(a =>
-        a + createdNodes)
+      _ <- activeNodesRef.update(oldNodes =>
+        oldNodes + createdNodes)
     yield ()
 end ViolinSynth

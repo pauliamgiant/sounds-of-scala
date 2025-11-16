@@ -48,7 +48,7 @@ final case class AudioParam(events: Vector[AudioParam.AudioParamEvent]):
     this.copy(events = events :+ AudioParamEvent.LinearRampToValueAtTime(value, endTime))
 
   def connectToAudioNode(audioSource: AudioSource)(using
-  context: AudioContext): dom.AudioParam => Unit = ap => audioSource.create.connect(ap)
+  context: AudioContext): dom.AudioParam => Unit = audioParam => audioSource.create.connect(audioParam)
 
 object AudioParam:
   val empty: AudioParam = AudioParam(Vector.empty)
@@ -59,6 +59,6 @@ object AudioParam:
     case ExponentialRampToValueAtTime(value: Double, endTime: Double)
     case ConnectToAudioNode(audioSource: AudioSource)
 
-  extension (ap: AudioParam)
+  extension (audioParam: AudioParam)
     def +(other: AudioParam): AudioParam =
-      AudioParam(ap.events ++ other.events)
+      AudioParam(audioParam.events ++ other.events)
