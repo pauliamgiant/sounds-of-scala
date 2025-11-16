@@ -47,9 +47,9 @@ final case class AudioParam(events: Vector[AudioParam.AudioParamEvent]):
   def linearRampToValueAtTime(value: Double, endTime: Double): AudioParam =
     this.copy(events = events :+ AudioParamEvent.LinearRampToValueAtTime(value, endTime))
 
-  def connectToAudioNode(audioSource: AudioSource)(using
-  context: AudioContext): dom.AudioParam => Unit =
-    audioParam => audioSource.create.connect(audioParam)
+  private def connectToAudioNode(audioSource: AudioSource)(using
+                                                           context: AudioContext): dom.AudioParam => Unit =
+    audioSource.create.connect
 end AudioParam
 
 object AudioParam:
