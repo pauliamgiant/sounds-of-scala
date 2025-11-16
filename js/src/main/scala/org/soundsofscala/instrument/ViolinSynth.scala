@@ -85,7 +85,7 @@ final class ViolinSynth private (
           AudioParam(Vector(SetValueAtTime(1200, when))),
           AudioParam(Vector(SetValueAtTime(1.5, when))),
           FilterModel.BandPass)
-        
+
         val gainNode =
           Gain(
             List.empty,
@@ -100,7 +100,8 @@ final class ViolinSynth private (
         val lfoNew = lfo --> lfoGainNode
 
         val audioGraph = lfoNew --> (audioParam =>
-          wavetableOsc.copy(frequency = wavetableOsc.frequency + audioParam)) --> filter --> gainNode
+          wavetableOsc.copy(frequency =
+            wavetableOsc.frequency + audioParam)) --> filter --> gainNode
 
         val finalNode = audioGraph.create
 
