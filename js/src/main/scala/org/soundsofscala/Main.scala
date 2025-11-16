@@ -178,7 +178,7 @@ object Main extends IOApp:
   private def buildPagodasText = IO {
     val pagodasText = document.createElement("p")
     pagodasText.textContent =
-      "ViolinSynthPagodas"
+      "Play this ExampleSong5Pagodas song to hear an example of WaveTable synthesis used to create an Electric Violin sound"
     pagodasText
   }
 

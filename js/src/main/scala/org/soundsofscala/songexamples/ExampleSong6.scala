@@ -28,7 +28,7 @@ object ExampleSong6:
     for
       violinSynth <- ViolinSynth()
     yield Song(
-      title = Title("Laideronnette, impératrice des pagodes "),
+      title = Title("Laideronnette, impératrice des pagodes"),
       tempo = Tempo(110),
       swing = Swing(0),
       mixer = Mixer(Track(
