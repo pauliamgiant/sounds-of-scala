@@ -18,6 +18,7 @@ package org.soundsofscala.graph
 
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, DelayNode}
+import org.soundsofscala.graph.AudioParam.AudioParamEvent.ConnectToAudioNode
 import org.soundsofscala.models.AudioTypes.FilterModel
 import org.soundsofscala.models.AudioTypes.WaveType
 
@@ -30,7 +31,6 @@ sealed trait AudioNode:
   /**
    * Create the described audio graph with the given `AudioContext`.
    */
-
   final def play(using context: dom.AudioContext): dom.AudioContext ?=> Unit =
     val node = create
     println(s"Playing node: $node")
@@ -108,9 +108,9 @@ sealed trait AudioNode:
     oscillatorNode.start(when)
     oscillatorNode.stop(when + duration)
     oscillatorNode
+
 end AudioNode
 object AudioNode:
-
   // ------------------------------------------------------
   // Constructors
   // ------------------------------------------------------
@@ -172,6 +172,10 @@ object AudioNode:
     @targetName("pipeTo")
     def -->(sink: AudioPipe): AudioPipe =
       sink.addSource(this)
+
+    @targetName("pipeTo")
+    def -->(sink: AudioParam => AudioSource): AudioSource =
+      sink(AudioParam(events = Vector(ConnectToAudioNode(this))))
 
   sealed trait AudioPipe extends AudioSource:
     def addSource(source: AudioSource): AudioPipe
@@ -264,7 +268,6 @@ object AudioNode:
 
     def withDetune(detune: AudioParam): SquareOscillator =
       this.copy(detune = detune)
-
   final case class WaveTableOscillator(
       when: Double,
       duration: Double,
@@ -279,4 +282,5 @@ object AudioNode:
 
     def withDetune(detune: AudioParam): WaveTableOscillator =
       this.copy(detune = detune)
+
 end AudioNode
