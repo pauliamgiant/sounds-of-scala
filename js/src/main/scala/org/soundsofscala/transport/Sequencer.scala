@@ -20,6 +20,7 @@ import cats.effect.IO
 import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.LookAhead
+import org.soundsofscala.models.Playback
 import org.soundsofscala.models.ScheduleWindow
 import org.soundsofscala.models.Song
 
