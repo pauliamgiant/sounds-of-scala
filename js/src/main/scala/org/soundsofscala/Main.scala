@@ -20,9 +20,11 @@ import cats.effect.{ExitCode, IO, IOApp}
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.soundsofscala.graph.AudioGraphDemoCode
-import org.soundsofscala.models.FilePath
+import org.soundsofscala.models.*
 import org.soundsofscala.playback.AudioPlayer
 import org.soundsofscala.songexamples.*
+import org.soundsofscala.syntax.all.*
+import cats.syntax.all.*
 
 object Main extends IOApp:
 
@@ -60,10 +62,17 @@ object Main extends IOApp:
       beethovenSong <- ExampleSong5Beethoven.song()
       pagodas <- ExampleSong6.song()
       exampleSong1 <- ExampleSong1.song()
+      kickRef = exampleSong1.mixer.tracks.head.musicalEventRef
+      altKickPattern: MusicalEvent = C2.eighth + C2.eighth + RestQuarter.onFull
       exampleSong1ButtonGroup <- buildButtonGroup(
         label = "ExampleSong1",
         playAction = exampleSong1.play(),
-        stopAction = exampleSong1.stop()
+        stopAction = exampleSong1.stop(),
+        updateAction = kickRef.get.flatMap: current =>
+          if current == ExampleSong1.kickDrum
+          then kickRef.set(altKickPattern) >> IO.println("Kick pattern: double kick")
+          else kickRef.set(ExampleSong1.kickDrum) >> IO.println("Kick pattern: original")
+        .some
       )
       beethovenButtonGroup <- buildButtonGroup(
         label = "ExampleSong4Beethoven",
@@ -102,6 +111,8 @@ object Main extends IOApp:
         audioGraphButton
       )(homeDiv)
     yield ()
+    end for
+  end setupPage
 
   private def buildHeading = IO {
     val title = document.createElement("h1")
@@ -261,7 +272,9 @@ object Main extends IOApp:
   private def buildButtonGroup(
       label: String,
       playAction: IO[Unit],
-      stopAction: IO[Unit]): IO[Element] =
+      stopAction: IO[Unit],
+      updateAction: Option[IO[Unit]] = None
+  ): IO[Element] =
     for
       groupContainer <- IO(document.createElement("div"))
       _ <- IO(groupContainer.classList.add("button-group"))
@@ -289,11 +302,21 @@ object Main extends IOApp:
         stopButton.addEventListener("click", (_: dom.MouseEvent) => stopAction.unsafeRunAndForget())
       }
 
+      updateButton <- updateAction.fold(IO.pure(None))(action =>
+        for
+          btn <- IO(document.createElement("button"))
+          _ <- IO {
+            btn.textContent = "update - realtime"
+            btn.classList.add("update-button")
+            btn.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
+          }
+        yield Some(btn))
       _ <- IO {
         buttonContainer.appendChild(playButton)
         buttonContainer.appendChild(stopButton)
         groupContainer.appendChild(labelElement)
         groupContainer.appendChild(buttonContainer)
+        updateButton.foreach(buttonContainer.appendChild(_))
       }
     yield groupContainer
 

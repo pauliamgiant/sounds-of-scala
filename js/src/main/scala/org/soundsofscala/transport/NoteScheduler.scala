@@ -17,11 +17,13 @@
 package org.soundsofscala.transport
 
 import cats.effect.IO
+import cats.effect.Ref
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.Instrument
 import org.soundsofscala.models
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.models.*
+import org.soundsofscala.models.Playback
 
 import scala.concurrent.duration.DurationDouble
 
@@ -31,6 +33,9 @@ import scala.concurrent.duration.DurationDouble
  * precise time with the currentTime property of the AudioContext. The method of scheduling notes in
  * the browser is derived from the following: https://web.dev/articles/audio-scheduling
  * https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques#playing_the_audio_in_time
+ *
+ * The scheduler reads the current MusicalEvent from a Ref at the start of each cycle, allowing live
+ * updates to take effect at sequence boundaries.
  *
  * @param tempo
  *   The tempo of the song. This is needed to determine the how many seconds a note is played for
@@ -45,44 +50,43 @@ final case class NoteScheduler(
     scheduleAheadTimeSeconds: ScheduleWindow):
 
   def scheduleInstrument[Settings](
-      musicalEvent: MusicalEvent,
+      eventRef: Ref[IO, MusicalEvent],
       instrument: Instrument[Settings],
-      settings: Settings)(
+      settings: Settings,
+      looping: Playback)(
       using audioContext: AudioContext): IO[Unit] =
 
-    val startingNoteTime = NextNoteTime(audioContext.currentTime)
-    scheduler(musicalEvent, startingNoteTime, instrument, settings) >> IO.println(
-      "Sequence finished")
+    def loop(nextNoteTime: NextNoteTime): IO[Unit] =
+      for
+        currentEvent <- eventRef.get
+        finalNoteTime <- scheduleSequence(currentEvent, nextNoteTime, instrument, settings)
+        _ <- if looping == Playback.Loop then loop(finalNoteTime) else IO.unit
+      yield ()
 
-  private def scheduler[Settings](
+    loop(NextNoteTime(audioContext.currentTime))
+
+  private def scheduleSequence[Settings](
       musicalEvent: MusicalEvent,
       nextNoteTime: NextNoteTime,
       instrument: Instrument[Settings],
-      settings: Settings): AudioContext ?=> IO[Unit] =
-    // check if we can schedule the next note
+      settings: Settings): AudioContext ?=> IO[NextNoteTime] =
     ScheduleStatus(nextNoteTime, scheduleAheadTimeSeconds) match
       case ScheduleStatus.Ready =>
         musicalEvent match
-          // for a sequence, schedule the first note, and then schedule the rest of the sequence
           case sequence: Sequence =>
-            // time that rest of the sequence will be scheduled
             val nextNextNoteTime =
               NextNoteTime(nextNoteTime.value + sequence.head.durationToSeconds(tempo))
-            // schedule the first note
             scheduleAtomicEvent(sequence.head, nextNoteTime, instrument, settings) >>
-              // schedule the rest of the sequence
-              scheduler(sequence.tail, nextNextNoteTime, instrument, settings)
+              scheduleSequence(sequence.tail, nextNextNoteTime, instrument, settings)
           case atomicEvent: AtomicMusicalEvent =>
+            val nextNextNoteTime =
+              NextNoteTime(nextNoteTime.value + atomicEvent.durationToSeconds(tempo))
             scheduleAtomicEvent(atomicEvent, nextNoteTime, instrument, settings)
+              .as(nextNextNoteTime)
 
       case ScheduleStatus.Waiting =>
-        // no note to schedule, wait for specified time and look ahead again
-        IO.sleep(lookAheadMs.value.millis)
-          >> scheduler(
-            musicalEvent,
-            nextNoteTime,
-            instrument,
-            settings)
+        IO.sleep(lookAheadMs.value.millis) >>
+          scheduleSequence(musicalEvent, nextNoteTime, instrument, settings)
 
   private def scheduleAtomicEvent[Settings](
       musicalEvent: AtomicMusicalEvent,

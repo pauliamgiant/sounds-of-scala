@@ -44,14 +44,13 @@ object ExampleSong3:
   def play(): AudioContext ?=> IO[Unit] =
     for
       piano <- Sampler.guitar
+      track <- Track.make(Title("Single Synth Voice"), musicalEvent, piano, Playback.OneShot)
       song = Song(
         title = Title("Dissonant Twinkle Twinkle"),
         tempo = Tempo(110),
         swing = Swing(0),
-        mixer = Mixer(
-          Track(Title("Single Synth Voice"), musicalEvent, piano)
-        )
+        mixer = Mixer(track)
       )
-      a <- song.play()
-    yield a
+      _ <- song.play()
+    yield ()
 end ExampleSong3

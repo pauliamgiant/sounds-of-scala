@@ -41,17 +41,17 @@ object ExampleSong2:
   def play(): AudioContext ?=> IO[Unit] =
     for
       piano <- Sampler.piano
+      track <- Track.make(
+        Title("rhubarb D3"),
+        musicalEvent,
+        piano,
+        Playback.Loop,
+        customSettings = Some(customSettings))
       song = Song(
         title = Title("Rhubarb Loop"),
         tempo = Tempo(60),
         swing = Swing(0),
-        mixer = Mixer(
-          Track(
-            Title("rhubarb D3"),
-            musicalEvent,
-            piano,
-            customSettings = Some(customSettings))
-        )
+        mixer = Mixer(track)
       )
       a <- song.play()
     yield a

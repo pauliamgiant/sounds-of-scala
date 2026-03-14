@@ -167,7 +167,7 @@ logo :=
 
 usefulTasks := Seq(
   UsefulTask("~fastOptJS", "Run fastOptJS for live updates").alias("f"),
-  UsefulTask("reload", "run reload").alias("r"),
+  UsefulTask("reload", "run reload").alias("rl"),
   UsefulTask("publishLocal", "Publish build locally").alias("pub"),
   UsefulTask("docs/tlSitePreview", "preview documentation").alias("doc"),
   UsefulTask("clean", "run clean").alias("cln"),
@@ -193,6 +193,10 @@ usefulTasks := Seq(
     "cln; c; t; chk",
     "Clean Build - Run compile; test; scalafmtCheckAll; scalafixAll --check"
   ).alias("cbld"),
+        UsefulTask(
+        ";compile;scalafixAll;scalafmtAll;scalafmtSbt;test",
+        "Pre-push formatting and testing checks",
+      ).alias("pp"),
   UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du"),
   UsefulTask("headerCreate", "Run create headers for pagers to pass ci").alias("h")
 )

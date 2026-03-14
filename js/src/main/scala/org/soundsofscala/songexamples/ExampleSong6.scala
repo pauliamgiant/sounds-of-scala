@@ -7,6 +7,7 @@ import org.soundsofscala.instrument
 import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
 import org.soundsofscala.syntax.all.*
+import org.soundsofscala.models.Playback
 
 object ExampleSong6:
 
@@ -27,14 +28,17 @@ object ExampleSong6:
   def song(): AudioContext ?=> IO[Song] =
     for
       violinSynth <- ViolinSynth()
-    yield Song(
-      title = Title("Laideronnette, impératrice des pagodes"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(Track(
-        Title("TrebleClefViolin"),
+      trebleTrack <- Track.make(
+        Title("Laideronnette, impératrice des pagodes"),
         measureOneTrebleClef + measureTwoTrebleClef + measureThreeTrebleClef + measureFourTrebleClef,
-        violinSynth
-      ))
-    )
+        violinSynth,
+        Playback.OneShot
+      )
+      song = Song(
+        title = Title("Laideronnette, impératrice des pagodes"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(trebleTrack)
+      )
+    yield song
 end ExampleSong6

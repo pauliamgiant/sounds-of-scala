@@ -150,21 +150,23 @@ object ExampleSong5Beethoven:
   def song(): AudioContext ?=> IO[Song] =
     for
       sharedPiano <- PianoSynth()
-    yield Song(
-      title = Title("Something We All Know"),
-      tempo = Tempo(110),
-      swing = Swing(0),
-      mixer = Mixer(
-        Track(
-          Title("Beethoven Upper Voice"),
-          upperVoice,
-          sharedPiano,
-          customSettings = Some(customSettings)),
-        Track(
-          Title("Beethoven Lower Voice"),
-          lowerVoice,
-          sharedPiano,
-          customSettings = Some(customSettings))
+      upperTrack <- Track.make(
+        Title("Beethoven Upper Voice"),
+        upperVoice,
+        sharedPiano,
+        Playback.OneShot,
+        customSettings = Some(customSettings))
+      lowerTrack <- Track.make(
+        Title("Beethoven Lower Voice"),
+        lowerVoice,
+        sharedPiano,
+        Playback.OneShot,
+        customSettings = Some(customSettings))
+      song = Song(
+        title = Title("Something We All Know"),
+        tempo = Tempo(110),
+        swing = Swing(0),
+        mixer = Mixer(upperTrack, lowerTrack)
       )
-    )
+    yield song
 end ExampleSong5Beethoven

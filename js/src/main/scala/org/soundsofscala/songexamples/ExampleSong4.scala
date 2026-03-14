@@ -24,9 +24,9 @@ import org.soundsofscala.syntax.all.*
 
 object ExampleSong4:
 
-  val kd = (KickDrum + RestQuarter).loop
-  val sd = (RestQuarter + SnareDrum).loop
-  val ht = HatsClosed.eighth.loop
+  val kd: MusicalEvent = KickDrum + RestQuarter
+  val sd: MusicalEvent = RestQuarter + SnareDrum
+  val ht: MusicalEvent = HatsClosed.eighth
 
   val musicalEvent: MusicalEvent =
     C1.wholeDotted.onFull + D1.wholeDotted.onFull + E1.wholeDotted.onFull + B0.wholeDotted.onFull
@@ -38,17 +38,17 @@ object ExampleSong4:
       simple80sDrumMachine <- Simple80sDrumMachine()
       liveBass <- Sampler.bassGuitar
       scalaSynth <- QuirkyFilterSynth()
+      bassTrack <- Track.make(Title("Live Bass"), musicalEvent, liveBass, Playback.OneShot)
+      synthTrack <-
+        Track.make(Title("Scala Synth Line"), scalaSynthLine, scalaSynth, Playback.OneShot)
+      kickTrack <- Track.make(Title("Kick"), kd, simple80sDrumMachine, Playback.OneShot)
+      snareTrack <- Track.make(Title("Snare"), sd, simple80sDrumMachine, Playback.OneShot)
+      hatsTrack <- Track.make(Title("Hats"), ht, simple80sDrumMachine, Playback.OneShot)
       song = Song(
         title = Title("long note"),
         tempo = Tempo(110),
         swing = Swing(0),
-        mixer = Mixer(
-          Track(Title("Live Bass"), musicalEvent.loop, liveBass),
-          Track(Title("Scala Synth Line"), scalaSynthLine.loop, scalaSynth),
-          Track(Title("Kick"), FourBarRest + kd, simple80sDrumMachine),
-          Track(Title("Snare"), FourBarRest + sd, simple80sDrumMachine),
-          Track(Title("Hats"), FourBarRest + ht, simple80sDrumMachine)
-        )
+        mixer = Mixer(bassTrack, synthTrack, kickTrack, snareTrack, hatsTrack)
       )
     yield song
 

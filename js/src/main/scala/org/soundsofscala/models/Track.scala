@@ -16,14 +16,39 @@
 
 package org.soundsofscala.models
 
+import cats.effect.IO
+import cats.effect.Ref
 import org.soundsofscala.instrument.Default
 import org.soundsofscala.instrument.Instrument
 
+enum Playback:
+  case Loop, OneShot
+
 case class Track[Settings](
     title: Title,
-    musicalEvent: MusicalEvent,
+    musicalEventRef: Ref[IO, MusicalEvent],
     instrument: Instrument[Settings],
+    playback: Playback,
     customSettings: Option[Settings] = None,
     insertFX: List[FX] = List.empty,
     sendFX: List[FX] = List.empty)(using Default[Settings]):
   val settings: Settings = customSettings.getOrElse(Default.default[Settings])
+
+object Track:
+  def make[Settings](
+      title: Title,
+      musicalEvent: MusicalEvent,
+      instrument: Instrument[Settings],
+      playback: Playback,
+      customSettings: Option[Settings] = None,
+      insertFX: List[FX] = List.empty,
+      sendFX: List[FX] = List.empty)(using Default[Settings]): IO[Track[Settings]] =
+    Ref.of[IO, MusicalEvent](musicalEvent).map: updateableMusicalEventRef =>
+      new Track(
+        title,
+        updateableMusicalEventRef,
+        instrument,
+        playback,
+        customSettings,
+        insertFX,
+        sendFX)
