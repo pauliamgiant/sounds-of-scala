@@ -58,6 +58,9 @@ object StartTime extends Newtype[Double]
 type Tempo = Tempo.Type
 object Tempo extends Newtype[Double]
 
+type IsLooping = IsLooping.Type
+object IsLooping extends Newtype[Boolean]
+
 type Swing = Swing.Type
 
 object Swing extends Refined[Int]:

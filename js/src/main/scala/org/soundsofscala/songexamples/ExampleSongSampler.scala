@@ -69,23 +69,32 @@ object ExampleSongSampler:
       sparkles <- Sampler.sparkles
       kick <- Sampler.kickDrum
       snare <- Sampler.snareDrum
+      rhubarbHighTrack <- Track.make(Title("RhubarbHigh"), rhubarbHigh, rhubarb, Playback.OneShot)
+      rhubarbLowTrack <- Track.make(Title("RhubarbLow"), rhubarbLow, rhubarb, Playback.OneShot)
+      vinylTrackT <- Track.make(Title("Vinyl"), vinylTrack, vinyl, Playback.OneShot)
+      sparklesTrackT <- Track.make(Title("Sparkles"), sparklesTrack, sparkles, Playback.OneShot)
+      sparklesRevTrack <- Track.make(
+        Title("SparklesReversed"),
+        sparklesTrackReversed,
+        sparkles,
+        Playback.OneShot,
+        customSettings = Some(customSettings))
+      kickTrackT <- Track.make(Title("Kick"), kickTrack, kick, Playback.OneShot)
+      snareTrackT <- Track.make(Title("Snare"), snareTrack, snare, Playback.OneShot)
+      vinylHihatTrack <- Track.make(Title("VinylHihat"), vinylHihat, vinyl, Playback.OneShot)
       song = Song(
         title = Title("Rhubarb"),
         tempo = Tempo(110),
         swing = Swing(0),
         mixer = Mixer(
-          Track(Title("RhubarbHigh"), rhubarbHigh.loop, rhubarb),
-          Track(Title("RhubarbLow"), rhubarbLow.loop, rhubarb),
-          Track(Title("Vinyl"), vinylTrack.loop, vinyl),
-          Track(Title("Sparkles"), sparklesTrack.loop, sparkles),
-          Track(
-            Title("SparklesReversed"),
-            sparklesTrackReversed.loop,
-            sparkles,
-            customSettings = Some(customSettings)),
-          Track(Title("Kick"), kickTrack.loop, kick),
-          Track(Title("Snare"), snareTrack.loop, snare),
-          Track(Title("VinylHihat"), vinylHihat.loop, vinyl)
+          rhubarbHighTrack,
+          rhubarbLowTrack,
+          vinylTrackT,
+          sparklesTrackT,
+          sparklesRevTrack,
+          kickTrackT,
+          snareTrackT,
+          vinylHihatTrack
         )
       )
       a <- song.play()

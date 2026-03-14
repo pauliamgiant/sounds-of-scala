@@ -112,18 +112,15 @@ object SamplePlayer:
       else
         gainNode.gain.setValueAtTime(velocityModulatedVolume, when + settings.startDelay)
 
+      val t0 = when + settings.startDelay
       if settings.fadeOut > 0 then
-        gainNode.gain.setValueAtTime(
-          velocityModulatedVolume,
-          when + settings.startDelay + length - settings.fadeOut)
-        gainNode.gain.linearRampToValueAtTime(0, when + settings.startDelay + length)
+        val safeFadeOut = math.min(settings.fadeOut, length * 0.5)
+        gainNode.gain.setValueAtTime(velocityModulatedVolume, t0 + length - safeFadeOut)
+        gainNode.gain.linearRampToValueAtTime(0, t0 + length)
       else
-        gainNode.gain.setValueAtTime(
-          velocityModulatedVolume,
-          when + settings.startDelay + length - 0.1)
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.0001,
-          when + settings.startDelay + (length + 0.3))
+        val release = math.min(0.1, length * 0.5)
+        gainNode.gain.setValueAtTime(velocityModulatedVolume, t0 + length - release)
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, t0 + length + 0.3)
 
     def configureSourceNode(
         when: Double,
