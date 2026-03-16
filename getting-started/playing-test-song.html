@@ -105,27 +105,36 @@
         <h1 id="playing-a-test-song" class="title">Playing a Test Song</h1>
         <p>Playing one of the example songs included with the library is a good way to check that you have everything configured correctly.</p>
         <p>To play one of these songs first import the following:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">models</span><span>.</span><span class="type-name">Song</span><span>
-</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">songs</span><span>.*</span></code></pre>
-        <p>Before we can produce any sounds from our browser, the first components we need in any Web Audio project in an AudioContext.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">Ref</span><span>}
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="type-name">AudioContext</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">models</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">songexamples</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">transport</span><span>.</span><span class="type-name">Sequencer</span></code></pre>
+        <p>Before we can produce any sounds from our browser, the first component we need in any Web Audio project is an AudioContext.</p>
         <p>The AudioContext is the fundamental component in the Web Audio API for controlling the execution of Audio.</p>
         <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/AudioContext" title="AudioContext">Read about the AudioContext</a></p>
-        <p>All audio components in the Sounds of Scala library need an implicit/given AudioContext. We can define a given AudiContext as follows:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">given</span><span> </span><span class="type-name">AudioContext</span><span> = </span><span class="keyword">new</span><span> </span><span class="identifier">dom</span><span>.</span><span class="type-name">AudioContext</span><span>()</span></code></pre>
-        <p>Now using the <strong>firstMusicProgram</strong> method from the example project on the previous page a simple song can be defined as follows:</p>
+        <p>All audio components in the Sounds of Scala library need an implicit/given AudioContext. We can define a given AudioContext as follows:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">given</span><span> </span><span class="type-name">AudioContext</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">AudioContext</span><span>()</span></code></pre>
+        <p>Now using the <strong>firstMusicProgram</strong> method from the example project on the previous page a simple song can be played as follows:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">firstMusicProgram</span><span>(): </span><span class="type-name">AudioContext</span><span> ?=&gt; </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
-  </span><span class="comment">// TODO: Your code
-</span><span>  </span><span class="type-name">ExampleSong1</span><span>().</span><span class="identifier">play</span><span>()</span></code></pre>
-        <p>Once you have played that and heard some Audio playing you can:</p>
+  </span><span class="keyword">for</span><span>
+    </span><span class="identifier">song</span><span>      &lt;- </span><span class="type-name">ExampleSong1</span><span>.</span><span class="identifier">song</span><span>()
+    </span><span class="identifier">songRef</span><span>   &lt;- </span><span class="type-name">Ref</span><span>.</span><span class="identifier">of</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Song</span><span>](</span><span class="identifier">song</span><span>)
+    </span><span class="identifier">sequencer</span><span> &lt;- </span><span class="type-name">Sequencer</span><span>(</span><span class="identifier">songRef</span><span>)
+    </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">sequencer</span><span>.</span><span class="identifier">play</span><span>()
+  </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>The <code>Song</code> is pure data — it holds the title, tempo, swing and mixer (tracks). To play it, we wrap it in a <code>Ref[IO, Song]</code> and pass it to a <code>Sequencer</code>. The Ref enables real-time updates to any property while the song is playing.</p>
+        <p>Once you have played that and heard some audio playing you can:</p>
         <ul>
           <li>Click into <code>ExampleSong1</code> and see how the song is defined</li>
           <li>
             Try changing the song to play one of the other example songs:
             <ul>
-              <li><code>ExampleSong2ChromaticScale</code></li>
-              <li><code>ExampleSong3Chords</code></li>
-              <li><code>ExampleSong4Beethoven</code></li>
-              <li><code>ExampleDrumBeat1</code></li>
+              <li><code>ExampleSong2</code></li>
+              <li><code>ExampleSong3</code></li>
+              <li><code>ExampleSong4</code></li>
+              <li><code>ExampleSong5Beethoven</code></li>
+              <li><code>ExampleSong6</code></li>
             </ul>
           </li>
         </ul>

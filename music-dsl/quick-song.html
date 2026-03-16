@@ -105,31 +105,38 @@
         <h1 id="quick-song-example" class="title">Quick Song Example</h1>
         <p>Lets just dive in here with a Song example before explaining the components involved.</p>
         <pre><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">firstMusicProgram</span><span>(): </span><span class="type-name">AudioContext</span><span> ?=&gt; </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
-  </span><span class="comment">// TODO: Your code
-</span><span>  </span><span class="identifier">writingAFirstSong</span><span>().</span><span class="identifier">play</span><span>()  </span><span class="comment">// play the below song
-</span><span>
-</span><span class="keyword">def</span><span> </span><span class="declaration-name">writingAFirstSong</span><span>(): </span><span class="type-name">AudioContext</span><span> ?=&gt; </span><span class="type-name">Song</span><span> =
+  </span><span class="keyword">for</span><span>
+    </span><span class="identifier">song</span><span>      &lt;- </span><span class="identifier">writingAFirstSong</span><span>()
+    </span><span class="identifier">songRef</span><span>   &lt;- </span><span class="type-name">Ref</span><span>.</span><span class="identifier">of</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Song</span><span>](</span><span class="identifier">song</span><span>)
+    </span><span class="identifier">sequencer</span><span> &lt;- </span><span class="type-name">Sequencer</span><span>(</span><span class="identifier">songRef</span><span>)
+    </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">sequencer</span><span>.</span><span class="identifier">play</span><span>()
+  </span><span class="keyword">yield</span><span> ()
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">writingAFirstSong</span><span>(): </span><span class="type-name">AudioContext</span><span> ?=&gt; </span><span class="type-name">IO</span><span>[</span><span class="type-name">Song</span><span>] =
 
   </span><span class="comment">// define musical events - here we define a softly played C major chord repeated 4 times
 </span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">cMajorFourTimes</span><span>: </span><span class="type-name">MusicalEvent</span><span> = </span><span class="type-name">Cmaj</span><span>.</span><span class="identifier">soft</span><span> * </span><span class="number-literal">4</span><span>
 
-  </span><span class="comment">// pass the musical events into a track, alongside a track title and an instrument to play the musical events with
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">track1</span><span> = </span><span class="type-name">Track</span><span>(
-    </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Scala Synth Bassline&quot;</span><span>),
-    </span><span class="identifier">musicalEvent</span><span> = </span><span class="identifier">cMajorFourTimes</span><span>,
-    </span><span class="identifier">instrument</span><span> = </span><span class="type-name">ScalaSynth</span><span>())
-
-  </span><span class="keyword">val</span><span> </span><span class="identifier">track2</span><span> = </span><span class="type-name">Track</span><span>(
-    </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Pulsing Kick Drum&quot;</span><span>),
-    </span><span class="identifier">musicalEvent</span><span> = </span><span class="type-name">KickDrum</span><span>.</span><span class="identifier">eighth</span><span>.</span><span class="identifier">loud</span><span> * </span><span class="number-literal">8</span><span>,
-    </span><span class="identifier">instrument</span><span> = </span><span class="type-name">SimpleDrumMachine</span><span>())
-
-  </span><span class="comment">// pass the tracks to the mixer
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">mixer</span><span> = </span><span class="type-name">Mixer</span><span>(</span><span class="identifier">track1</span><span>, </span><span class="identifier">track2</span><span>)
-
-  </span><span class="comment">// pass the mixer alongside title, tempo and swing into the song
-</span><span>  </span><span class="type-name">Song</span><span>(</span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;First, Maybe Last Song&quot;</span><span>), </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">120</span><span>), </span><span class="type-name">Swing</span><span>(</span><span class="number-literal">0</span><span>), </span><span class="identifier">mixer</span><span>)
-)</span></code></pre>
+  </span><span class="keyword">for</span><span>
+    </span><span class="identifier">scalaSynth</span><span>  &lt;- </span><span class="type-name">ScalaSynth</span><span>()
+    </span><span class="identifier">drumMachine</span><span> &lt;- </span><span class="type-name">Simple80sDrumMachine</span><span>()
+  </span><span class="keyword">yield</span><span> </span><span class="type-name">Song</span><span>(
+    </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;First, Maybe Last Song&quot;</span><span>),
+    </span><span class="identifier">tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">120</span><span>),
+    </span><span class="identifier">swing</span><span> = </span><span class="type-name">Swing</span><span>(</span><span class="number-literal">0</span><span>),
+    </span><span class="identifier">mixer</span><span> = </span><span class="type-name">Mixer</span><span>(
+      </span><span class="type-name">Track</span><span>(
+        </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Scala Synth Bassline&quot;</span><span>),
+        </span><span class="identifier">musicalEvent</span><span> = </span><span class="identifier">cMajorFourTimes</span><span>,
+        </span><span class="identifier">instrument</span><span> = </span><span class="identifier">scalaSynth</span><span>,
+        </span><span class="identifier">playback</span><span> = </span><span class="type-name">Playback</span><span>.</span><span class="type-name">OneShot</span><span>),
+      </span><span class="type-name">Track</span><span>(
+        </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Pulsing Kick Drum&quot;</span><span>),
+        </span><span class="identifier">musicalEvent</span><span> = </span><span class="type-name">KickDrum</span><span>.</span><span class="identifier">eighth</span><span>.</span><span class="identifier">loud</span><span> * </span><span class="number-literal">8</span><span>,
+        </span><span class="identifier">instrument</span><span> = </span><span class="identifier">drumMachine</span><span>,
+        </span><span class="identifier">playback</span><span> = </span><span class="type-name">Playback</span><span>.</span><span class="type-name">Loop</span><span>)
+    )
+  )</span></code></pre>
         
         <h3 id="next-step-the-song-type" class="section"><a class="anchor-link left" href="#next-step-the-song-type"><i class="icofont-laika link">&#xef71;</i></a><a href="songs.html">Next Step: The Song type</a></h3>
 

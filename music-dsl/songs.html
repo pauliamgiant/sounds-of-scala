@@ -95,6 +95,7 @@
   <ul class="nav-list">
     <li class="level1 nav-leaf"><a href="#the-mixer-type">The Mixer Type</a></li>
     <li class="level1 nav-leaf"><a href="#the-track-type">The Track Type</a></li>
+    <li class="level1 nav-leaf"><a href="#playing-a-song-with-the-sequencer">Playing a Song with the Sequencer</a></li>
     <li class="level1 nav-leaf"><a href="#next-step-musical-events"><a href="musical-events.html">Next Step: Musical Events</a></a></li>
   </ul>
 
@@ -105,7 +106,7 @@
       <main class="content">
 
         <h1 id="the-song-type" class="title">The Song Type</h1>
-        <p>The Song type is the top level object containing all elements required to play a song.</p>
+        <p>The Song type is the top level data structure containing all elements required to define a song. Song is pure data — it holds no mutable state and has no side effects.</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Song</span><span>(
     </span><span class="identifier">title</span><span>: </span><span class="type-name">Title</span><span>,
     </span><span class="identifier">tempo</span><span>: </span><span class="type-name">Tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">120</span><span>),
@@ -116,8 +117,8 @@
         <blockquote>NOTE: Swing is yet to be implemented.</blockquote>
         
         <h3 id="the-mixer-type" class="section"><a class="anchor-link left" href="#the-mixer-type"><i class="icofont-laika link">&#xef71;</i></a>The Mixer Type</h3>
-        <p>Mixer is where we we will place all our <strong>Tracks</strong> and this will simulate the effect of a real world mixing desk, where we can simultaneously play and manipulate audio on multiple tracks.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Mixer</span><span>(</span><span class="identifier">tracks</span><span>: </span><span class="type-name">NonEmptyList</span><span>[</span><span class="type-name">Track</span><span>])</span></code></pre>
+        <p>Mixer is where we will place all our <strong>Tracks</strong> and this will simulate the effect of a real world mixing desk, where we can simultaneously play and manipulate audio on multiple tracks.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Mixer</span><span>(</span><span class="identifier">tracks</span><span>: </span><span class="type-name">NonEmptyList</span><span>[</span><span class="type-name">Track</span><span>[?]])</span></code></pre>
         <blockquote>
           <p>NOTE: The <strong>NonEmptyList</strong> type is a type from the <a href="https://typelevel.org/cats/datatypes/nel.html">cats library</a> which ensures that the list is never empty.</p>
           <p><a href="https://en.wikipedia.org/wiki/Mixing_console">What is a mixing desk?</a></p>
@@ -128,15 +129,28 @@
         <ul>
           <li>The musical events we want to play.</li>
           <li>The instruments we want to play those events with.</li>
-          <li>Any insert FX we want to apply to the track. <a href="https://en.wikipedia.org/wiki/Insert_(effects_processing)">Insert FX</a></li>
-          <li>Any send FX we want to apply to the track. <a href="https://en.wikipedia.org/wiki/Aux-send">Send FX</a></li>
+          <li>The playback mode — <code>Playback.Loop</code> for continuously looping tracks (e.g. drums) or <code>Playback.OneShot</code> for tracks that play once and stop (e.g. arranged parts).</li>
+          <li>TODO: Any insert FX we want to apply to the track. <a href="https://en.wikipedia.org/wiki/Insert_(effects_processing)">Insert FX</a></li>
+          <li>TODO: Any send FX we want to apply to the track. <a href="https://en.wikipedia.org/wiki/Aux-send">Send FX</a></li>
         </ul>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Track</span><span>(
-                  </span><span class="identifier">title</span><span>: </span><span class="type-name">Title</span><span>,
-                  </span><span class="identifier">musicalEvent</span><span>: </span><span class="type-name">MusicalEvent</span><span>,
-                  </span><span class="identifier">instrument</span><span>: </span><span class="type-name">Instrument</span><span>,
-                  </span><span class="identifier">insertFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>,
-                  </span><span class="identifier">sendFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>)</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Track</span><span>[</span><span class="type-name">Settings</span><span>](
+    </span><span class="identifier">title</span><span>: </span><span class="type-name">Title</span><span>,
+    </span><span class="identifier">musicalEvent</span><span>: </span><span class="type-name">MusicalEvent</span><span>,
+    </span><span class="identifier">instrument</span><span>: </span><span class="type-name">Instrument</span><span>[</span><span class="type-name">Settings</span><span>],
+    </span><span class="identifier">playback</span><span>: </span><span class="type-name">Playback</span><span>,
+    </span><span class="identifier">customSettings</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">Settings</span><span>] = </span><span class="type-name">None</span><span>,
+    </span><span class="identifier">insertFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>,
+    </span><span class="identifier">sendFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>)</span></code></pre>
+        
+        <h3 id="playing-a-song-with-the-sequencer" class="section"><a class="anchor-link left" href="#playing-a-song-with-the-sequencer"><i class="icofont-laika link">&#xef71;</i></a>Playing a Song with the Sequencer</h3>
+        <p>Song is pure data — to play it, wrap it in a <code>Ref[IO, Song]</code> and pass it to a <code>Sequencer</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span>
+  </span><span class="identifier">songRef</span><span>   &lt;- </span><span class="type-name">Ref</span><span>.</span><span class="identifier">of</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Song</span><span>](</span><span class="identifier">mySong</span><span>)
+  </span><span class="identifier">sequencer</span><span> &lt;- </span><span class="type-name">Sequencer</span><span>(</span><span class="identifier">songRef</span><span>)
+  </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">sequencer</span><span>.</span><span class="identifier">play</span><span>()
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>The <code>Ref</code> enables real-time updates to any song property while it&#39;s playing:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">sequencer</span><span>.</span><span class="identifier">updateSong</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">140</span><span>)))</span></code></pre>
         
         <h3 id="next-step-musical-events" class="section"><a class="anchor-link left" href="#next-step-musical-events"><i class="icofont-laika link">&#xef71;</i></a><a href="musical-events.html">Next Step: Musical Events</a></h3>
 

@@ -137,29 +137,27 @@
         <h3 id="a-quick-project-scaffold-using-scala-js-vite" class="section"><a class="anchor-link left" href="#a-quick-project-scaffold-using-scala-js-vite"><i class="icofont-laika link">&#xef71;</i></a>A Quick Project Scaffold using Scala.js &amp; Vite</h3>
         <p>Here is an example of a simple Scala.js project using the Vite template:</p>
         <p>You can use this to get started with your own project quickly, and simply start using the Sounds of Scala library from within the <strong>firstMusicProgram</strong> method.</p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">Ref</span><span>}
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">unsafe</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">global</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.{</span><span class="type-name">AudioContext</span><span>, </span><span class="identifier">document</span><span>}
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">models</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">soundsofscala</span><span>.</span><span class="identifier">transport</span><span>.</span><span class="type-name">Sequencer</span><span>
 
 </span><span class="annotation">@main</span><span>
 </span><span class="keyword">def</span><span> </span><span class="declaration-name">helloWorld</span><span>(): </span><span class="type-name">Unit</span><span> =
 
-  </span><span class="comment">// create a page wrapper
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">homeDiv</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;div&quot;</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">homeDiv</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;div&quot;</span><span>)
 
-  </span><span class="comment">// create page title
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">heading</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;h1&quot;</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">heading</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;h1&quot;</span><span>)
   </span><span class="identifier">heading</span><span>.</span><span class="identifier">textContent</span><span> = </span><span class="string-literal">&quot;My First Music App&quot;</span><span>
 
-  </span><span class="comment">// create a play button for testing
-</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">button</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>).</span><span class="identifier">asInstanceOf</span><span>[</span><span class="identifier">dom</span><span>.</span><span class="identifier">html</span><span>.</span><span class="type-name">Button</span><span>]
+  </span><span class="keyword">val</span><span> </span><span class="identifier">button</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>).</span><span class="identifier">asInstanceOf</span><span>[</span><span class="identifier">dom</span><span>.</span><span class="identifier">html</span><span>.</span><span class="type-name">Button</span><span>]
   </span><span class="identifier">button</span><span>.</span><span class="identifier">classList</span><span>.</span><span class="identifier">add</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>)
   </span><span class="identifier">button</span><span>.</span><span class="identifier">textContent</span><span> = </span><span class="string-literal">&quot;▶️&quot;</span><span>
   </span><span class="identifier">button</span><span>.</span><span class="identifier">onclick</span><span> = </span><span class="identifier">_</span><span> =&gt;
-    
-    </span><span class="comment">// We always need an AudioContext to play web audio - more info on this coming up
-</span><span>    </span><span class="identifier">given</span><span> </span><span class="type-name">AudioContext</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">AudioContext</span><span>()
-    </span><span class="comment">// call our first music program method
-</span><span>    </span><span class="identifier">firstMusicProgram</span><span>().</span><span class="identifier">unsafeRunAndForget</span><span>()
+    </span><span class="identifier">given</span><span> </span><span class="type-name">AudioContext</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">AudioContext</span><span>()
+    </span><span class="identifier">firstMusicProgram</span><span>().</span><span class="identifier">unsafeRunAndForget</span><span>()
 
   </span><span class="identifier">homeDiv</span><span>.</span><span class="identifier">appendChild</span><span>(</span><span class="identifier">heading</span><span>)
   </span><span class="identifier">homeDiv</span><span>.</span><span class="identifier">appendChild</span><span>(</span><span class="identifier">button</span><span>)
