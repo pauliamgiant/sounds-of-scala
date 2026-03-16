@@ -17,7 +17,7 @@
 package org.soundsofscala.models
 
 import cats.effect.IO
-import cats.effect.Ref
+import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.Default
 import org.soundsofscala.instrument.Instrument
 
@@ -26,7 +26,7 @@ enum Playback:
 
 case class Track[Settings](
     title: Title,
-    musicalEventRef: Ref[IO, MusicalEvent],
+    musicalEvent: MusicalEvent,
     instrument: Instrument[Settings],
     playback: Playback,
     customSettings: Option[Settings] = None,
@@ -34,21 +34,14 @@ case class Track[Settings](
     sendFX: List[FX] = List.empty)(using Default[Settings]):
   val settings: Settings = customSettings.getOrElse(Default.default[Settings])
 
-object Track:
-  def make[Settings](
-      title: Title,
-      musicalEvent: MusicalEvent,
-      instrument: Instrument[Settings],
-      playback: Playback,
-      customSettings: Option[Settings] = None,
-      insertFX: List[FX] = List.empty,
-      sendFX: List[FX] = List.empty)(using Default[Settings]): IO[Track[Settings]] =
-    Ref.of[IO, MusicalEvent](musicalEvent).map: updateableMusicalEventRef =>
-      new Track(
-        title,
-        updateableMusicalEventRef,
-        instrument,
-        playback,
-        customSettings,
-        insertFX,
-        sendFX)
+  def withMusicalEvent(newEvent: MusicalEvent): Track[Settings] =
+    Track(title, newEvent, instrument, playback, customSettings, insertFX, sendFX)
+
+  def playAtomicMusicalEvent(
+      event: AtomicMusicalEvent,
+      when: Double,
+      tempo: Tempo)(using AudioContext): IO[Unit] =
+    event match
+      case AtomicMusicalEvent.Rest(_) => IO.unit
+      case e: AtomicMusicalEvent =>
+        instrument.play(e, when, tempo)(settings)

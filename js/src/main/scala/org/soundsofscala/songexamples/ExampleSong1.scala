@@ -21,6 +21,7 @@ import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.*
 import org.soundsofscala.models.*
+import org.soundsofscala.models.Playback
 import org.soundsofscala.syntax.all.*
 
 object ExampleSong1:
@@ -72,9 +73,9 @@ object ExampleSong1:
     RestQuarter.quarterDotted + A4.eighth + D5.eighth + E5.quarter + F5.quarterDotted +
       E5.eighth + RestEighth + D5.eighth + C5.eighth + D5.quarter + D5.quarter + RestQuarter + RestHalf + OneBarRest
 
-  val kickDrum: MusicalEvent = C2 + RestQuarter.onFull
-  val snareDrum: MusicalEvent = RestQuarter + D2
-  val hiHats: MusicalEvent = E2.eighth.medium * 4
+  val kickDrum: MusicalEvent = (C2 + RestQuarter.onFull).repeat(32)
+  val snareDrum: MusicalEvent = (RestQuarter + D2).repeat(32)
+  val hiHats: MusicalEvent = (E2.eighth.medium * 4).repeat(32)
 
   private def drumSampler(): AudioContext ?=> IO[Sampler] = Sampler.fromPaths(
     List(
@@ -94,60 +95,51 @@ object ExampleSong1:
       quirkySynth <- QuirkyFilterSynth()
       scalaSynth <- ScalaSynth()
       guitar <- Sampler.guitar
-      kickTrack <-
-        Track.make(
+    yield Song(
+      title = Title("Song Example 1"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(
           Title("Kick"),
           kickDrum,
           drums,
-          Playback.Loop,
-          customSettings = Some(drumSamplerSettings))
-      snareTrack <- Track.make(
-        Title("Snare"),
-        snareDrum,
-        drums,
-        Playback.Loop,
-        customSettings = Some(drumSamplerSettings))
-      hatsTrack <- Track.make(
-        Title("Hats"),
-        hiHats,
-        drums,
-        Playback.Loop,
-        customSettings = Some(drumSamplerSettings))
-      bassTrack <- Track.make(
-        Title("Live Bass Guitar"),
-        TwoBarRest + bassline.repeat(12),
-        bassGuitar,
-        Playback.OneShot)
-      synthBassTrack <- Track.make(
-        Title("Scala Synth Bass Line"),
-        FourBarRest + scalaSynthLine.repeat(12),
-        scalaSynth,
-        Playback.OneShot)
-      guitarTrack <- Track.make(
-        Title("Live Guitar"),
-        FourBarRest + (TwoBarRest + guitarPart).repeat(4),
-        guitar,
-        Playback.OneShot,
-        customSettings = guitarSamplerSettings.some)
-      leadTrack <- Track.make(
-        Title("Lead Line"),
-        FourBarRest + verseMelody.repeat(4),
-        quirkySynth,
-        Playback.OneShot,
-        customSettings = quirkySynthSettings.some)
-      song = Song(
-        title = Title("Song Example 1"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(
-          kickTrack,
-          snareTrack,
-          hatsTrack,
-          bassTrack,
-          synthBassTrack,
-          guitarTrack,
-          leadTrack
-        )
+          Playback.OneShot,
+          customSettings = drumSamplerSettings.some),
+        Track(
+          Title("Snare"),
+          snareDrum,
+          drums,
+          Playback.OneShot,
+          customSettings = drumSamplerSettings.some),
+        Track(
+          Title("Hats"),
+          hiHats,
+          drums,
+          Playback.OneShot,
+          customSettings = drumSamplerSettings.some),
+        Track(
+          Title("Live Bass Guitar"),
+          TwoBarRest + bassline.repeat(12),
+          bassGuitar,
+          Playback.OneShot),
+        Track(
+          Title("Scala Synth Bass Line"),
+          FourBarRest + scalaSynthLine.repeat(12),
+          scalaSynth,
+          Playback.OneShot),
+        Track(
+          Title("Live Guitar"),
+          FourBarRest + (TwoBarRest + guitarPart).repeat(2),
+          guitar,
+          Playback.OneShot,
+          customSettings = guitarSamplerSettings.some),
+        Track(
+          Title("Lead Line"),
+          FourBarRest + verseMelody.repeat(4),
+          quirkySynth,
+          Playback.OneShot,
+          customSettings = quirkySynthSettings.some)
       )
-    yield song
+    )
 end ExampleSong1

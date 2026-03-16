@@ -49,28 +49,26 @@ Here is an example of a simple Scala.js project using the Vite template:
 You can use this to get started with your own project quickly, and simply start using the Sounds of Scala library from within the **firstMusicProgram** method.
 
 ```scala 3
+import cats.effect.{IO, Ref}
+import cats.effect.unsafe.implicits.global
 import org.scalajs.dom
 import org.scalajs.dom.{AudioContext, document}
+import org.soundsofscala.models.*
+import org.soundsofscala.transport.Sequencer
 
 @main
 def helloWorld(): Unit =
 
-  // create a page wrapper
   val homeDiv = document.createElement("div")
 
-  // create page title
   val heading = document.createElement("h1")
   heading.textContent = "My First Music App"
 
-  // create a play button for testing
   val button = document.createElement("button").asInstanceOf[dom.html.Button]
   button.classList.add("button")
   button.textContent = "▶️"
   button.onclick = _ =>
-    
-    // We always need an AudioContext to play web audio - more info on this coming up
     given AudioContext = new AudioContext()
-    // call our first music program method
     firstMusicProgram().unsafeRunAndForget()
 
   homeDiv.appendChild(heading)

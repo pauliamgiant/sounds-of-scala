@@ -8,7 +8,7 @@ Sounds of Scala is available for Scala 3.2+. You can add Sounds of Scala to your
 
 ```scala 3
 libraryDependencies ++= Seq(
-  "org.soundsofscala" %%% "sounds-of-scala" % "0.4.0")
+  "org.soundsofscala" %%% "sounds-of-scala" % "0.7.0")
 ```
 
 ### [Next Step: Getting Started](http://127.0.0.1:4242/getting-started/)

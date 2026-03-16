@@ -52,12 +52,15 @@ If we want to indicate bars, we can use the **`|`** operator:
   | RestQuarter + SnareDrum + RestQuarter + SnareDrum
 ```
 
-### The 'loop' operator
-We can also loop a section of music using the **`loop`** method:
+### The 'repeat' method
+We can also repeat a section of music a specific number of times using the **`repeat`** method:
 
 ```scala 3
-(RestQuarter + SnareDrum).loop(4)
+(RestQuarter + SnareDrum).repeat(4)
 ```
+
+For continuous looping during playback, set `Playback.Loop` on the Track instead — see [The Song Type](../music-dsl/songs.md#the-track-type).
+
 ### [Next Step: Building Notes](../music-dsl/building-notes.md)
 
 

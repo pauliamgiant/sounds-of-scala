@@ -17,41 +17,13 @@
 package org.soundsofscala.models
 
 import cats.data.NonEmptyList
-import cats.effect.IO
-import cats.effect.kernel.Fiber
-import org.scalajs.dom.AudioContext
-import org.soundsofscala.transport.Sequencer
 
 case class Song(
     title: Title,
     tempo: Tempo = Tempo(120),
     swing: Swing = Swing(0),
     mixer: Mixer
-):
-  // scalafix:off DisableSyntax.var
-  private var runningSequencer: Option[Fiber[IO, Throwable, Unit]] = None
-
-  def play()(using AudioContext): IO[Unit] =
-    for
-      _ <- IO.println(s"Playing: $title")
-      _ <- stop() // Stop any currently running sequencer first
-      fiber <- Sequencer().playSong(this).start
-      _ <- IO { runningSequencer = Some(fiber) }
-    yield ()
-
-  def stop(): IO[Unit] =
-    for
-      _ <- IO.println(s"Song.stop() called for: $title")
-      _ <- runningSequencer match
-        case Some(fiber) =>
-          IO.println("Cancelling running sequencer") *>
-            fiber.cancel *>
-            IO { runningSequencer = None }
-        case None =>
-          IO.println("No running sequencer to cancel")
-      _ <- Sequencer().stopSong(this) // Stop current oscillators
-    yield ()
-end Song
+)
 
 case class Mixer(tracks: NonEmptyList[Track[?]])
 object Mixer:

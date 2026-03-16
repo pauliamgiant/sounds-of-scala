@@ -17,6 +17,7 @@
 package org.soundsofscala.songexamples
 
 import cats.effect.IO
+import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
@@ -38,21 +39,19 @@ object ExampleSong2:
       length = Some(2)
     )
 
-  def play(): AudioContext ?=> IO[Unit] =
+  def song(): AudioContext ?=> IO[Song] =
     for
       piano <- Sampler.piano
-      track <- Track.make(
-        Title("rhubarb D3"),
-        musicalEvent,
-        piano,
-        Playback.Loop,
-        customSettings = Some(customSettings))
-      song = Song(
-        title = Title("Rhubarb Loop"),
-        tempo = Tempo(60),
-        swing = Swing(0),
-        mixer = Mixer(track)
-      )
-      a <- song.play()
-    yield a
+    yield Song(
+      title = Title("Rhubarb Loop"),
+      tempo = Tempo(60),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(
+          Title("rhubarb D3"),
+          musicalEvent,
+          piano,
+          Playback.Loop,
+          customSettings = customSettings.some))
+    )
 end ExampleSong2

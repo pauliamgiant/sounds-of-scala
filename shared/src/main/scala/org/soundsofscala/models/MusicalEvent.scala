@@ -62,8 +62,6 @@ sealed trait MusicalEvent:
 
   def repeat: MusicalEvent = repeat(2)
 
-  def loop: MusicalEvent = repeat(128) // Lets see if this 💥
-
   @targetName("repeatMusicEvents")
   def *(repetitions: Int): MusicalEvent = repeat(repetitions)
 

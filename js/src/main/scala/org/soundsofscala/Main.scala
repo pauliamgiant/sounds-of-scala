@@ -15,8 +15,11 @@
  */
 package org.soundsofscala
 
+import cats.data.NonEmptyList
+import cats.effect.Ref
 import cats.effect.unsafe.implicits.global
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.*
 import org.soundsofscala.graph.AudioGraphDemoCode
@@ -24,7 +27,7 @@ import org.soundsofscala.models.*
 import org.soundsofscala.playback.AudioPlayer
 import org.soundsofscala.songexamples.*
 import org.soundsofscala.syntax.all.*
-import cats.syntax.all.*
+import org.soundsofscala.transport.Sequencer
 
 object Main extends IOApp:
 
@@ -62,27 +65,41 @@ object Main extends IOApp:
       beethovenSong <- ExampleSong5Beethoven.song()
       pagodas <- ExampleSong6.song()
       exampleSong1 <- ExampleSong1.song()
-      kickRef = exampleSong1.mixer.tracks.head.musicalEventRef
+
+      song1Ref <- Ref.of[IO, Song](exampleSong1)
+      song1Sequencer <- Sequencer(song1Ref)
+
+      beethovenRef <- Ref.of[IO, Song](beethovenSong)
+      beethovenSequencer <- Sequencer(beethovenRef)
+
+      pagodasRef <- Ref.of[IO, Song](pagodas)
+      pagodasSequencer <- Sequencer(pagodasRef)
+
       altKickPattern: MusicalEvent = C2.eighth + C2.eighth + RestQuarter.onFull
       exampleSong1ButtonGroup <- buildButtonGroup(
         label = "ExampleSong1",
-        playAction = exampleSong1.play(),
-        stopAction = exampleSong1.stop(),
-        updateAction = kickRef.get.flatMap: current =>
-          if current == ExampleSong1.kickDrum
-          then kickRef.set(altKickPattern) >> IO.println("Kick pattern: double kick")
-          else kickRef.set(ExampleSong1.kickDrum) >> IO.println("Kick pattern: original")
-        .some
+        playAction = song1Sequencer.play(),
+        stopAction = song1Sequencer.stop(),
+        updateAction = song1Ref.modify { song =>
+          val kick = song.mixer.tracks.head
+          val (newEvent, label) =
+            if kick.musicalEvent == ExampleSong1.kickDrum
+            then (altKickPattern, "double kick")
+            else (ExampleSong1.kickDrum, "original")
+          val updatedSong = song.copy(
+            mixer = Mixer(NonEmptyList(kick.withMusicalEvent(newEvent), song.mixer.tracks.tail)))
+          (updatedSong, label)
+        }.flatMap(label => IO.println(s"Kick pattern: $label")).some
       )
       beethovenButtonGroup <- buildButtonGroup(
         label = "ExampleSong4Beethoven",
-        playAction = beethovenSong.play(),
-        stopAction = beethovenSong.stop()
+        playAction = beethovenSequencer.play(),
+        stopAction = beethovenSequencer.stop()
       )
       exampleSong5PagodasGroup <- buildButtonGroup(
         label = "ExampleSong5Pagodas",
-        playAction = pagodas.play(),
-        stopAction = pagodas.stop()
+        playAction = pagodasSequencer.play(),
+        stopAction = pagodasSequencer.stop()
       )
       audioGraphButton <- buildButton(
         label = "Audio Graph in action ▶",
@@ -136,7 +153,7 @@ object Main extends IOApp:
 
     val codeStringSbt: String =
       """|
-         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.4.1""".stripMargin
+         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.7.0""".stripMargin
 
     val addToCode = document.createElement("p")
     addToCode.textContent =
@@ -304,20 +321,18 @@ object Main extends IOApp:
 
       updateButton <- updateAction.fold(IO.pure(None))(action =>
         for
-          btn <- IO(document.createElement("button"))
+          button <- IO(document.createElement("button"))
           _ <- IO {
-            btn.textContent = "update - realtime"
-            btn.classList.add("update-button")
-            btn.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
+            button.textContent = "update - realtime"
+            button.classList.add("update-button")
+            button.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
           }
-        yield Some(btn))
-      _ <- IO {
-        buttonContainer.appendChild(playButton)
-        buttonContainer.appendChild(stopButton)
-        groupContainer.appendChild(labelElement)
-        groupContainer.appendChild(buttonContainer)
-        updateButton.foreach(buttonContainer.appendChild(_))
-      }
+        yield button.some)
+      _ <- IO(buttonContainer.appendChild(playButton))
+      _ <- IO(buttonContainer.appendChild(stopButton))
+      _ <- IO(groupContainer.appendChild(labelElement))
+      _ <- IO(groupContainer.appendChild(buttonContainer))
+      _ <- IO(updateButton.foreach(buttonContainer.appendChild(_)))
     yield groupContainer
 
 end Main

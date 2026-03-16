@@ -17,6 +17,7 @@
 package org.soundsofscala.songexamples
 
 import cats.effect.IO
+import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument
 import org.soundsofscala.instrument.*
@@ -150,23 +151,23 @@ object ExampleSong5Beethoven:
   def song(): AudioContext ?=> IO[Song] =
     for
       sharedPiano <- PianoSynth()
-      upperTrack <- Track.make(
-        Title("Beethoven Upper Voice"),
-        upperVoice,
-        sharedPiano,
-        Playback.OneShot,
-        customSettings = Some(customSettings))
-      lowerTrack <- Track.make(
-        Title("Beethoven Lower Voice"),
-        lowerVoice,
-        sharedPiano,
-        Playback.OneShot,
-        customSettings = Some(customSettings))
-      song = Song(
-        title = Title("Something We All Know"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(upperTrack, lowerTrack)
+    yield Song(
+      title = Title("Something We All Know"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(
+          Title("Beethoven Upper Voice"),
+          upperVoice,
+          sharedPiano,
+          Playback.OneShot,
+          customSettings = customSettings.some),
+        Track(
+          Title("Beethoven Lower Voice"),
+          lowerVoice,
+          sharedPiano,
+          Playback.OneShot,
+          customSettings = customSettings.some)
       )
-    yield song
+    )
 end ExampleSong5Beethoven
