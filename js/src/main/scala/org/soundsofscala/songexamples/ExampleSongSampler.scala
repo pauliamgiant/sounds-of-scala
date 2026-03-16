@@ -17,6 +17,7 @@
 package org.soundsofscala.songexamples
 
 import cats.effect.IO
+import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.{SamplePlayer, Sampler}
 import org.soundsofscala.models.*
@@ -62,41 +63,31 @@ object ExampleSongSampler:
       length = Some(1)
     )
 
-  def play(): AudioContext ?=> IO[Unit] =
+  def song(): AudioContext ?=> IO[Song] =
     for
       rhubarb <- Sampler.rhubarb
       vinyl <- Sampler.vinyl
       sparkles <- Sampler.sparkles
       kick <- Sampler.kickDrum
       snare <- Sampler.snareDrum
-      rhubarbHighTrack <- Track.make(Title("RhubarbHigh"), rhubarbHigh, rhubarb, Playback.OneShot)
-      rhubarbLowTrack <- Track.make(Title("RhubarbLow"), rhubarbLow, rhubarb, Playback.OneShot)
-      vinylTrackT <- Track.make(Title("Vinyl"), vinylTrack, vinyl, Playback.OneShot)
-      sparklesTrackT <- Track.make(Title("Sparkles"), sparklesTrack, sparkles, Playback.OneShot)
-      sparklesRevTrack <- Track.make(
-        Title("SparklesReversed"),
-        sparklesTrackReversed,
-        sparkles,
-        Playback.OneShot,
-        customSettings = Some(customSettings))
-      kickTrackT <- Track.make(Title("Kick"), kickTrack, kick, Playback.OneShot)
-      snareTrackT <- Track.make(Title("Snare"), snareTrack, snare, Playback.OneShot)
-      vinylHihatTrack <- Track.make(Title("VinylHihat"), vinylHihat, vinyl, Playback.OneShot)
-      song = Song(
-        title = Title("Rhubarb"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(
-          rhubarbHighTrack,
-          rhubarbLowTrack,
-          vinylTrackT,
-          sparklesTrackT,
-          sparklesRevTrack,
-          kickTrackT,
-          snareTrackT,
-          vinylHihatTrack
-        )
+    yield Song(
+      title = Title("Rhubarb"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(Title("RhubarbHigh"), rhubarbHigh, rhubarb, Playback.OneShot),
+        Track(Title("RhubarbLow"), rhubarbLow, rhubarb, Playback.OneShot),
+        Track(Title("Vinyl"), vinylTrack, vinyl, Playback.OneShot),
+        Track(Title("Sparkles"), sparklesTrack, sparkles, Playback.OneShot),
+        Track(
+          Title("SparklesReversed"),
+          sparklesTrackReversed,
+          sparkles,
+          Playback.OneShot,
+          customSettings = customSettings.some),
+        Track(Title("Kick"), kickTrack, kick, Playback.OneShot),
+        Track(Title("Snare"), snareTrack, snare, Playback.OneShot),
+        Track(Title("VinylHihat"), vinylHihat, vinyl, Playback.OneShot)
       )
-      a <- song.play()
-    yield a
+    )
 end ExampleSongSampler

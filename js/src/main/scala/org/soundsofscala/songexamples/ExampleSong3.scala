@@ -41,16 +41,14 @@ object ExampleSong3:
   val musicalEvent: MusicalEvent =
     Dmin7 + Amin7 + Dmin7 + Amin7 + Dmin7 + Amin7 + Dmin7 + Amin7
 
-  def play(): AudioContext ?=> IO[Unit] =
+  def song(): AudioContext ?=> IO[Song] =
     for
-      piano <- Sampler.guitar
-      track <- Track.make(Title("Single Synth Voice"), musicalEvent, piano, Playback.OneShot)
-      song = Song(
-        title = Title("Dissonant Twinkle Twinkle"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(track)
-      )
-      _ <- song.play()
-    yield ()
+      guitar <- Sampler.guitar
+    yield Song(
+      title = Title("Dissonant Twinkle Twinkle"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(Title("Single Synth Voice"), musicalEvent, guitar, Playback.OneShot))
+    )
 end ExampleSong3

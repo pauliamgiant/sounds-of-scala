@@ -38,18 +38,17 @@ object ExampleSong4:
       simple80sDrumMachine <- Simple80sDrumMachine()
       liveBass <- Sampler.bassGuitar
       scalaSynth <- QuirkyFilterSynth()
-      bassTrack <- Track.make(Title("Live Bass"), musicalEvent, liveBass, Playback.OneShot)
-      synthTrack <-
-        Track.make(Title("Scala Synth Line"), scalaSynthLine, scalaSynth, Playback.OneShot)
-      kickTrack <- Track.make(Title("Kick"), kd, simple80sDrumMachine, Playback.OneShot)
-      snareTrack <- Track.make(Title("Snare"), sd, simple80sDrumMachine, Playback.OneShot)
-      hatsTrack <- Track.make(Title("Hats"), ht, simple80sDrumMachine, Playback.OneShot)
-      song = Song(
-        title = Title("long note"),
-        tempo = Tempo(110),
-        swing = Swing(0),
-        mixer = Mixer(bassTrack, synthTrack, kickTrack, snareTrack, hatsTrack)
+    yield Song(
+      title = Title("long note"),
+      tempo = Tempo(110),
+      swing = Swing(0),
+      mixer = Mixer(
+        Track(Title("Live Bass"), musicalEvent, liveBass, Playback.OneShot),
+        Track(Title("Scala Synth Line"), scalaSynthLine, scalaSynth, Playback.OneShot),
+        Track(Title("Kick"), kd, simple80sDrumMachine, Playback.OneShot),
+        Track(Title("Snare"), sd, simple80sDrumMachine, Playback.OneShot),
+        Track(Title("Hats"), ht, simple80sDrumMachine, Playback.OneShot)
       )
-    yield song
+    )
 
 end ExampleSong4
