@@ -47,7 +47,6 @@ object ExampleSong3:
     yield Song(
       title = Title("Dissonant Twinkle Twinkle"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(Title("Single Synth Voice"), musicalEvent, guitar, Playback.OneShot))
     )

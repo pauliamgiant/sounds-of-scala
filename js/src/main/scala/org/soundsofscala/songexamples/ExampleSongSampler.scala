@@ -73,7 +73,6 @@ object ExampleSongSampler:
     yield Song(
       title = Title("Rhubarb"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(Title("RhubarbHigh"), rhubarbHigh, rhubarb, Playback.OneShot),
         Track(Title("RhubarbLow"), rhubarbLow, rhubarb, Playback.OneShot),

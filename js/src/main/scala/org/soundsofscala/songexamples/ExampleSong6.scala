@@ -28,7 +28,6 @@ object ExampleSong6:
     yield Song(
       title = Title("Laideronnette, impératrice des pagodes"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(
           Title("Laideronnette, impératrice des pagodes"),

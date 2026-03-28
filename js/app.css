@@ -188,7 +188,7 @@ button {
 }
 
 .update-button {
-    background-color: #007bff;
+    background-color: #5ba8c8;
     color: white;
     border: none;
     padding: 15px 20px;
@@ -200,5 +200,34 @@ button {
 }
 
 .update-button:hover {
-    background-color: #0056b3;
+    background-color: #4a93b0;
+}
+
+.swing-button {
+    background-color: #5ba8c8;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 5em;
+}
+
+.swing-button:hover {
+    background-color: #4a93b0;
+}
+
+.swing-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a2a;
+    color: #5ba8c8;
+    font-weight: bold;
+    font-size: 1.4em;
+    padding: 0.6em 1.5em;
+    border-radius: 6px;
+    margin-top: 0.8em;
 }

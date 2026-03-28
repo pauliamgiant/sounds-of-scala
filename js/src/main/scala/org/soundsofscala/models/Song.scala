@@ -21,7 +21,7 @@ import cats.data.NonEmptyList
 case class Song(
     title: Title,
     tempo: Tempo = Tempo(120),
-    swing: Swing = Swing(0),
+    swing: Swing = Swing(SwingAmount(0), SwingResolution.Eighth),
     mixer: Mixer
 )
 

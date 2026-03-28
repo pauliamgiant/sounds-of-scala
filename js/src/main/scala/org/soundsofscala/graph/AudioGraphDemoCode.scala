@@ -64,9 +64,8 @@ object AudioGraphDemoCode:
     // connect the nodes
     val graph = sawToothOsc --> bandpass --> gainNode
 
-    // create the graph
-    graph.create
-    ()
+    // play the graph
+    graph.play
   }
   end buildAudioGraphDemo
 

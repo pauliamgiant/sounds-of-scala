@@ -25,7 +25,7 @@ enum ScheduleStatus:
   case Waiting extends ScheduleStatus
 
 private object ScheduleStatus:
-  def apply(nextNoteTime: NextNoteTime, scheduleAheadTimeSeconds: ScheduleWindow)(using
+  def isReadyToSchedule(nextNoteTime: NextNoteTime, scheduleAheadTimeSeconds: ScheduleWindow)(using
   audioContext: AudioContext): ScheduleStatus =
     if nextNoteTime.value < audioContext.currentTime + scheduleAheadTimeSeconds.value then
       Ready

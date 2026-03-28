@@ -53,6 +53,7 @@ object Main extends IOApp:
       quickStart <- buildSimpleAudioPlayerDirections
       introText <- buildIntroductionText
       beethovenText <- buildBeethovenText
+      swingText <- buildSwingText
       pagodasText <- buildPagodasText
       audioPlayerText <- buildAudioplayerText
       thingsToTry <- buildThingsToTry()
@@ -66,6 +67,10 @@ object Main extends IOApp:
       pagodas <- ExampleSong6.song()
       exampleSong1 <- ExampleSong1.song()
 
+      swingSong <- ExampleSong7SwingIt.song()
+      swingRef <- Ref.of[IO, Song](swingSong)
+      swingSequencer <- Sequencer(swingRef)
+
       song1Ref <- Ref.of[IO, Song](exampleSong1)
       song1Sequencer <- Sequencer(song1Ref)
 
@@ -75,7 +80,7 @@ object Main extends IOApp:
       pagodasRef <- Ref.of[IO, Song](pagodas)
       pagodasSequencer <- Sequencer(pagodasRef)
 
-      altKickPattern: MusicalEvent = C2.eighth + C2.eighth + RestQuarter.onFull
+      altKickPattern: MusicalEvent = (C2.eighth + C2.eighth + RestQuarter.onFull).repeat(32)
       exampleSong1ButtonGroup <- buildButtonGroup(
         label = "ExampleSong1",
         playAction = song1Sequencer.play(),
@@ -96,13 +101,47 @@ object Main extends IOApp:
         playAction = beethovenSequencer.play(),
         stopAction = beethovenSequencer.stop()
       )
+      swingDisplay <- IO {
+        val display = document.createElement("span")
+        display.classList.add("swing-display")
+        display.textContent = s"Swing: ${swingSong.swing.amount.value}"
+        display
+      }
+      swingButtonGroup <- buildButtonGroup(
+        label = "Swing Song",
+        playAction = swingSequencer.play(),
+        stopAction = swingSequencer.stop(),
+        extraActions = List(
+          (
+            "Swing +",
+            "swing-button",
+            swingRef.modify { song =>
+              val current = song.swing.amount.value
+              val next = Math.min(current + 1, 10)
+              val updated =
+                song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
+              (updated, next)
+            }.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v"))),
+          (
+            "Swing -",
+            "swing-button",
+            swingRef.modify { song =>
+              val current = song.swing.amount.value
+              val next = Math.max(current - 1, 0)
+              val updated =
+                song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
+              (updated, next)
+            }.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v")))
+        )
+      )
+      _ <- IO(swingButtonGroup.appendChild(swingDisplay))
       exampleSong5PagodasGroup <- buildButtonGroup(
         label = "ExampleSong5Pagodas",
         playAction = pagodasSequencer.play(),
         stopAction = pagodasSequencer.stop()
       )
       audioGraphButton <- buildButton(
-        label = "Audio Graph in action ▶",
+        label = "Audio Graph ▶",
         buttonAction = AudioGraphDemoCode.buildAudioGraphDemo
       )
 
@@ -117,6 +156,9 @@ object Main extends IOApp:
         document.createElement("hr"),
         beethovenText,
         beethovenButtonGroup,
+        document.createElement("hr"),
+        swingText,
+        swingButtonGroup,
         document.createElement("hr"),
         pagodasText,
         exampleSong5PagodasGroup,
@@ -203,6 +245,13 @@ object Main extends IOApp:
     beethovenText
   }
 
+  private def buildSwingText = IO {
+    val swingTestText = document.createElement("p")
+    swingTestText.textContent =
+      "Play this ExampleSong6Swing song to hear an example of Swing being applied to a Rhythm."
+    swingTestText
+  }
+
   private def buildPagodasText = IO {
     val pagodasText = document.createElement("p")
     pagodasText.textContent =
@@ -251,7 +300,7 @@ object Main extends IOApp:
 
       val listItem2 = document.createElement("li")
       listItem2.textContent =
-        "Try swapping out ExampleSong1 on line 83 with one of the other Song Examples in the songexamples package."
+        "Try swapping out ExampleSong1 on line 68 with one of the other Song Examples in the songexamples package."
       exampleList.append(listItem2)
 
       val listItem3 = document.createElement("li")
@@ -280,7 +329,7 @@ object Main extends IOApp:
           case "▶︎" => button.classList.add("play-button")
           case "◼︎" => button.classList.add("stop-button")
           case "⏸︎" => button.classList.add("audio-pause-button")
-          case _ => ()
+          case _ => button.classList.add("swing-button")
         button.addEventListener("click", (_: dom.MouseEvent) => buttonAction.unsafeRunAndForget())
         buttonContainer.appendChild(button)
       }
@@ -290,7 +339,8 @@ object Main extends IOApp:
       label: String,
       playAction: IO[Unit],
       stopAction: IO[Unit],
-      updateAction: Option[IO[Unit]] = None
+      updateAction: Option[IO[Unit]] = None,
+      extraActions: List[(String, String, IO[Unit])] = Nil
   ): IO[Element] =
     for
       groupContainer <- IO(document.createElement("div"))
@@ -333,6 +383,16 @@ object Main extends IOApp:
       _ <- IO(groupContainer.appendChild(labelElement))
       _ <- IO(groupContainer.appendChild(buttonContainer))
       _ <- IO(updateButton.foreach(buttonContainer.appendChild(_)))
+      _ <- extraActions.traverse_ {
+        case (text, cssClass, action) =>
+          IO {
+            val button = document.createElement("button")
+            button.textContent = text
+            button.classList.add(cssClass)
+            button.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
+            buttonContainer.appendChild(button)
+          }
+      }
     yield groupContainer
 
 end Main

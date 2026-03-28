@@ -51,6 +51,28 @@ enum Duration:
 
   private val oneThird: Double = 1d / 3d
 
+  def toBeats: Double = this match
+    case Duration.Whole => 4.0
+    case Duration.Half => 2.0
+    case Duration.Quarter => 1.0
+    case Duration.Eighth => 0.5
+    case Duration.Sixteenth => 0.25
+    case Duration.ThirtySecond => 0.125
+    case Duration.SixtyFourth => 0.0625
+    // Triplets
+    case Duration.HalfTriplet => 4.0 * oneThird
+    case Duration.QuarterTriplet => 2.0 * oneThird
+    case Duration.EighthTriplet => 1.0 * oneThird
+    case Duration.SixteenthTriplet => 0.5 * oneThird
+    case Duration.ThirtySecondTriplet => 0.25 * oneThird
+    // Dotteds
+    case Duration.WholeDotted => 4.0 * 1.5
+    case Duration.HalfDotted => 2.0 * 1.5
+    case Duration.QuarterDotted => 1.0 * 1.5
+    case Duration.EighthDotted => 0.5 * 1.5
+    case Duration.SixteenthDotted => 0.25 * 1.5
+    case Duration.ThirtySecondDotted => 0.125 * 1.5
+
   def toSeconds(tempo: Tempo): Double =
     val secondsPerBeat = 60.0 / tempo.value
     this match

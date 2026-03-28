@@ -16,6 +16,7 @@
 
 package org.soundsofscala.models
 
+import refined4s.CanBeOrdered
 import refined4s.Newtype
 import refined4s.Refined
 
@@ -61,9 +62,24 @@ object Tempo extends Newtype[Double]
 type IsLooping = IsLooping.Type
 object IsLooping extends Newtype[Boolean]
 
-type Swing = Swing.Type
+type BeatPosition = BeatPosition.Type
+object BeatPosition extends Newtype[Double] with CanBeOrdered[Double]
 
-object Swing extends Refined[Int]:
+type TrackIndex = TrackIndex.Type
+object TrackIndex extends Newtype[Int] with CanBeOrdered[Int]
+
+type SwingOffset = SwingOffset.Type
+object SwingOffset extends Newtype[Double]:
+  def compensation(swingOffset: Double): SwingOffset = SwingOffset(-swingOffset)
+
+final case class Swing(amount: SwingAmount, resolution: SwingResolution)
+
+enum SwingResolution:
+  case Eighth
+  case Sixteenth
+
+type SwingAmount = SwingAmount.Type
+object SwingAmount extends Refined[Int]:
   override inline def invalidReason(s: Int): String =
     expectedMessage("is an Int between 0 and 10. 0 is totally straight. 10 is very swung.")
 

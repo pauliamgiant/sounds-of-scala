@@ -154,7 +154,6 @@ object ExampleSong5Beethoven:
     yield Song(
       title = Title("Something We All Know"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(
           Title("Beethoven Upper Voice"),

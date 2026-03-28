@@ -113,6 +113,8 @@ enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalE
   def durationToSeconds(tempo: Tempo): Double =
     this.duration.toSeconds(tempo)
 
+  def durationToBeats: Double = this.duration.toBeats
+
   def normalizedVelocity: Double = this.velocity.getNormalisedVelocity
 
   override def toString: String =
