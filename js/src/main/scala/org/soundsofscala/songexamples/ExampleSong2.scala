@@ -45,7 +45,6 @@ object ExampleSong2:
     yield Song(
       title = Title("Rhubarb Loop"),
       tempo = Tempo(60),
-      swing = Swing(0),
       mixer = Mixer(
         Track(
           Title("rhubarb D3"),

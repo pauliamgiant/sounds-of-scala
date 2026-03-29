@@ -98,7 +98,6 @@ object ExampleSong1:
     yield Song(
       title = Title("Song Example 1"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(
           Title("Kick"),

@@ -11,12 +11,12 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(
   List(
-    tlBaseVersion := "0.7",
+    tlBaseVersion := "0.8",
     startYear := Some(2024),
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.7.3",
+    scalaVersion := "3.8.2",
     dependencyOverrides += "org.scala-lang" %% "scala3-library" % scalaVersion.value,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
@@ -25,7 +25,7 @@ inThisBuild(
     tlFatalWarnings := sys.env.get("GITHUB_ACTIONS").contains("true"),
     tlCiScalafmtCheck := true,
     tlCiScalafixCheck := true,
-    tlJdkRelease := Some(8),
+    tlJdkRelease := Some(17),
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
@@ -73,12 +73,12 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
-      "org.scalactic" %%% "scalactic" % "3.2.17",
-      "org.scalatest" %%% "scalatest" % "3.2.19" % Test,
+      "org.scalactic" %%% "scalactic" % "3.2.20",
+      "org.scalatest" %%% "scalatest" % "3.2.20" % Test,
       "org.typelevel" %%% "cats-core" % "2.13.0",
-      "org.typelevel" %%% "cats-effect" % "3.6.3",
-      "io.kevinlee" %%% "refined4s-core" % "1.1.0",
-      "io.kevinlee" %%% "refined4s-cats" % "1.1.0"
+      "org.typelevel" %%% "cats-effect" % "3.7.0",
+      "io.kevinlee" %%% "refined4s-core" % "1.16.0",
+      "io.kevinlee" %%% "refined4s-cats" % "1.16.0"
     )
   )
   .jvmSettings(
@@ -120,11 +120,12 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
       processIndexHtml.value
       (Compile / fastOptJS).value
     },
-    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "2.8.0")
+    libraryDependencies ++= Seq("org.scala-js" %%% "scalajs-dom" % "2.8.1")
   )
 
 lazy val docs =
   project.in(file("docs")).settings(
+    scalaVersion := "3.6.4",
     description := "Documentation for Sounds of Scala",
     mdocIn := file("docs/src/pages"),
     laikaTheme := Helium.defaults

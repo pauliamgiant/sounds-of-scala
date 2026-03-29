@@ -41,7 +41,6 @@ object ExampleSong4:
     yield Song(
       title = Title("long note"),
       tempo = Tempo(110),
-      swing = Swing(0),
       mixer = Mixer(
         Track(Title("Live Bass"), musicalEvent, liveBass, Playback.OneShot),
         Track(Title("Scala Synth Line"), scalaSynthLine, scalaSynth, Playback.OneShot),

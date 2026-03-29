@@ -3,7 +3,6 @@ package org.soundsofscala.playback
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
-import org.scalajs.dom
 import org.scalajs.dom.{AudioBuffer, AudioBufferSourceNode, AudioContext, GainNode}
 import org.soundsofscala.instrument.SampleLoader
 import org.soundsofscala.models.{PauseOffset, StartTime}

@@ -16,6 +16,7 @@
 
 package org.soundsofscala.models
 
+import cats.Eq
 import cats.effect.IO
 import org.scalajs.dom.AudioContext
 import org.soundsofscala.instrument.Default
@@ -23,6 +24,9 @@ import org.soundsofscala.instrument.Instrument
 
 enum Playback:
   case Loop, OneShot
+
+object Playback:
+  given Eq[Playback] = Eq.fromUniversalEquals
 
 case class Track[Settings](
     title: Title,

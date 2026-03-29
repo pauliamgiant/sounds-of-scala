@@ -24,6 +24,7 @@ import org.scalajs.dom.AudioContext
 import org.soundsofscala.models.LookAhead
 import org.soundsofscala.models.ScheduleWindow
 import org.soundsofscala.models.Song
+import org.soundsofscala.models.TrackIndex
 
 /**
  * The sequencer is responsible for scheduling the notes of every track in the song in parallel. It
@@ -55,7 +56,7 @@ class Sequencer private (
   def stop(): IO[Unit] =
     fiberRef.getAndSet(none).flatMap:
       case Some(fiber) =>
-        IO.println("Cancelling running sequencer") *>
+        IO.println("Stopping sequencer") *>
           fiber.cancel *>
           stopInstruments()
       case none => IO.unit
@@ -66,14 +67,11 @@ class Sequencer private (
   private def startPlayback(): IO[Unit] =
     songRef.get.flatMap: song =>
       val noteScheduler = NoteScheduler(songRef, LookAhead(25), ScheduleWindow(0.1))
-      song
-        .mixer
-        .tracks
-        .toList
-        .zipWithIndex
-        .parTraverse: (_, index) =>
-          noteScheduler.scheduleTrack(index)
-        .void *>
+      /* create indexes for each track so the scheduler can re-read the track from the
+      songRef on every note — this enables live updates */
+      song.mixer.tracks.zipWithIndex.parTraverse: (_, index) =>
+        noteScheduler.scheduleTrack(TrackIndex(index))
+      .void *>
         songRef.get.flatMap(s => IO.println(s"Finished playing: ${s.title}"))
 end Sequencer
 
