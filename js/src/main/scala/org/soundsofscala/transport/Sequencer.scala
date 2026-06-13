@@ -21,10 +21,8 @@ import cats.effect.Ref
 import cats.effect.kernel.Fiber
 import cats.syntax.all.*
 import org.scalajs.dom.AudioContext
-import org.soundsofscala.models.LookAhead
-import org.soundsofscala.models.ScheduleWindow
-import org.soundsofscala.models.Song
-import org.soundsofscala.models.TrackIndex
+import org.soundsofscala.instrument.ClickTrack
+import org.soundsofscala.models.*
 
 /**
  * The sequencer is responsible for scheduling the notes of every track in the song in parallel. It
@@ -35,21 +33,34 @@ import org.soundsofscala.models.TrackIndex
  *
  * @param songRef
  *   A Ref holding the current Song, enabling live updates to any property
+ * @param beatPositionRef
+ *   A Ref containing the current beat position while playing
+ * @param pausedAtRef
+ *   A Ref holding beat position of song when paused
  */
 
 class Sequencer private (
     val songRef: Ref[IO, Song],
-    private val fiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]]
+    private val fiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]],
+    private val beatPositionRef: Ref[IO, BeatPosition],
+    private val pausedAtRef: Ref[IO, Option[BeatPosition]],
+    val clickTrack: ClickTrack
 )(using audioContext: AudioContext):
 
   def updateSong(f: Song => Song): IO[Unit] = songRef.update(f)
 
+  def currentBeatPosition: IO[BeatPosition] = beatPositionRef.get
+
+  def toggleClick: IO[Boolean] = clickTrack.toggleMute
+
   def play(): IO[Unit] =
     for
       song <- songRef.get
-      _ <- IO.println(s"Playing: ${song.title}")
+      pausedAt <- pausedAtRef.get
+      _ <- IO.println(pausedAt.fold(s"Playing: ${song.title}")(bp =>
+        s"Resuming: ${song.title} from beat ${bp.value}"))
       _ <- stop()
-      fiber <- startPlayback().start
+      fiber <- startPlaybackFromBeat(pausedAt).start
       _ <- fiberRef.set(fiber.some)
     yield ()
 
@@ -58,26 +69,53 @@ class Sequencer private (
       case Some(fiber) =>
         IO.println("Stopping sequencer") *>
           fiber.cancel *>
-          stopInstruments()
+          stopInstruments() *>
+          beatPositionRef.set(BeatPosition(0.0)) *>
+          pausedAtRef.set(none)
       case none => IO.unit
 
-  private def stopInstruments(): IO[Unit] =
-    songRef.get.flatMap(_.mixer.tracks.parTraverse(_.instrument.stop.void).void)
+  def pause(): IO[Unit] =
+    for
+      _ <- fiberRef.getAndSet(none).flatMap {
+        case Some(fiber) =>
+          fiber.cancel *>
+            stopInstruments()
+        case none => IO.unit
+      }
+      beatPosition <- beatPositionRef.get
+      _ <- pausedAtRef.set(beatPosition.some)
+      _ <- IO.println(s"Paused at beat: ${beatPosition.value}")
+    yield ()
 
-  private def startPlayback(): IO[Unit] =
-    songRef.get.flatMap: song =>
-      val noteScheduler = NoteScheduler(songRef, LookAhead(25), ScheduleWindow(0.1))
-      /* create indexes for each track so the scheduler can re-read the track from the
-      songRef on every note — this enables live updates */
-      song.mixer.tracks.zipWithIndex.parTraverse: (_, index) =>
-        noteScheduler.scheduleTrack(TrackIndex(index))
-      .void *>
-        songRef.get.flatMap(s => IO.println(s"Finished playing: ${s.title}"))
+  private def stopInstruments(): IO[Unit] =
+    clickTrack.stop.void *>
+      songRef.get.flatMap(_.mixer.tracks.parTraverse(_.instrument.stop.void).void)
+
+  private def startPlaybackFromBeat(positionToStartAt: Option[BeatPosition]): IO[Unit] =
+    positionToStartAt.fold(IO.unit)(beatPositionRef.set) >>
+      songRef.get.flatMap: song =>
+        val noteScheduler =
+          NoteScheduler(
+            songRef,
+            beatPositionRef,
+            LookAhead(25),
+            ScheduleWindow(0.1),
+            ClickTrack.track(clickTrack))
+
+        val scheduleClick = noteScheduler.scheduleTrack(TrackIndex(0), positionToStartAt)
+        val scheduleSongTracks = (1 to song.mixer.tracks.size).toList.parTraverse: index =>
+          noteScheduler.scheduleTrack(TrackIndex(index), positionToStartAt)
+
+        // We use IO.race to stop the click track when the song finishes
+        IO.race(scheduleSongTracks.void, scheduleClick).void *>
+          songRef.get.flatMap(song => IO.println(s"Finished playing: ${song.title}"))
 end Sequencer
 
 object Sequencer:
   def apply(songRef: Ref[IO, Song])(using AudioContext): IO[Sequencer] =
-    Ref.of[IO, Option[Fiber[IO, Throwable, Unit]]](none).map: fiberRef =>
-      new Sequencer(songRef, fiberRef)
-
-end Sequencer
+    for
+      fiberRef <- Ref.of[IO, Option[Fiber[IO, Throwable, Unit]]](none)
+      beatPositionRef <- Ref.of[IO, BeatPosition](BeatPosition(0.0))
+      pausedAtRef <- Ref.of[IO, Option[BeatPosition]](None)
+      clickTrack <- ClickTrack()
+    yield new Sequencer(songRef, fiberRef, beatPositionRef, pausedAtRef, clickTrack)

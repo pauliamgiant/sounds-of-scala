@@ -38,40 +38,69 @@ import scala.concurrent.duration.DurationDouble
  *   The time window in seconds in which to schedule notes ahead of time
  */
 
+private case class PlaybackLocation(
+    locatedEvent: MusicalEvent,
+    locatedBeatPosition: BeatPosition,
+    adjustedNoteTime: NextNoteTime)
+
 private case class ScheduleContext(
     trackIndex: TrackIndex,
     initialEvent: MusicalEvent,
     remainingEvent: MusicalEvent,
     nextNoteTime: NextNoteTime,
     beatPosition: BeatPosition,
-    swingCompensation: SwingOffset
+    startingBeatPosition: Option[BeatPosition],
+    swingCompensation: SwingOffset,
+    beatPositionOffset: Double = 0.0
 )
 
 final case class NoteScheduler(
     songRef: Ref[IO, Song],
+    beatPositionRef: Ref[IO, BeatPosition],
     lookAheadMs: LookAhead,
-    scheduleAheadTimeSeconds: ScheduleWindow):
+    scheduleAheadTimeSeconds: ScheduleWindow,
+    clickTrack: Track[?]):
 
-  def scheduleTrack(trackIndex: TrackIndex)(using ac: AudioContext): IO[Unit] =
-    def playCycle(nextNoteTime: NextNoteTime): IO[Unit] =
+  private def resolveTrack(trackIndex: TrackIndex, song: Song): Track[?] =
+    if trackIndex.value == 0 then clickTrack
+    else song.mixer.tracks.toList(trackIndex.value - 1)
+
+  def scheduleTrack(
+      trackIndex: TrackIndex,
+      startingBeatPosition: Option[BeatPosition] = None
+  )(using ac: AudioContext): IO[Unit] =
+    def playCycle(
+        nextNoteTime: NextNoteTime,
+        beatOffset: Double,
+        resumePosition: Option[BeatPosition]
+    ): IO[Unit] =
       for
         song <- songRef.get
-        track = song.mixer.tracks.toList(trackIndex.value)
+        track = resolveTrack(trackIndex, song)
+        patternLength = totalDurationInBeats(track.musicalEvent)
+        localResume = resumePosition.map(bp => BeatPosition(bp.value % patternLength))
+        adjustedOffset = resumePosition.fold(beatOffset)(bp =>
+          bp.value - (bp.value % patternLength))
         scheduleContext = ScheduleContext(
           trackIndex,
           initialEvent = track.musicalEvent,
           remainingEvent = track.musicalEvent,
           nextNoteTime,
           BeatPosition(0.0),
-          SwingOffset(0.0))
+          localResume,
+          SwingOffset(0.0),
+          beatPositionOffset = adjustedOffset
+        )
         finalNoteTime <- scheduleSequence(scheduleContext)
         _ <-
           track.playback match
-            case Playback.Loop => playCycle(finalNoteTime)
+            case Playback.Loop =>
+              playCycle(finalNoteTime, adjustedOffset + patternLength, resumePosition = None)
             case Playback.OneShot => IO.unit
       yield ()
 
-    playCycle(NextNoteTime(ac.currentTime))
+    playCycle(NextNoteTime(ac.currentTime), beatOffset = 0.0, resumePosition = startingBeatPosition)
+  end scheduleTrack
 
   private def scheduleSequence(context: ScheduleContext)(using AudioContext): IO[NextNoteTime] =
     ScheduleStatus.isReadyToSchedule(context.nextNoteTime, scheduleAheadTimeSeconds) match
@@ -80,7 +109,7 @@ final case class NoteScheduler(
       case ScheduleStatus.Ready =>
         // read latest version of the song
         songRef.get.flatMap: song =>
-          val track = song.mixer.tracks.toList(context.trackIndex.value)
+          val track = resolveTrack(context.trackIndex, song)
           val currentEventFromSongRef = track.musicalEvent
 
           // this compares the event from the song ref with the original event specified when the song started playing
@@ -91,32 +120,49 @@ final case class NoteScheduler(
 
   private def playNextNote(context: ScheduleContext, song: Song)(
       using AudioContext): IO[NextNoteTime] =
-    val track = song.mixer.tracks.toList(context.trackIndex.value)
+    val track = resolveTrack(context.trackIndex, song)
     val swingInMillis = calculateSwingOffset(song)
 
-    def calculateNextNoteTime(note: AtomicMusicalEvent, swingOffset: Double): NextNoteTime =
+    def calculateNextNoteTime(
+        baseTime: NextNoteTime,
+        note: AtomicMusicalEvent,
+        swingOffset: Double): NextNoteTime =
       NextNoteTime(
-        context.nextNoteTime.value + swingOffset + context.swingCompensation.value + note
+        baseTime.value + swingOffset + context.swingCompensation.value + note
           .durationToSeconds(song.tempo))
 
-    context.remainingEvent match
+    val playBackLocation = locatePlaybackPosition(context, song.tempo)
+    playBackLocation.locatedEvent match
       case sequence: Sequence =>
-        val updatedBeatPosition = incrementBeatPosition(context.beatPosition, sequence.head)
+        val updatedBeatPosition =
+          incrementBeatPosition(playBackLocation.locatedBeatPosition, sequence.head)
         val swingOffset =
           if updatedBeatPosition.isSwungBeat(song.swing) then swingInMillis else 0.0
-        val nextNextNoteTime = calculateNextNoteTime(sequence.head, swingOffset)
-        track.playAtomicMusicalEvent(sequence.head, context.nextNoteTime.value, song.tempo) >>
+        val nextNextNoteTime =
+          calculateNextNoteTime(playBackLocation.adjustedNoteTime, sequence.head, swingOffset)
+        IO.whenA(context.trackIndex.value == 0)(beatPositionRef.set(
+          BeatPosition(updatedBeatPosition.value + context.beatPositionOffset))) >>
+          track.playAtomicMusicalEvent(
+            sequence.head,
+            playBackLocation.adjustedNoteTime.value,
+            song.tempo) >>
           scheduleSequence(context.copy(
             remainingEvent = sequence.tail,
             nextNoteTime = nextNextNoteTime,
             beatPosition = updatedBeatPosition,
-            swingCompensation = SwingOffset.compensation(swingOffset)))
+            startingBeatPosition = None,
+            swingCompensation = SwingOffset.compensation(swingOffset)
+          ))
       case atomicEvent: AtomicMusicalEvent =>
-        val nextNextNoteTime = calculateNextNoteTime(atomicEvent, swingOffset = 0.0)
-        track.playAtomicMusicalEvent(atomicEvent, context.nextNoteTime.value, song.tempo)
-          // at the very end of the sequence we return the time of the final note so we can
-          // use this for Playback.Loop
-          .as(nextNextNoteTime)
+        val updatedBeatPosition =
+          incrementBeatPosition(playBackLocation.locatedBeatPosition, atomicEvent)
+        val nextNextNoteTime =
+          calculateNextNoteTime(playBackLocation.adjustedNoteTime, atomicEvent, swingOffset = 0.0)
+        IO.whenA(context.trackIndex.value == 0)(beatPositionRef.set(
+          BeatPosition(updatedBeatPosition.value + context.beatPositionOffset))) >>
+          track.playAtomicMusicalEvent(atomicEvent, context.nextNoteTime.value, song.tempo)
+            .as(nextNextNoteTime)
+    end match
   end playNextNote
 
   private def applyLiveUpdate(
@@ -142,10 +188,25 @@ final case class NoteScheduler(
       beatPosition = currentBeatPosition
     ))
 
+  private def locatePlaybackPosition(
+      context: ScheduleContext,
+      tempo: Tempo): PlaybackLocation =
+    context.startingBeatPosition.fold(
+      PlaybackLocation(context.remainingEvent, context.beatPosition, context.nextNoteTime)
+    ) { target =>
+      val (event, beatPos) = findEventAtBeatPosition(context.remainingEvent, target)
+      val adjustedNoteTime = adjustNoteTimeForBeatOffset(
+        context.nextNoteTime,
+        target,
+        beatPos,
+        tempo)
+      PlaybackLocation(event, beatPos, adjustedNoteTime)
+    }
+
   /*
   Compensating - Event Boundary
 
-  A Mismatch happens when two tracks have different subdivision patterns
+  A mismatch happens when two tracks have different subdivision patterns
   I found this with the hi-hats being 8ths and kick being quarter notes
 
   Say you resume or create a live update at beat 3.5
@@ -172,6 +233,7 @@ final case class NoteScheduler(
   beats to seconds using the tempo, and shifts noteTime forward by that amount.
   So the note plays at the correct AudioContext time for the beat it's actually at.
    */
+
   private def adjustNoteTimeForBeatOffset(
       noteTime: NextNoteTime,
       expectedBeatPosition: BeatPosition,
@@ -211,6 +273,13 @@ final case class NoteScheduler(
     // start from the beginning and find event at targetBeatPosition
     loop(event, BeatPosition(0.0))
 
+  @tailrec
+  private def totalDurationInBeats(event: MusicalEvent, acc: Double = 0.0): Double =
+    event match
+      case sequence: Sequence =>
+        totalDurationInBeats(sequence.tail, acc + sequence.head.durationToBeats)
+      case atomic: AtomicMusicalEvent => acc + atomic.durationToBeats
+
   private def calculateSwingOffset(song: Song): Double =
     val swingFromTempo = song.swing.amount.value.toDouble / 1000.0 * (60.0 / song.tempo.value)
     song.swing.resolution match
@@ -219,8 +288,11 @@ final case class NoteScheduler(
 
   private def incrementBeatPosition(
       currentBeatPosition: BeatPosition,
-      note: AtomicMusicalEvent): BeatPosition =
-    val durationInBeats = note.durationToBeats
+      sequence: MusicalEvent): BeatPosition =
+    val durationInBeats = sequence match
+      case Sequence(head, tail) => head.durationToBeats
+      case e: AtomicMusicalEvent => e.durationToBeats
+
     BeatPosition(currentBeatPosition.value + durationInBeats)
 
   extension (beatPosition: BeatPosition)
