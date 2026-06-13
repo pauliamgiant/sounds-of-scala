@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.soundsofscala
 
 import cats.data.NonEmptyList
 import cats.effect.Ref
 import cats.effect.unsafe.implicits.global
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect.{ExitCode, Fiber, IO, IOApp}
 import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.*
@@ -28,6 +29,27 @@ import org.soundsofscala.playback.AudioPlayer
 import org.soundsofscala.songexamples.*
 import org.soundsofscala.syntax.all.*
 import org.soundsofscala.transport.Sequencer
+
+import scala.concurrent.duration.DurationInt
+
+extension (ref: Ref[IO, Song])
+  def swingUp: IO[Int] =
+    ref.modify { song =>
+      val current = song.swing.amount.value
+      val next = Math.min(current + 1, 10)
+      val updated =
+        song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
+      (updated, next)
+    }
+
+  def swingDown: IO[Int] =
+    ref.modify { song =>
+      val current = song.swing.amount.value
+      val next = Math.max(current - 1, 0)
+      val updated =
+        song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
+      (updated, next)
+    }
 
 object Main extends IOApp:
 
@@ -42,9 +64,27 @@ object Main extends IOApp:
       )
     }.as(ExitCode.Success)
 
+  // Display polling loop
+
+  def updateDisplay(song1Sequencer: Sequencer, beatPositionDisplay: Element) =
+    song1Sequencer.currentBeatPosition.flatMap(beatPosition =>
+      IO(beatPositionDisplay.textContent = f"Beat: ${beatPosition.value + 0.5}%.2f"))
+
+  def startDisplayLoop(
+      displayFiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]],
+      sequencer: Sequencer,
+      beatPositionDisplay: Element) =
+    ((updateDisplay(sequencer, beatPositionDisplay) >> IO.sleep(100.millis)).foreverM: IO[
+      Unit]).start
+      .flatMap(fiber => displayFiberRef.set(fiber.some))
+
+  def stopDisplayLoop(displayFiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]]) =
+    displayFiberRef.getAndSet(none).flatMap(_.fold(IO.unit)(_.cancel))
+
   private def setupPage(): AudioContext ?=> IO[Unit] =
     for
       audioPlayer <- AudioPlayer(FilePath("resources/audio/sounds-of-scala.mp3"))
+      displayFiberRef <- Ref.of[IO, Option[Fiber[IO, Throwable, Unit]]](none)
 
       homeDiv <- IO(document.createElement("div"))
       _ <- IO(homeDiv.classList.add("home-div"))
@@ -63,16 +103,16 @@ object Main extends IOApp:
       stopButton <- buildButton(label = "◼︎", buttonAction = audioPlayer.stop())
       pauseButton <- buildButton(label = "⏸︎", buttonAction = audioPlayer.pause())
 
+      exampleSong1 <- ExampleSong1.song()
+      song1Ref <- Ref.of[IO, Song](exampleSong1)
+      song1Sequencer <- Sequencer(song1Ref)
+
       beethovenSong <- ExampleSong5Beethoven.song()
       pagodas <- ExampleSong6.song()
-      exampleSong1 <- ExampleSong1.song()
 
       swingSong <- ExampleSong7SwingIt.song()
       swingRef <- Ref.of[IO, Song](swingSong)
       swingSequencer <- Sequencer(swingRef)
-
-      song1Ref <- Ref.of[IO, Song](exampleSong1)
-      song1Sequencer <- Sequencer(song1Ref)
 
       beethovenRef <- Ref.of[IO, Song](beethovenSong)
       beethovenSequencer <- Sequencer(beethovenRef)
@@ -81,21 +121,23 @@ object Main extends IOApp:
       pagodasSequencer <- Sequencer(pagodasRef)
 
       altKickPattern: MusicalEvent = (C2.eighth + C2.eighth + RestQuarter.onFull).repeat(32)
+      beatPositionDisplay <- IO {
+        val display = document.createElement("span")
+        display.classList.add("swing-display")
+        display.textContent = "Beat: 1.00"
+        display
+      }
+
       exampleSong1ButtonGroup <- buildButtonGroup(
         label = "ExampleSong1",
-        playAction = song1Sequencer.play(),
-        stopAction = song1Sequencer.stop(),
-        updateAction = song1Ref.modify { song =>
-          val kick = song.mixer.tracks.head
-          val (newEvent, label) =
-            if kick.musicalEvent == ExampleSong1.kickDrum
-            then (altKickPattern, "double kick")
-            else (ExampleSong1.kickDrum, "original")
-          val updatedSong = song.copy(
-            mixer = Mixer(NonEmptyList(kick.withMusicalEvent(newEvent), song.mixer.tracks.tail)))
-          (updatedSong, label)
-        }.flatMap(label => IO.println(s"Kick pattern: $label")).some
+        playAction = song1PlayAction(song1Sequencer, displayFiberRef, beatPositionDisplay),
+        stopAction = song1StopAction(song1Sequencer, displayFiberRef, beatPositionDisplay),
+        extraActions = song1ExtraActions(song1Ref, song1Sequencer),
+        pauseAction = song1PauseAction(song1Sequencer, displayFiberRef, beatPositionDisplay).some,
+        updateAction = toggleKickAction(song1Ref, altKickPattern).some
       )
+      _ <- IO(exampleSong1ButtonGroup.appendChild(beatPositionDisplay))
+
       beethovenButtonGroup <- buildButtonGroup(
         label = "ExampleSong4Beethoven",
         playAction = beethovenSequencer.play(),
@@ -111,28 +153,7 @@ object Main extends IOApp:
         label = "Swing Song",
         playAction = swingSequencer.play(),
         stopAction = swingSequencer.stop(),
-        extraActions = List(
-          (
-            "Swing +",
-            "swing-button",
-            swingRef.modify { song =>
-              val current = song.swing.amount.value
-              val next = Math.min(current + 1, 10)
-              val updated =
-                song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
-              (updated, next)
-            }.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v"))),
-          (
-            "Swing -",
-            "swing-button",
-            swingRef.modify { song =>
-              val current = song.swing.amount.value
-              val next = Math.max(current - 1, 0)
-              val updated =
-                song.copy(swing = Swing(SwingAmount.unsafeFrom(next), song.swing.resolution))
-              (updated, next)
-            }.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v")))
-        )
+        extraActions = swingExtraActions(swingRef, swingDisplay)
       )
       _ <- IO(swingButtonGroup.appendChild(swingDisplay))
       exampleSong5PagodasGroup <- buildButtonGroup(
@@ -173,9 +194,70 @@ object Main extends IOApp:
     end for
   end setupPage
 
+  private def song1PlayAction(
+      sequencer: Sequencer,
+      displayFiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]],
+      beatPositionDisplay: Element): IO[Unit] =
+    sequencer.play() *> startDisplayLoop(displayFiberRef, sequencer, beatPositionDisplay)
+
+  private def song1StopAction(
+      sequencer: Sequencer,
+      displayFiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]],
+      beatPositionDisplay: Element): IO[Unit] =
+    stopDisplayLoop(displayFiberRef) *> sequencer.stop() *>
+      IO(beatPositionDisplay.textContent = "Beat: 1.00")
+
+  private def song1PauseAction(
+      sequencer: Sequencer,
+      displayFiberRef: Ref[IO, Option[Fiber[IO, Throwable, Unit]]],
+      beatPositionDisplay: Element): IO[Unit] =
+    stopDisplayLoop(displayFiberRef) *> sequencer.pause() *>
+      updateDisplay(sequencer, beatPositionDisplay)
+
+  private def song1ExtraActions(
+      songRef: Ref[IO, Song],
+      sequencer: Sequencer): List[(String, String, IO[Unit])] =
+    List(
+      ("Swing +", "swing-button", songRef.swingUp.void),
+      ("Swing -", "swing-button", songRef.swingDown.void),
+      (
+        "🕰️",
+        "swing-button",
+        sequencer.toggleClick.flatMap(muted =>
+          IO.println(s"Click track: ${if muted then "off" else "on"}")))
+    )
+
+  private def toggleKickAction(
+      songRef: Ref[IO, Song],
+      altKickPattern: MusicalEvent): IO[Unit] =
+    songRef.modify { song =>
+      val kick = song.mixer.tracks.head
+      val (newEvent, label) =
+        if kick.musicalEvent == ExampleSong1.kickDrum
+        then (altKickPattern, "double kick")
+        else (ExampleSong1.kickDrum, "original")
+      val updatedSong = song.copy(
+        mixer = Mixer(NonEmptyList(kick.withMusicalEvent(newEvent), song.mixer.tracks.tail)))
+      (updatedSong, label)
+    }.flatMap(label => IO.println(s"Kick pattern: $label"))
+
+  private def swingExtraActions(
+      swingRef: Ref[IO, Song],
+      swingDisplay: Element): List[(String, String, IO[Unit])] =
+    List(
+      (
+        "Swing +",
+        "swing-button",
+        swingRef.swingUp.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v"))),
+      (
+        "Swing -",
+        "swing-button",
+        swingRef.swingDown.flatMap(v => IO(swingDisplay.textContent = s"Swing: $v")))
+    )
+
   private def buildHeading = IO {
     val title = document.createElement("h1")
-    title.textContent = "Welcome to Sounds of Scala!"
+    title.textContent = "Welcome to Sounds of Scala"
     title
   }
 
@@ -195,7 +277,7 @@ object Main extends IOApp:
 
     val codeStringSbt: String =
       """|
-         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.7.0""".stripMargin
+         |"libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.9.0""".stripMargin
 
     val addToCode = document.createElement("p")
     addToCode.textContent =
@@ -339,8 +421,9 @@ object Main extends IOApp:
       label: String,
       playAction: IO[Unit],
       stopAction: IO[Unit],
-      updateAction: Option[IO[Unit]] = None,
-      extraActions: List[(String, String, IO[Unit])] = Nil
+      updateAction: Option[IO[Unit]] = none,
+      extraActions: List[(String, String, IO[Unit])] = Nil,
+      pauseAction: Option[IO[Unit]] = none
   ): IO[Element] =
     for
       groupContainer <- IO(document.createElement("div"))
@@ -369,11 +452,20 @@ object Main extends IOApp:
         stopButton.addEventListener("click", (_: dom.MouseEvent) => stopAction.unsafeRunAndForget())
       }
 
-      updateButton <- updateAction.fold(IO.pure(None))(action =>
+      pauseButton <- pauseAction.fold(IO.pure(none))(action =>
         for
           button <- IO(document.createElement("button"))
           _ <- IO {
-            button.textContent = "update - realtime"
+            button.textContent = "⏸︎"
+            button.classList.add("audio-pause-button")
+            button.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
+          }
+        yield button.some)
+      updateButton <- updateAction.fold(IO.pure(none))(action =>
+        for
+          button <- IO(document.createElement("button"))
+          _ <- IO {
+            button.textContent = "realtime update kick"
             button.classList.add("update-button")
             button.addEventListener("click", (_: dom.MouseEvent) => action.unsafeRunAndForget())
           }
@@ -383,6 +475,8 @@ object Main extends IOApp:
       _ <- IO(groupContainer.appendChild(labelElement))
       _ <- IO(groupContainer.appendChild(buttonContainer))
       _ <- IO(updateButton.foreach(buttonContainer.appendChild(_)))
+      _ <- IO(pauseButton.foreach(buttonContainer.appendChild(_)))
+
       _ <- extraActions.traverse_ {
         case (text, cssClass, action) =>
           IO {

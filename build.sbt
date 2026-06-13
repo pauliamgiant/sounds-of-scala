@@ -16,7 +16,7 @@ inThisBuild(
     licenses := Seq(License.Apache2),
     organization := "org.soundsofscala",
     organizationName := "Sounds of Scala",
-    scalaVersion := "3.8.2",
+    scalaVersion := "3.8.4",
     dependencyOverrides += "org.scala-lang" %% "scala3-library" % scalaVersion.value,
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
@@ -31,7 +31,8 @@ inThisBuild(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
       tlGitHubDev("noelwelsh", "Noel Welsh"),
       tlGitHubDev("ikukojohanna", "Johanna Odersky"),
-      tlGitHubDev("BokChoyWarrior", "Harvey Cambridge")
+      tlGitHubDev("BokChoyWarrior", "Harvey Cambridge"),
+      tlGitHubDev("SabrinaXKL", "Sabrina Konrad-lee")
     ),
     scalafixDependencies ++= List(
       "com.github.xuwei-k" %% "scalafix-rules" % "0.3.0"
@@ -199,7 +200,7 @@ usefulTasks := Seq(
         "Pre-push formatting and testing checks",
       ).alias("pp"),
   UsefulTask("dependencyUpdates", "Run dependencyUpdates").alias("du"),
-  UsefulTask("headerCreate", "Run create headers for pagers to pass ci").alias("h")
+  UsefulTask("headerCreate", "Run create headers for pages to pass ci").alias("h")
 )
 
 logoColor := scala.Console.YELLOW
