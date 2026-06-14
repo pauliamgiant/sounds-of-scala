@@ -35,7 +35,7 @@ inThisBuild(
       tlGitHubDev("SabrinaXKL", "Sabrina Konrad-lee")
     ),
     scalafixDependencies ++= List(
-      "com.github.xuwei-k" %% "scalafix-rules" % "0.3.0"
+      "com.github.xuwei-k" %% "scalafix-rules" % "0.3.5"
     ),
     resolvers +=
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
