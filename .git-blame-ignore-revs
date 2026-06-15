@@ -1,2 +1,5 @@
 # Initial format
 a92c15864a5ddf1238b8a1b565dc062d3914dfc6
+
+# Scala Steward: Reformat with scalafmt 3.11.1
+1316a1f20bc05f75f09131b907c0d582c1b88bdc
