@@ -64,14 +64,16 @@ object ExampleSong1:
     D1.eighth + C1.eighth + A0.eighth + A0.eighth + C1.eighth + C1.eighth + A0.eighth + C1.eighth
 
   private val scalaSynthLine: MusicalEvent =
-    D1.eighth.softest + C2.eighth.soft + A1.eighth.medium + A2.eighth.softest + C3.eighth.soft + C3.eighth.medium + A2.eighth.softest + C3.eighth.soft
+    D1.eighth.softest + C2.eighth.soft + A1.eighth.medium + A2.eighth.softest + C3.eighth.soft +
+      C3.eighth.medium + A2.eighth.softest + C3.eighth.soft
 
   private val guitarPart: MusicalEvent =
     (Chord(D3, F3, A2).quarterDotted + Chord(C3, E3, G3).half + RestEighth).repeat(4)
 
   private val verseMelody: MusicalEvent =
     RestQuarter.quarterDotted + A4.eighth + D5.eighth + E5.quarter + F5.quarterDotted +
-      E5.eighth + RestEighth + D5.eighth + C5.eighth + D5.quarter + D5.quarter + RestQuarter + RestHalf + OneBarRest
+      E5.eighth + RestEighth + D5.eighth + C5.eighth + D5.quarter + D5.quarter + RestQuarter +
+      RestHalf + OneBarRest
 
   val kickDrum: MusicalEvent = (C2 + RestQuarter.onFull).repeat(32)
   val snareDrum: MusicalEvent = (RestQuarter + D2).repeat(32)

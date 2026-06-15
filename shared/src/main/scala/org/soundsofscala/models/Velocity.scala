@@ -19,8 +19,7 @@ package org.soundsofscala.models
 import org.soundsofscala.models.Octave.MidiVelocity
 
 enum Velocity(val midiVelocity: MidiVelocity):
-  def getNormalisedVelocity: Double =
-    (1.0 / 127) * this.midiVelocity.value
+  def getNormalisedVelocity: Double = (1.0 / 127) * this.midiVelocity.value
   case TheSilentTreatment extends Velocity(MidiVelocity(0))
   case Softest extends Velocity(MidiVelocity(16))
   case Soft extends Velocity(MidiVelocity(30))

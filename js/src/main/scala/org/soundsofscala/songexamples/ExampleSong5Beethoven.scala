@@ -67,7 +67,8 @@ object ExampleSong5Beethoven:
       D5.eighthTriplet +
       C5.eighthTriplet +
       A4.eighthTriplet +
-      G4 + G4 + F4.sharp + G4 + A4.quarterDotted + A4.eighth + B4.quarterDotted + B4.eighth + D5.quarter + C5.eighth + cbTrill +
+      G4 + G4 + F4.sharp + G4 + A4.quarterDotted + A4.eighth + B4.quarterDotted + B4.eighth +
+      D5.quarter + C5.eighth + cbTrill +
       B4.eighth + C5.eighth +
       C5.sharp.eighth + D5.eighth +
       D5.sharp.eighth + E5.eighth +

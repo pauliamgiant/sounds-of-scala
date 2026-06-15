@@ -41,8 +41,8 @@ class MusicalEventTest extends AnyFunSuite with Matchers with TableDrivenPropert
       (10000, 10001),
       (50000, 50001)
     ).forEvery: (count, expected) =>
-      val testSong =
-        (1 to count).foldLeft[MusicalEvent](C2)((acc, _) => acc.+(notes(Random.nextInt(7))))
+      val testSong = (1 to count).foldLeft[MusicalEvent](C2)((acc, _) =>
+        acc.+(notes(Random.nextInt(7))))
       testSong.noteCount() shouldBe expected
 
   test("testCombineMethod"):

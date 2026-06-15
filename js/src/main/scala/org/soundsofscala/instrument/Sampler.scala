@@ -106,9 +106,10 @@ object Sampler:
     val filePaths: List[(SampleKey, String)] =
       (List(Pitch.C, Pitch.D, Pitch.E, Pitch.F, Pitch.G).map { note =>
         SampleKey(note, Accidental.Natural, Octave(3)) -> s"resources/audio/guitar/${note}3.wav"
-      }) ++ (List(Pitch.A, Pitch.B).map { note =>
-        SampleKey(note, Accidental.Natural, Octave(2)) -> s"resources/audio/guitar/${note}2.wav"
-      })
+      }) ++
+        (List(Pitch.A, Pitch.B).map { note =>
+          SampleKey(note, Accidental.Natural, Octave(2)) -> s"resources/audio/guitar/${note}2.wav"
+        })
     fromPaths(filePaths)
 
   def bassGuitar(using AudioContext): IO[Sampler] =

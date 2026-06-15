@@ -114,7 +114,7 @@ final case class NoteScheduler(
 
           // this compares the event from the song ref with the original event specified when the song started playing
           if currentEventFromSongRef != context.initialEvent
-            // If changed then updated sequence and call this scheduleSequence method again
+          // If changed then updated sequence and call this scheduleSequence method again
           then applyLiveUpdate(context, currentEventFromSongRef, song)
           else playNextNote(context, song)
 
@@ -128,8 +128,9 @@ final case class NoteScheduler(
         note: AtomicMusicalEvent,
         swingOffset: Double): NextNoteTime =
       NextNoteTime(
-        baseTime.value + swingOffset + context.swingCompensation.value + note
-          .durationToSeconds(song.tempo))
+        baseTime.value + swingOffset + context.swingCompensation.value +
+          note
+            .durationToSeconds(song.tempo))
 
     val playBackLocation = locatePlaybackPosition(context, song.tempo)
     playBackLocation.locatedEvent match
