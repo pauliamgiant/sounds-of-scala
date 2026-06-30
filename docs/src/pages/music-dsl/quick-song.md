@@ -23,7 +23,7 @@ def writingAFirstSong(): AudioContext ?=> IO[Song] =
   yield Song(
     title = Title("First, Maybe Last Song"),
     tempo = Tempo(120),
-    swing = Swing(0),
+    swing = Swing(SwingAmount(0), SwingResolution.Eighth),
     mixer = Mixer(
       Track(
         title = Title("Scala Synth Bassline"),

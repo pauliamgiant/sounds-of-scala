@@ -51,6 +51,15 @@ sealed trait MusicalEvent:
             case _ => acc + 1
     loop(0, this)
 
+  def totalDurationInBeats: Double =
+    @tailrec
+    def loop(event: MusicalEvent, acc: Double): Double =
+      event match
+        case sequence: Sequence =>
+          loop(sequence.tail, acc + sequence.head.durationToBeats)
+        case atomic: AtomicMusicalEvent => acc + atomic.durationToBeats
+    loop(this, 0.0)
+
   def repeat(repetitions: Int): MusicalEvent =
     if repetitions === 1 then this
     else

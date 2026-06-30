@@ -28,6 +28,17 @@ enum Playback:
 object Playback:
   given Eq[Playback] = Eq.fromUniversalEquals
 
+case class PlaybackLocation(
+    locatedEvent: MusicalEvent,
+    locatedBeatPosition: BeatPosition,
+    nextNoteTime: NextNoteTime)
+
+object Track:
+  extension (trackIndex: TrackIndex)
+    def resolveTrack(song: Song, clickTrack: Track[?]): Track[?] =
+      if trackIndex.value == 0 then clickTrack
+      else song.mixer.tracks.toList(trackIndex.value - 1)
+
 case class Track[Settings](
     title: Title,
     musicalEvent: MusicalEvent,

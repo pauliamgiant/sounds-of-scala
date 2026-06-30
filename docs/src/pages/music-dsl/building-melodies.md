@@ -9,6 +9,6 @@ Melodies are a sequence of notes. They can be defined using the Sequence class. 
     F3 + F3 + E3 + E3 + D3 + D3 + C3.half
 ```
 
-To listen to this you can import ExampleSong0 from the `sounds-of-scala` library and play it.
+To listen to this you can import `ExampleSong1` from the `sounds-of-scala` library and play it.
 
 ### [Next Step: Syntax](../music-dsl/syntax.md)

@@ -6,13 +6,13 @@ The Song type is the top level data structure containing all elements required t
 case class Song(
     title: Title,
     tempo: Tempo = Tempo(120),
-    swing: Swing = Swing(0),
+    swing: Swing = Swing(SwingAmount(0), SwingResolution.Eighth),
     mixer: Mixer
 )
 ```
 The title, tempo and swing, should be self explanatory and take provided types wrapping a string and integers for these values.
 
-> NOTE: Swing is yet to be implemented.
+`Swing` takes a `SwingAmount` (a refined `Int`) and a `SwingResolution` (`Eighth` or `Sixteenth`) that controls which beats get the swing feel.
 
 ### The Mixer Type
 
@@ -44,7 +44,7 @@ case class Track[Settings](
     playback: Playback,
     customSettings: Option[Settings] = None,
     insertFX: List[FX] = List.empty,
-    sendFX: List[FX] = List.empty)
+    sendFX: List[FX] = List.empty)(using Default[Settings])
 ```
 
 ### Playing a Song with the Sequencer

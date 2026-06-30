@@ -36,7 +36,13 @@ def firstMusicProgram(): AudioContext ?=> IO[Unit] =
   yield ()
 ```
 
-The `Song` is pure data — it holds the title, tempo, swing and mixer (tracks). To play it, we wrap it in a `Ref[IO, Song]` and pass it to a `Sequencer`. The Ref enables real-time updates to any property while the song is playing.
+The `Song` is pure data. It holds the title, tempo, swing and mixer (tracks). To play it, we wrap it in a `Ref[IO, Song]` and pass it to a `Sequencer`.
+
+#### Why a Ref?
+
+The Sequencer re-reads the `Song` from the `Ref` before scheduling every note. This means any change you make to the `Song` (tempo, swing, or even swapping out an entire track's pattern) takes effect immediately during playback. Without the `Ref`, the Sequencer would have a static snapshot of the song with no way to react to changes.
+
+This is also what enables pause and resume. The Sequencer tracks the current beat position as it plays, so when you call `sequencer.pause()` it preserves where you are in the song, and `sequencer.play()` picks up from that position.
 
 Once you have played that and heard some audio playing you can:
 - Click into `ExampleSong1` and see how the song is defined

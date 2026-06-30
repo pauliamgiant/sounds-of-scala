@@ -4,7 +4,7 @@ Notes are the building blocks of music. They are defined by their pitch, acciden
 
 Here is the Note Model
 ```scala 3
-enum AtomoicMusicalEvent:
+enum AtomicMusicalEvent:
   case Note(
     pitch: Pitch,
     accidental: Accidental,
@@ -18,13 +18,13 @@ enum AtomoicMusicalEvent:
 - **pitch**: The pitch of the note (A, B, C, D, E, F, G)
 - **accidental**: The accidental of the note (Natural, Sharp, Flat)
 - **duration**: The duration of the note (Whole, Half, Quarter, Eighth, Sixteenth, ThirtySecond)
-- **octave**: The octave of the note (Octave1, Octave2, Octave3, Octave4, Octave5, Octave6, Octave7)
-- **velocity**: The velocity of the note (Soft, Medium, Loud) or (pp, p, mp, mf, f, ff)
-- **offset**: The timing offset of the note to gain further fine grained control of the timing of the note (yet to be implemented)
+- **octave**: The octave of the note, a refined `Int` constructed as `Octave(n)` where n is typically 0 to 8
+- **velocity**: The velocity of the note. Plain English names: `Softest`, `Soft`, `Medium`, `Assertively`, `Loud`, `Louder`, `OnFull`. Musical dynamics: `Pianississimo`, `Pianissimo`, `Piano`, `MezzoPiano`, `MezzoForte`, `Forte`, `Fortissimo`, `Fortississimo`. Shorthand methods are also available on notes: `.ppp`, `.pp`, `.p`, `.mp`, `.mf`, `.f`, `.ff`, `.fff`
+- **offset**: The timing offset of the note for fine grained control of timing
 
 Here is an example of defining a single note:
 ```scala 3
-Note(C, Natural, Quarter, Octave4, Medium)
+Note(C, Natural, Quarter, Octave(4), Medium)
 ```
 
 ### Idiomatic Notes

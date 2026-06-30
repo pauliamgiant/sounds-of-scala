@@ -31,7 +31,8 @@ object ClickTrack:
   given Default[Settings] with
     val default: Settings = Settings()
 
-  val pattern: MusicalEvent = C4.medium.eighth * 8
+  val pattern: MusicalEvent =
+    (C4.medium.sixteenth + r16) * 8
 
   def track(instrument: ClickTrack): Track[Settings] =
     Track(Title("ClickTrack"), pattern, instrument, Playback.Loop)
@@ -51,7 +52,7 @@ final class ClickTrack private (
 
   def mute: IO[Unit] = mutedRef.set(true)
   def unmute: IO[Unit] = mutedRef.set(false)
-  def toggleMute: IO[Boolean] = mutedRef.modify(m => (!m, !m))
+  def toggleMute: IO[Boolean] = mutedRef.modify(muteStatus => (!muteStatus, !muteStatus))
   def isMuted: IO[Boolean] = mutedRef.get
 
   private val clickDuration = 0.05

@@ -16,48 +16,48 @@
 
 package org.soundsofscala.models
 
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.TableDrivenPropertyChecks
+import cats.effect.IO
 import org.soundsofscala.models.AtomicMusicalEvent.*
 import org.soundsofscala.syntax.all.*
+import weaver.SimpleIOSuite
 
-class PitchTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
+object PitchTest extends SimpleIOSuite:
 
-  test("Test Calculate Frequency"):
-
-    Table(
-      ("pitch", "frequency"),
-      (Pitch.A, 440),
+  test("calculate frequency for natural pitches"):
+    val mappings = List(
+      (Pitch.A, 440.0),
       (Pitch.B, 493.883),
       (Pitch.C, 261.626),
       (Pitch.D, 293.665),
       (Pitch.E, 329.628),
       (Pitch.F, 349.228),
       (Pitch.G, 391.995)
-    ).forEvery((pitch, frequency) => pitch.calculateFrequency shouldBe frequency)
+    )
+    IO.pure(forEach(mappings): (pitch, frequency) =>
+      expect(pitch.calculateFrequency == frequency))
 
-  test("Test Calculate Frequency with accidentals"):
-    Table(
-      ("note", "frequency"),
-      (A4, 440),
+  test("calculate frequency with accidentals"):
+    val mappings = List(
+      (A4, 440.0),
       (A4.sharp, 466.1637615180899),
       (A4.flat, 415.3046975799451),
       (A8.sharp, 7458.620184289439),
-      (B4, 493.883)).forEvery((note, frequency) => note.frequency shouldBe frequency)
+      (B4, 493.883)
+    )
+    IO.pure(forEach(mappings): (note, frequency) =>
+      expect(note.frequency == frequency))
 
-  test("Frequency is correctly calculated from a Note with Octave"):
-    Table(
-      ("note", "frequency"),
+  test("frequency is correctly calculated from a Note with Octave"):
+    val mappings = List(
       (A0, 27.5),
-      (A1, 55),
-      (A2, 110),
-      (A3, 220),
-      (A4, 440),
-      (A5, 880),
-      (A6, 1760),
-      (A7, 3520),
-      (A8, 7040),
+      (A1, 55.0),
+      (A2, 110.0),
+      (A3, 220.0),
+      (A4, 440.0),
+      (A5, 880.0),
+      (A6, 1760.0),
+      (A7, 3520.0),
+      (A8, 7040.0),
       (B4, 493.883),
       (C4, 261.626),
       (D4, 293.665),
@@ -67,5 +67,21 @@ class PitchTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks
       (C8, 4186.016),
       (D8, 4698.64),
       (E8, 5274.048)
-    ).forEvery((note, frequency) => note.frequency shouldBe frequency)
+    )
+    IO.pure(forEach(mappings): (note, frequency) =>
+      expect(note.frequency == frequency))
+
+  test("octave doubling: each octave doubles frequency"):
+    IO.pure(
+      expect(A1.frequency == A0.frequency * 2) and
+        expect(A2.frequency == A1.frequency * 2) and
+        expect(A4.frequency == A3.frequency * 2))
+
+  test("sharp raises frequency by one semitone"):
+    val ratio = Math.pow(2, 1.0 / 12)
+    IO.pure(expect(A4.sharp.frequency == A4.frequency * ratio))
+
+  test("flat lowers frequency by one semitone"):
+    val ratio = Math.pow(2, 1.0 / 12)
+    IO.pure(expect(A4.flat.frequency == A4.frequency / ratio))
 end PitchTest
