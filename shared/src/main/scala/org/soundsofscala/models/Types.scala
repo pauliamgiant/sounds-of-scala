@@ -71,6 +71,7 @@ object TrackIndex extends Newtype[Int] with CanBeOrdered[Int]
 type SwingOffset = SwingOffset.Type
 object SwingOffset extends Newtype[Double]:
   def compensation(swingOffset: Double): SwingOffset = SwingOffset(-swingOffset)
+  def none: SwingOffset = SwingOffset(0.0)
 
 final case class Swing(amount: SwingAmount, resolution: SwingResolution)
 

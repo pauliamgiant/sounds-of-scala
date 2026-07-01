@@ -74,13 +74,13 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     mimaPreviousArtifacts := Set.empty,
     moduleName := "sounds-of-scala",
     libraryDependencies ++= Seq(
-      "org.scalactic" %%% "scalactic" % "3.2.20",
-      "org.scalatest" %%% "scalatest" % "3.2.20" % Test,
       "org.typelevel" %%% "cats-core" % "2.13.0",
       "org.typelevel" %%% "cats-effect" % "3.7.0",
       "io.kevinlee" %%% "refined4s-core" % "1.16.0",
-      "io.kevinlee" %%% "refined4s-cats" % "1.16.0"
-    )
+      "io.kevinlee" %%% "refined4s-cats" % "1.16.0",
+      "com.disneystreaming" %%% "weaver-cats" % "0.8.4" % Test,
+    ),
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect")
   )
   .jvmSettings(
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.1.0" % "provided"

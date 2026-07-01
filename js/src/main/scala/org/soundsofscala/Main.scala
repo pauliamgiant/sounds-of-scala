@@ -223,7 +223,7 @@ object Main extends IOApp:
       (
         "🕰️",
         "swing-button",
-        sequencer.toggleClick.flatMap(muted =>
+        sequencer.toggleClickOnOff.flatMap(muted =>
           IO.println(s"Click track: ${if muted then "off" else "on"}")))
     )
 

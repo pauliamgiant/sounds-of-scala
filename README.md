@@ -2,14 +2,16 @@
 
 ## A Web Music & Audio library for Scala
 
+A living, breathing example application can be found at [www.virtualmattondrums.com](https://www.virtualmattondrums.com)
+
+For Documentation and Examples see: [Sounds of Scala](https://pauliamgiant.github.io/sounds-of-scala/)
+
 The fastest way to make some sound emanate from your device is with the SimpleAudioPlayer.
 
 Add the following to your build.sbt file:
 
-For Documentation and Examples see: [Sounds of Scala](https://pauliamgiant.github.io/sounds-of-scala/)
-
 ```scala 3
-libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.7.0"
+libraryDependencies += "org.soundsofscala" %%% "sounds-of-scala" % "0.8.2"
 ```
 Then in the code of your Scala.js project pass the path to an audio file to the SimpleAudioPlayer constructor.
 

@@ -6,9 +6,11 @@ There are two main subtypes of `MusicalEvent`:
 - `Sequence` - a sequence of events that can be played in order
 
 ```scala 3
-sealed trait MusicalEvent:
-    enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalEvent
-    final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
+sealed trait MusicalEvent
+
+enum AtomicMusicalEvent(duration: Duration, velocity: Velocity) extends MusicalEvent
+
+final case class Sequence(head: AtomicMusicalEvent, tail: MusicalEvent) extends MusicalEvent
 ```
 
 

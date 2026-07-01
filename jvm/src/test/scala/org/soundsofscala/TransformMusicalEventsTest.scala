@@ -16,18 +16,16 @@
 
 package org.soundsofscala
 
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.TableDrivenPropertyChecks
+import cats.effect.IO
 import org.soundsofscala.models.Accidental.*
 import org.soundsofscala.models.DrumVoice.*
 import org.soundsofscala.models.Duration.*
+import weaver.SimpleIOSuite
 
-class TransformMusicalEventsTest extends AnyFunSuite with Matchers with TableDrivenPropertyChecks:
+object TransformMusicalEventsTest extends SimpleIOSuite:
 
-  test("testDrumVoiceToString"):
-    Table(
-      ("drumVoice", "expected"),
+  test("drumVoiceToString maps all drum voices"):
+    val mappings = List(
       (Kick, "Doob"),
       (Snare, "Crack"),
       (HiHatClosed, "Tsst"),
@@ -41,12 +39,12 @@ class TransformMusicalEventsTest extends AnyFunSuite with Matchers with TableDri
       (Clap, "Clap"),
       (Cowbell, "Ding"),
       (Tambourine, "Chinka")
-    ).forEvery: (drumVoice, expected) =>
-      TransformMusicalEvents.drumVoiceToString(drumVoice) shouldBe expected
+    )
+    IO.pure(forEach(mappings): (drum, expected) =>
+      expect.same(TransformMusicalEvents.drumVoiceToString(drum), expected))
 
-  test("testDurationToString"):
-    Table(
-      ("duration", "expected"),
+  test("durationToString produces correct lengths"):
+    val mappings = List(
       (Whole, 64 * 3),
       (Half, 32 * 3),
       (Quarter, 16 * 3),
@@ -59,15 +57,28 @@ class TransformMusicalEventsTest extends AnyFunSuite with Matchers with TableDri
       (EighthTriplet, 16),
       (SixteenthTriplet, 8),
       (ThirtySecondTriplet, 4)
-    ).forEvery: (duration, expected) =>
-      TransformMusicalEvents.durationToString(duration, "").length shouldBe expected
+    )
+    IO.pure(forEach(mappings): (duration, expected) =>
+      expect(TransformMusicalEvents.durationToString(duration, "").length == expected))
 
-  test("testAccidentalToString"):
-    Table(
-      ("accidental", "expected"),
+  test("durationToString produces correct lengths for dotted durations"):
+    val mappings = List(
+      (WholeDotted, (64 * 3 * 1.5).toInt),
+      (HalfDotted, (32 * 3 * 1.5).toInt),
+      (QuarterDotted, (16 * 3 * 1.5).toInt),
+      (EighthDotted, (8 * 3 * 1.5).toInt),
+      (SixteenthDotted, (4 * 3 * 1.5).toInt),
+      (ThirtySecondDotted, (2 * 3 * 1.5).toInt)
+    )
+    IO.pure(forEach(mappings): (duration, expected) =>
+      expect(TransformMusicalEvents.durationToString(duration, "").length == expected))
+
+  test("accidentalToString maps all accidentals"):
+    val mappings = List(
       (Sharp, "#"),
       (Flat, "♭"),
       (Natural, "")
-    ).forEvery: (accidental, expected) =>
-      TransformMusicalEvents.accidentalToString(accidental) shouldBe expected
+    )
+    IO.pure(forEach(mappings): (accidental, expected) =>
+      expect.same(TransformMusicalEvents.accidentalToString(accidental), expected))
 end TransformMusicalEventsTest

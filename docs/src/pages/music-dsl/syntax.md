@@ -1,8 +1,6 @@
-# MusicalEvent Syntax 
-
+# MusicalEvent Syntax
 
 Below are some examples of the syntax provided by the `sounds-of-scala` library for generating MusicalEvents. This syntax is designed to make it easier to define notes, chords, and drum strokes.
-
 
 ### Quick Notes
 
@@ -21,9 +19,10 @@ Quick notes are defined for convenience. These can be used to quickly define com
 ### Defining Accidental, Velocity, and Duration
 
 Chaining properties onto a note using smart constructors. The below will produce a note with the properties:
-- Pitch: G1 sharp 
+
+- Pitch: G1 sharp
 - Duration: A sixteenth or semi-quaver
-- Velocity: Medium  
+- Velocity: Medium
 
 ```scala 3
 G3.sharp.sixteenth.medium
@@ -81,6 +80,7 @@ kk.whole.assertively
 ```
 
 ### Quick Rests
+
 ```scala 3
     val RestWhole = Rest(Whole)
     val RestHalf = Rest(Half)
@@ -107,4 +107,4 @@ kk.whole.assertively
     val r32triplet = Rest(ThirtySecondTriplet)
 ```
 
-### [Next Step: Syntax](../instruments/README.md)
+### [Next Step: Instruments](../instruments/README.md)
