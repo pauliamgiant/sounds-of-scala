@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="../music-dsl/building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="../music-dsl/syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -93,9 +91,12 @@
   <p class="header"><a href="#">Getting Started</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#adding-sounds-of-scala-to-your-project">Adding Sounds of Scala to your project</a></li>
+    <li class="level1 nav-leaf"><a href="#playing-audio">Playing Audio</a></li>
     <li class="level1 nav-node"><a href="#creating-a-scala-js-project">Creating a Scala.js Project</a></li>
+    <li class="level2 nav-leaf"><a href="#scala-js-with-tyrian-recommended">Scala.js with Tyrian (Recommended)</a></li>
+    <li class="level2 nav-leaf"><a href="#scala-js-with-laminar">Scala.js with Laminar</a></li>
     <li class="level2 nav-leaf"><a href="#scala-js-with-vite">Scala.js with Vite</a></li>
-    <li class="level2 nav-leaf"><a href="#scala-js-with-tyrian">Scala.js with Tyrian</a></li>
     <li class="level2 nav-leaf"><a href="#scala-js-docs">Scala.js docs</a></li>
     <li class="level2 nav-leaf"><a href="#a-quick-project-scaffold-using-scala-js-vite">A Quick Project Scaffold using Scala.js &amp; Vite</a></li>
     <li class="level2 nav-leaf"><a href="#next-step-playing-a-test-song"><a href="playing-test-song.html">Next Step: Playing a test song</a></a></li>
@@ -109,34 +110,56 @@
 
         <h1 id="getting-started" class="title">Getting Started</h1>
         
+        <h2 id="adding-sounds-of-scala-to-your-project" class="section"><a class="anchor-link left" href="#adding-sounds-of-scala-to-your-project"><i class="icofont-laika link">&#xef71;</i></a>Adding Sounds of Scala to your project</h2>
+        <p>Add the following to your build.sbt file:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.soundsofscala&quot;</span><span> %%% </span><span class="string-literal">&quot;sounds-of-scala&quot;</span><span> % </span><span class="string-literal">&quot;0.8.2&quot;</span></code></pre>
+        
+        <h2 id="playing-audio" class="section"><a class="anchor-link left" href="#playing-audio"><i class="icofont-laika link">&#xef71;</i></a>Playing Audio</h2>
+        <p>It occurred to me two years into the project that the most basic functionality to provide is to simply be able to play audio from a Scala project.</p>
+        <p>The fastest way to make some sound emanate from your device is with the SimpleAudioPlayer.</p>
+        <p>In the code of your Scala.js project, pass the path to an audio file to the SimpleAudioPlayer constructor.</p>
+        <p>Making sure you have the volume turned up is on you.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">audioPlayer</span><span> = </span><span class="type-name">SimpleAudioPlayer</span><span>(</span><span class="string-literal">&quot;&lt;PATH_TO_LOCAL_AUDIO_FILE&gt;&quot;</span><span>)
+</span><span class="identifier">audioPlayer</span><span>.</span><span class="identifier">play</span><span>()
+</span><span class="identifier">audioPlayer</span><span>.</span><span class="identifier">pause</span><span>()
+</span><span class="identifier">audioPlayer</span><span>.</span><span class="identifier">play</span><span>()
+</span><span class="identifier">audioPlayer</span><span>.</span><span class="identifier">stop</span><span>()</span></code></pre>
+        
         <h2 id="creating-a-scala-js-project" class="section"><a class="anchor-link left" href="#creating-a-scala-js-project"><i class="icofont-laika link">&#xef71;</i></a>Creating a Scala.js Project</h2>
-        <p>In order to use Sounds of Scala you will need to create a Scala.js project.</p>
-        <p>There are a number of ways to create a Scala.js project for use with Sounds of Scala. At some point you can expect to find a giter8 template here which will do this all for you but for now you can use one of the following methods. </p>
+        <p>In order to use Sounds of Scala to build a web audio application you will need to create a Scala.js project.</p>
+        <p>There are a number of ways to create a Scala.js project. At some point you can expect to find a giter8 template here which will do this all for you but for now you can use one of the following methods.</p>
         <hr>
         
-        <h3 id="scala-js-with-vite" class="section"><a class="anchor-link left" href="#scala-js-with-vite"><i class="icofont-laika link">&#xef71;</i></a>Scala.js with Vite</h3>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt new scala-js/vite.g</span><span class="number-literal">8</span></code></pre>
-        <p>Once you have the created the project from the giter8 template bump the minimum versions of the following:</p>
-        <p>In project/build.properties:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt.version=</span><span class="number-literal">1.10.0</span></code></pre>
-        <p>In build.sbt</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span> </span><span class="identifier">scalaVersion</span><span> := </span><span class="string-literal">&quot;3.3.3&quot;</span><span>
- </span><span class="string-literal">&quot;org.scala-js&quot;</span><span> %%% </span><span class="string-literal">&quot;scalajs-dom&quot;</span><span> % </span><span class="string-literal">&quot;2.8.0&quot;</span></code></pre>
-        <p>And in project/plugins.sbt the sbt-scalajs plug in.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.scala-js&quot;</span><span> % </span><span class="string-literal">&quot;sbt-scalajs&quot;</span><span> % </span><span class="string-literal">&quot;1.16.0&quot;</span><span>)</span></code></pre>
-        <hr>
-        
-        <h3 id="scala-js-with-tyrian" class="section"><a class="anchor-link left" href="#scala-js-with-tyrian"><i class="icofont-laika link">&#xef71;</i></a>Scala.js with Tyrian</h3>
+        <h3 id="scala-js-with-tyrian-recommended" class="section"><a class="anchor-link left" href="#scala-js-with-tyrian-recommended"><i class="icofont-laika link">&#xef71;</i></a>Scala.js with Tyrian (Recommended)</h3>
+        <p><a href="https://tyrian.indigoengine.io/">Tyrian</a> is a Scala.js web framework built on Cats Effect. Since Sounds of Scala also uses Cats Effect for all of its IO and concurrency, Tyrian is the natural pairing. You get a consistent functional programming model across your UI and audio code, with no need to bridge between different effect systems.</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt new PurpleKingdomGames/tyrian.g</span><span class="number-literal">8</span></code></pre>
         <hr>
         
+        <h3 id="scala-js-with-laminar" class="section"><a class="anchor-link left" href="#scala-js-with-laminar"><i class="icofont-laika link">&#xef71;</i></a>Scala.js with Laminar</h3>
+        <p><a href="https://laminar.dev/">Laminar</a> is another excellent Scala.js UI framework. It uses its own reactive system (Airstream) rather than Cats Effect, so you will need to bridge between the two when connecting your UI to the Sounds of Scala API.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt new raquo/scalajs.g</span><span class="number-literal">8</span></code></pre>
+        <p>Say &quot;yes&quot; to Laminar and CSS.</p>
+        <hr>
+        
+        <h3 id="scala-js-with-vite" class="section"><a class="anchor-link left" href="#scala-js-with-vite"><i class="icofont-laika link">&#xef71;</i></a>Scala.js with Vite</h3>
+        <p>If you prefer a minimal setup without a UI framework, you can use the Scala.js Vite template.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt new scala-js/vite.g</span><span class="number-literal">8</span></code></pre>
+        <p>Once you have created the project from the giter8 template, bump the minimum versions of the following:</p>
+        <p>In project/build.properties:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt.version=</span><span class="number-literal">1.10.0</span></code></pre>
+        <p>In build.sbt:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span> </span><span class="identifier">scalaVersion</span><span> := </span><span class="string-literal">&quot;3.3.3&quot;</span><span>
+ </span><span class="string-literal">&quot;org.scala-js&quot;</span><span> %%% </span><span class="string-literal">&quot;scalajs-dom&quot;</span><span> % </span><span class="string-literal">&quot;2.8.0&quot;</span></code></pre>
+        <p>And in project/plugins.sbt:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.scala-js&quot;</span><span> % </span><span class="string-literal">&quot;sbt-scalajs&quot;</span><span> % </span><span class="string-literal">&quot;1.16.0&quot;</span><span>)</span></code></pre>
+        <hr>
+        
         <h3 id="scala-js-docs" class="section"><a class="anchor-link left" href="#scala-js-docs"><i class="icofont-laika link">&#xef71;</i></a>Scala.js docs</h3>
-        <p><a href="https://www.scala-js.org/doc/tutorial/basic/">Scala.js Docs</a>
-        And then follow this guide to add Scala</p>
+        <p><a href="https://www.scala-js.org/doc/tutorial/basic/">Scala.js Docs</a></p>
         
         <h3 id="a-quick-project-scaffold-using-scala-js-vite" class="section"><a class="anchor-link left" href="#a-quick-project-scaffold-using-scala-js-vite"><i class="icofont-laika link">&#xef71;</i></a>A Quick Project Scaffold using Scala.js &amp; Vite</h3>
-        <p>Here is an example of a simple Scala.js project using the Vite template:</p>
-        <p>You can use this to get started with your own project quickly, and simply start using the Sounds of Scala library from within the <strong>firstMusicProgram</strong> method.</p>
+        <p>Here is an example of a simple Scala.js project using the Vite template.</p>
+        <p>You can use this to get started quickly and start using the Sounds of Scala library from within the <strong>firstMusicProgram</strong> method.</p>
         <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">Ref</span><span>}
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="identifier">unsafe</span><span>.</span><span class="identifier">implicits</span><span>.</span><span class="identifier">global</span><span>
 </span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>
@@ -152,7 +175,8 @@
   </span><span class="keyword">val</span><span> </span><span class="identifier">heading</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;h1&quot;</span><span>)
   </span><span class="identifier">heading</span><span>.</span><span class="identifier">textContent</span><span> = </span><span class="string-literal">&quot;My First Music App&quot;</span><span>
 
-  </span><span class="keyword">val</span><span> </span><span class="identifier">button</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>).</span><span class="identifier">asInstanceOf</span><span>[</span><span class="identifier">dom</span><span>.</span><span class="identifier">html</span><span>.</span><span class="type-name">Button</span><span>]
+</span><span class="comment">// asInstanceOf - you&#39;ll have to get over it on this occasion
+</span><span>  </span><span class="keyword">val</span><span> </span><span class="identifier">button</span><span> = </span><span class="identifier">document</span><span>.</span><span class="identifier">createElement</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>).</span><span class="identifier">asInstanceOf</span><span>[</span><span class="identifier">dom</span><span>.</span><span class="identifier">html</span><span>.</span><span class="type-name">Button</span><span>]
   </span><span class="identifier">button</span><span>.</span><span class="identifier">classList</span><span>.</span><span class="identifier">add</span><span>(</span><span class="string-literal">&quot;button&quot;</span><span>)
   </span><span class="identifier">button</span><span>.</span><span class="identifier">textContent</span><span> = </span><span class="string-literal">&quot;▶️&quot;</span><span>
   </span><span class="identifier">button</span><span>.</span><span class="identifier">onclick</span><span> = </span><span class="identifier">_</span><span> =&gt;
@@ -164,7 +188,7 @@
   </span><span class="identifier">dom</span><span>.</span><span class="identifier">document</span><span>.</span><span class="identifier">querySelector</span><span>(</span><span class="string-literal">&quot;#app&quot;</span><span>).</span><span class="identifier">append</span><span>(</span><span class="identifier">homeDiv</span><span>)
 
 </span><span class="keyword">def</span><span> </span><span class="declaration-name">firstMusicProgram</span><span>(): </span><span class="type-name">AudioContext</span><span> ?=&gt; </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = ???
-  
+
   </span><span class="comment">// TODO: Your code</span></code></pre>
         
         <h3 id="next-step-playing-a-test-song" class="section"><a class="anchor-link left" href="#next-step-playing-a-test-song"><i class="icofont-laika link">&#xef71;</i></a><a href="playing-test-song.html">Next Step: Playing a test song</a></h3>

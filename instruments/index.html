@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="../music-dsl/building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="../music-dsl/syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 active nav-node"><a href="#">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -93,7 +91,10 @@
   <p class="header"><a href="#">Instruments</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#next-step-scalasynth"><a href="ScalaSynth.html">Next Step: ScalaSynth</a></a></li>
+    <li class="level1 nav-leaf"><a href="#sampler">Sampler</a></li>
+    <li class="level1 nav-leaf"><a href="#synthesizers">Synthesizers</a></li>
+    <li class="level1 nav-leaf"><a href="#drum-machines">Drum Machines</a></li>
+    <li class="level1 nav-leaf"><a href="#next-step-sampler"><a href="Sampler.html">Next Step: Sampler</a></a></li>
   </ul>
 
   <p class="footer"></p>
@@ -103,10 +104,28 @@
       <main class="content">
 
         <h1 id="instruments" class="title">Instruments</h1>
-        <p>Examples of virtual instruments are Synthesizers, Sequencers, Drum Machines, and Samplers.</p>
-        <p>There are a handful of non-configurable basic instruments provided by the library at this time.</p>
+        <p>Every track in a song needs an instrument to produce sound. All instruments implement the <code>Instrument</code> trait, which provides <code>play</code> and <code>stop</code> methods. The library ships with synthesizers, drum machines and a sampler.</p>
         
-        <h3 id="next-step-scalasynth" class="section"><a class="anchor-link left" href="#next-step-scalasynth"><i class="icofont-laika link">&#xef71;</i></a><a href="ScalaSynth.html">Next Step: ScalaSynth</a></h3>
+        <h4 id="sampler" class="section"><a class="anchor-link left" href="#sampler"><i class="icofont-laika link">&#xef71;</i></a>Sampler</h4>
+        <p>The <strong>Sampler</strong> is one of the most powerful instruments in the library. It lets you load real audio samples and play them back at any pitch by automatically adjusting the playback rate. It uses a binary search to find the closest sample to the target frequency, keeping pitch shifting artefacts to a minimum.</p>
+        <p>The library ships with several built in sample sets ready to use: <code>Sampler.piano</code>, <code>Sampler.guitar</code>, <code>Sampler.bassGuitar</code>, <code>Sampler.kickDrum</code>, <code>Sampler.snareDrum</code> and a few more unusual ones. You can also load your own samples from any audio file path using <code>Sampler.fromPaths</code>.</p>
+        
+        <h4 id="synthesizers" class="section"><a class="anchor-link left" href="#synthesizers"><i class="icofont-laika link">&#xef71;</i></a>Synthesizers</h4>
+        <p>Synths generate sound from oscillators and are used for melodic content (notes, chords, melodies). Each synth uses a different waveform or synthesis technique to produce its timbre:</p>
+        <ul>
+          <li><strong>ScalaSynth</strong> - The default synth, a simple starting point</li>
+          <li><strong>PianoSynth</strong> - Wavetable oscillator with a velocity sensitive envelope. There is a built in Piano sampler however that uses real samples so if you actually want to play a piano you should use that instead.</li>
+          <li><strong>ViolinSynth</strong> - Wavetable oscillator with vibrato and filtering to approximate a bowed string</li>
+          <li><strong>QuirkyFilterSynth</strong> - An experimental synth with filter modulation for more unusual timbres. If anybody calls you quirky it will surely be a compliment.</li>
+        </ul>
+        <p>All synths extend the <code>Synth</code> trait, which handles note and chord playback. You can call <code>Synth()</code> to get the default (ScalaSynth).</p>
+        
+        <h4 id="drum-machines" class="section"><a class="anchor-link left" href="#drum-machines"><i class="icofont-laika link">&#xef71;</i></a>Drum Machines</h4>
+        <ul>
+          <li><strong>Simple80sDrumMachine</strong> - A digital drum synthesiser modelled on vintage 80s electronic drum machines with Kick, Snare and HiHat voices</li>
+        </ul>
+        
+        <h3 id="next-step-sampler" class="section"><a class="anchor-link left" href="#next-step-sampler"><i class="icofont-laika link">&#xef71;</i></a><a href="Sampler.html">Next Step: Sampler</a></h3>
 
         
 <hr class="footer-rule"/>

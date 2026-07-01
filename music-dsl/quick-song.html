@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -123,7 +121,7 @@
   </span><span class="keyword">yield</span><span> </span><span class="type-name">Song</span><span>(
     </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;First, Maybe Last Song&quot;</span><span>),
     </span><span class="identifier">tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">120</span><span>),
-    </span><span class="identifier">swing</span><span> = </span><span class="type-name">Swing</span><span>(</span><span class="number-literal">0</span><span>),
+    </span><span class="identifier">swing</span><span> = </span><span class="type-name">Swing</span><span>(</span><span class="type-name">SwingAmount</span><span>(</span><span class="number-literal">0</span><span>), </span><span class="type-name">SwingResolution</span><span>.</span><span class="type-name">Eighth</span><span>),
     </span><span class="identifier">mixer</span><span> = </span><span class="type-name">Mixer</span><span>(
       </span><span class="type-name">Track</span><span>(
         </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Scala Synth Bassline&quot;</span><span>),

@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -107,7 +105,7 @@
         <h1 id="building-notes" class="title">Building Notes</h1>
         <p>Notes are the building blocks of music. They are defined by their pitch, accidental, duration, octave, velocity and offset.</p>
         <p>Here is the Note Model</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enum</span><span> </span><span class="type-name">AtomoicMusicalEvent</span><span>:
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enum</span><span> </span><span class="type-name">AtomicMusicalEvent</span><span>:
   </span><span class="keyword">case</span><span> </span><span class="type-name">Note</span><span>(
     </span><span class="identifier">pitch</span><span>: </span><span class="type-name">Pitch</span><span>,
     </span><span class="identifier">accidental</span><span>: </span><span class="type-name">Accidental</span><span>,
@@ -122,12 +120,12 @@
           <li><strong>pitch</strong>: The pitch of the note (A, B, C, D, E, F, G)</li>
           <li><strong>accidental</strong>: The accidental of the note (Natural, Sharp, Flat)</li>
           <li><strong>duration</strong>: The duration of the note (Whole, Half, Quarter, Eighth, Sixteenth, ThirtySecond)</li>
-          <li><strong>octave</strong>: The octave of the note (Octave1, Octave2, Octave3, Octave4, Octave5, Octave6, Octave7)</li>
-          <li><strong>velocity</strong>: The velocity of the note (Soft, Medium, Loud) or (pp, p, mp, mf, f, ff)</li>
-          <li><strong>offset</strong>: The timing offset of the note to gain further fine grained control of the timing of the note (yet to be implemented)</li>
+          <li><strong>octave</strong>: The octave of the note, a refined <code>Int</code> constructed as <code>Octave(n)</code> where n is typically 0 to 8</li>
+          <li><strong>velocity</strong>: The velocity of the note. Plain English names: <code>Softest</code>, <code>Soft</code>, <code>Medium</code>, <code>Assertively</code>, <code>Loud</code>, <code>Louder</code>, <code>OnFull</code>. Musical dynamics: <code>Pianississimo</code>, <code>Pianissimo</code>, <code>Piano</code>, <code>MezzoPiano</code>, <code>MezzoForte</code>, <code>Forte</code>, <code>Fortissimo</code>, <code>Fortississimo</code>. Shorthand methods are also available on notes: <code>.ppp</code>, <code>.pp</code>, <code>.p</code>, <code>.mp</code>, <code>.mf</code>, <code>.f</code>, <code>.ff</code>, <code>.fff</code></li>
+          <li><strong>offset</strong>: The timing offset of the note for fine grained control of timing</li>
         </ul>
         <p>Here is an example of defining a single note:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Note</span><span>(</span><span class="type-name">C</span><span>, </span><span class="type-name">Natural</span><span>, </span><span class="type-name">Quarter</span><span>, </span><span class="type-name">Octave4</span><span>, </span><span class="type-name">Medium</span><span>)</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Note</span><span>(</span><span class="type-name">C</span><span>, </span><span class="type-name">Natural</span><span>, </span><span class="type-name">Quarter</span><span>, </span><span class="type-name">Octave</span><span>(</span><span class="number-literal">4</span><span>), </span><span class="type-name">Medium</span><span>)</span></code></pre>
         
         <h3 id="idiomatic-notes" class="section"><a class="anchor-link left" href="#idiomatic-notes"><i class="icofont-laika link">&#xef71;</i></a>Idiomatic Notes</h3>
         <p>Again, we have a range of syntactic sugar to make instantiating a note more readable:</p>

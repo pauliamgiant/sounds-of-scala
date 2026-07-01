@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>PianoSynth</title>
+  <title>Simple80sDrumMachine</title>
   
   
   <meta name="description" content="Documentation for Sounds of Scala"/>
@@ -77,9 +77,9 @@
     <li class="level2 nav-leaf"><a href="../music-dsl/syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="index.html">Instruments</a></li>
     <li class="level2 nav-leaf"><a href="Sampler.html">Sampler</a></li>
-    <li class="level2 active nav-leaf"><a href="#">PianoSynth</a></li>
+    <li class="level2 nav-leaf"><a href="PianoSynth.html">PianoSynth</a></li>
     <li class="level2 nav-leaf"><a href="ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -88,12 +88,9 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">PianoSynth</a></p>
+  <p class="header"><a href="#">Simple80sDrumMachine</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#creating-a-pianosynth">Creating a PianoSynth</a></li>
-    <li class="level1 nav-leaf"><a href="#using-in-a-song">Using in a Song</a></li>
-    <li class="level1 nav-leaf"><a href="#next-step-scalasynth"><a href="ScalaSynth.html">Next Step: ScalaSynth</a></a></li>
   </ul>
 
   <p class="footer"></p>
@@ -102,34 +99,9 @@
 
       <main class="content">
 
-        <h1 id="pianosynth" class="title">PianoSynth</h1>
-        <p>The PianoSynth is a synthesised keyboard instrument built using the Web Audio API&#39;s wavetable oscillator. It generates its tone from a custom Fourier series with six harmonics, giving it a bright, clear timbre. A velocity sensitive envelope shapes each note with a fast attack, a gentle decay, and a long exponential release.</p>
-        <p>We&#39;re confident one day it will sound more like an electronic piano.. until then it can limp along in this role.</p>
-        
-        <h4 id="creating-a-pianosynth" class="section"><a class="anchor-link left" href="#creating-a-pianosynth"><i class="icofont-laika link">&#xef71;</i></a>Creating a PianoSynth</h4>
-        <p>The PianoSynth is created as an <code>IO</code> since it initialises internal state for tracking active audio nodes.</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">piano</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">PianoSynth</span><span>] = </span><span class="type-name">PianoSynth</span><span>()</span></code></pre>
-        
-        <h4 id="using-in-a-song" class="section"><a class="anchor-link left" href="#using-in-a-song"><i class="icofont-laika link">&#xef71;</i></a>Using in a Song</h4>
-        <p>A single PianoSynth instance can be shared across multiple tracks. Here is an example from the Beethoven song included with the library:</p>
-        <pre><code class="nohighlight"><span class="type-name">PianoSynth</span><span>().</span><span class="identifier">map</span><span>: </span><span class="identifier">sharedPiano</span><span> =&gt;
-  </span><span class="type-name">Song</span><span>(
-    </span><span class="identifier">title</span><span> = </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Something We All Know&quot;</span><span>),
-    </span><span class="identifier">tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">110</span><span>),
-    </span><span class="identifier">mixer</span><span> = </span><span class="type-name">Mixer</span><span>(
-      </span><span class="type-name">Track</span><span>(
-        </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Upper Voice&quot;</span><span>),
-        </span><span class="identifier">upperVoice</span><span>,
-        </span><span class="identifier">sharedPiano</span><span>,
-        </span><span class="type-name">Playback</span><span>.</span><span class="type-name">OneShot</span><span>),
-      </span><span class="type-name">Track</span><span>(
-        </span><span class="type-name">Title</span><span>(</span><span class="string-literal">&quot;Lower Voice&quot;</span><span>),
-        </span><span class="identifier">lowerVoice</span><span>,
-        </span><span class="identifier">sharedPiano</span><span>,
-        </span><span class="type-name">Playback</span><span>.</span><span class="type-name">OneShot</span><span>)
-    ))</span></code></pre>
-        
-        <h3 id="next-step-scalasynth" class="section"><a class="anchor-link left" href="#next-step-scalasynth"><i class="icofont-laika link">&#xef71;</i></a><a href="ScalaSynth.html">Next Step: ScalaSynth</a></h3>
+        <h1 id="simple80sdrummachine" class="title">Simple80sDrumMachine</h1>
+        <p>This is a very simple digital drum synthesiser modelled on vintage 80&#39;s electronic drum machines.</p>
+        <p>It has only 3 voices at present: Kick, Snare and HiHat. Each voice has a single sound with volume controlled by a simple envelope that is set from the note velocity of a musical event.</p>
 
         
 <hr class="footer-rule"/>

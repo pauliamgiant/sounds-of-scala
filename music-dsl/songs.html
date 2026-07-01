@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -110,11 +108,11 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Song</span><span>(
     </span><span class="identifier">title</span><span>: </span><span class="type-name">Title</span><span>,
     </span><span class="identifier">tempo</span><span>: </span><span class="type-name">Tempo</span><span> = </span><span class="type-name">Tempo</span><span>(</span><span class="number-literal">120</span><span>),
-    </span><span class="identifier">swing</span><span>: </span><span class="type-name">Swing</span><span> = </span><span class="type-name">Swing</span><span>(</span><span class="number-literal">0</span><span>),
+    </span><span class="identifier">swing</span><span>: </span><span class="type-name">Swing</span><span> = </span><span class="type-name">Swing</span><span>(</span><span class="type-name">SwingAmount</span><span>(</span><span class="number-literal">0</span><span>), </span><span class="type-name">SwingResolution</span><span>.</span><span class="type-name">Eighth</span><span>),
     </span><span class="identifier">mixer</span><span>: </span><span class="type-name">Mixer</span><span>
 )</span></code></pre>
         <p>The title, tempo and swing, should be self explanatory and take provided types wrapping a string and integers for these values.</p>
-        <blockquote>NOTE: Swing is yet to be implemented.</blockquote>
+        <p><code>Swing</code> takes a <code>SwingAmount</code> (a refined <code>Int</code>) and a <code>SwingResolution</code> (<code>Eighth</code> or <code>Sixteenth</code>) that controls which beats get the swing feel.</p>
         
         <h3 id="the-mixer-type" class="section"><a class="anchor-link left" href="#the-mixer-type"><i class="icofont-laika link">&#xef71;</i></a>The Mixer Type</h3>
         <p>Mixer is where we will place all our <strong>Tracks</strong> and this will simulate the effect of a real world mixing desk, where we can simultaneously play and manipulate audio on multiple tracks.</p>
@@ -140,7 +138,7 @@
     </span><span class="identifier">playback</span><span>: </span><span class="type-name">Playback</span><span>,
     </span><span class="identifier">customSettings</span><span>: </span><span class="type-name">Option</span><span>[</span><span class="type-name">Settings</span><span>] = </span><span class="type-name">None</span><span>,
     </span><span class="identifier">insertFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>,
-    </span><span class="identifier">sendFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>)</span></code></pre>
+    </span><span class="identifier">sendFX</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">FX</span><span>] = </span><span class="type-name">List</span><span>.</span><span class="identifier">empty</span><span>)(</span><span class="identifier">using</span><span> </span><span class="type-name">Default</span><span>[</span><span class="type-name">Settings</span><span>])</span></code></pre>
         
         <h3 id="playing-a-song-with-the-sequencer" class="section"><a class="anchor-link left" href="#playing-a-song-with-the-sequencer"><i class="icofont-laika link">&#xef71;</i></a>Playing a Song with the Sequencer</h3>
         <p>Song is pure data — to play it, wrap it in a <code>Ref[IO, Song]</code> and pass it to a <code>Sequencer</code>:</p>

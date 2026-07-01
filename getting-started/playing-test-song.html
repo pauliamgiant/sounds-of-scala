@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="../music-dsl/building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="../music-dsl/syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -93,6 +91,7 @@
   <p class="header"><a href="#">Playing a Test Song</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#why-a-ref">Why a Ref?</a></li>
     <li class="level1 nav-leaf"><a href="#next-step-creating-your-own-song"><a href="../music-dsl/songs.html#the-song-type">Next Step: Creating your own Song</a></a></li>
   </ul>
 
@@ -123,7 +122,11 @@
     </span><span class="identifier">sequencer</span><span> &lt;- </span><span class="type-name">Sequencer</span><span>(</span><span class="identifier">songRef</span><span>)
     </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">sequencer</span><span>.</span><span class="identifier">play</span><span>()
   </span><span class="keyword">yield</span><span> ()</span></code></pre>
-        <p>The <code>Song</code> is pure data — it holds the title, tempo, swing and mixer (tracks). To play it, we wrap it in a <code>Ref[IO, Song]</code> and pass it to a <code>Sequencer</code>. The Ref enables real-time updates to any property while the song is playing.</p>
+        <p>The <code>Song</code> is pure data. It holds the title, tempo, swing and mixer (tracks). To play it, we wrap it in a <code>Ref[IO, Song]</code> and pass it to a <code>Sequencer</code>.</p>
+        
+        <h4 id="why-a-ref" class="section"><a class="anchor-link left" href="#why-a-ref"><i class="icofont-laika link">&#xef71;</i></a>Why a Ref?</h4>
+        <p>The Sequencer re-reads the <code>Song</code> from the <code>Ref</code> before scheduling every note. This means any change you make to the <code>Song</code> (tempo, swing, or even swapping out an entire track&#39;s pattern) takes effect immediately during playback. Without the <code>Ref</code>, the Sequencer would have a static snapshot of the song with no way to react to changes.</p>
+        <p>This is also what enables pause and resume. The Sequencer tracks the current beat position as it plays, so when you call <code>sequencer.pause()</code> it preserves where you are in the song, and <code>sequencer.play()</code> picks up from that position.</p>
         <p>Once you have played that and heard some audio playing you can:</p>
         <ul>
           <li>Click into <code>ExampleSong1</code> and see how the song is defined</li>

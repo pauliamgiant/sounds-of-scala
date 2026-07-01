@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>Sampler - COMING SOON</title>
+  <title>Sampler</title>
   
   
   <meta name="description" content="Documentation for Sounds of Scala"/>
@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="../music-dsl/building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="../music-dsl/syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="index.html">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 active nav-leaf"><a href="#">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -90,9 +88,13 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">Sampler - COMING SOON</a></p>
+  <p class="header"><a href="#">Sampler</a></p>
 
   <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#built-in-sample-sets">Built in Sample Sets</a></li>
+    <li class="level1 nav-leaf"><a href="#loading-your-own-samples">Loading your own Samples</a></li>
+    <li class="level1 nav-leaf"><a href="#example-songs-using-the-sampler">Example Songs using the Sampler</a></li>
+    <li class="level1 nav-leaf"><a href="#next-step-pianosynth"><a href="PianoSynth.html">Next Step: PianoSynth</a></a></li>
   </ul>
 
   <p class="footer"></p>
@@ -101,7 +103,37 @@
 
       <main class="content">
 
-        <h1 id="sampler-coming-soon" class="title">Sampler - COMING SOON</h1>
+        <h1 id="sampler" class="title">Sampler</h1>
+        <p>This Sampler was built as a Scala Centre Google summer of code project in 2024 by Johanna Odersky. It acts like a classic hardward sampler in a traditional sense, allowing you to load real audio samples and play them back as part of a song at any pitch.</p>
+        <p>Here is a link to <a href="https://gist.github.com/ikukojohanna/5e23c4bd79e24c2aeb8454b2507981d1">Johanna&#39;s project write up</a>.</p>
+        <p>When a note is played, it finds the closest sample to the target frequency using a binary search and adjusts the playback rate to match the requested pitch. This keeps pitch shifting artefacts to a minimum by always playing from the nearest available sample.</p>
+        
+        <h4 id="built-in-sample-sets" class="section"><a class="anchor-link left" href="#built-in-sample-sets"><i class="icofont-laika link">&#xef71;</i></a>Built in Sample Sets</h4>
+        <p>The library ships with several ready to use sample sets:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Sampler</span><span>.</span><span class="identifier">piano</span><span>        </span><span class="comment">// Piano samples across 2 octaves
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">guitar</span><span>       </span><span class="comment">// Acoustic guitar samples played by Harvey Cambridge potentially in his bedroom.
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">bassGuitar</span><span>   </span><span class="comment">// Pauls musicman stingray bass guitar samples across 2 octaves
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">kickDrum</span><span>     </span><span class="comment">// Doob, Doob
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">snareDrum</span><span>    </span><span class="comment">// Snare drum
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">rhubarb</span><span>      </span><span class="comment">// Yup, rhubarb
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">vinyl</span><span>        </span><span class="comment">// Vinyl noise
+</span><span class="type-name">Sampler</span><span>.</span><span class="identifier">sparkles</span><span>     </span><span class="comment">// Sparkle effect</span></code></pre>
+        
+        <h4 id="loading-your-own-samples" class="section"><a class="anchor-link left" href="#loading-your-own-samples"><i class="icofont-laika link">&#xef71;</i></a>Loading your own Samples</h4>
+        <p>You can create a Sampler from any audio files by providing a list of <code>SampleKey</code> to file path pairs. Each <code>SampleKey</code> identifies the pitch of the sample so the Sampler knows how to pitch shift from it.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">mySampler</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Sampler</span><span>] = </span><span class="type-name">Sampler</span><span>.</span><span class="identifier">fromPaths</span><span>(</span><span class="type-name">List</span><span>(
+  </span><span class="type-name">SampleKey</span><span>(</span><span class="type-name">Pitch</span><span>.</span><span class="type-name">C</span><span>, </span><span class="type-name">Accidental</span><span>.</span><span class="type-name">Natural</span><span>, </span><span class="type-name">Octave</span><span>(</span><span class="number-literal">3</span><span>)) -&gt; </span><span class="string-literal">&quot;path/to/c3.wav&quot;</span><span>,
+  </span><span class="type-name">SampleKey</span><span>(</span><span class="type-name">Pitch</span><span>.</span><span class="type-name">G</span><span>, </span><span class="type-name">Accidental</span><span>.</span><span class="type-name">Natural</span><span>, </span><span class="type-name">Octave</span><span>(</span><span class="number-literal">3</span><span>)) -&gt; </span><span class="string-literal">&quot;path/to/g3.wav&quot;</span><span>
+))</span></code></pre>
+        <p>The more samples you provide across the pitch range, the less pitch shifting is needed and the more natural the result will sound.</p>
+        <p>The best examples of how to use the Sampler can be found in the <code>Sampler</code> companion object itself. Each built in sample set (such as <code>Sampler.piano</code> or <code>Sampler.bassGuitar</code>) demonstrates the pattern: define a list of <code>SampleKey</code> to file path pairs, then call <code>Sampler.fromPaths</code>. The companion object source is at <code>org.soundsofscala.instrument.Sampler</code>.</p>
+        
+        <h4 id="example-songs-using-the-sampler" class="section"><a class="anchor-link left" href="#example-songs-using-the-sampler"><i class="icofont-laika link">&#xef71;</i></a>Example Songs using the Sampler</h4>
+        <p><code>ExampleSong1</code> is a full multi track song that mixes samplers with synths. It creates a custom drum sampler from individual kick, snare and hihat audio files, loads the built in <code>Sampler.bassGuitar</code> and <code>Sampler.guitar</code>, and combines them with <code>ScalaSynth</code> and <code>QuirkyFilterSynth</code> tracks. It is a good reference for how to wire up custom <code>SamplePlayer.Settings</code> per track.</p>
+        <p><code>ExampleSongSampler</code> showcases the more unusual built in sample sets like <code>Sampler.rhubarb</code>, <code>Sampler.vinyl</code> and <code>Sampler.sparkles</code>. It also demonstrates reversed playback using custom <code>SamplePlayer.Settings</code> with <code>reversed = true</code>, along with offset and length controls for slicing into a sample.</p>
+        <p>Both can be found in the <code>org.soundsofscala.songexamples</code> package.</p>
+        
+        <h3 id="next-step-pianosynth" class="section"><a class="anchor-link left" href="#next-step-pianosynth"><i class="icofont-laika link">&#xef71;</i></a><a href="PianoSynth.html">Next Step: PianoSynth</a></h3>
 
         
 <hr class="footer-rule"/>

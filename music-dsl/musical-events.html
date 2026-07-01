@@ -76,12 +76,10 @@
     <li class="level2 nav-leaf"><a href="building-melodies.html">Building Melodies</a></li>
     <li class="level2 nav-leaf"><a href="syntax.html">MusicalEvent Syntax</a></li>
     <li class="level1 nav-node"><a href="../instruments/">Instruments</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SineSynth.html">SineSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SawtoothSynth.html">SawtoothSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/SimpleDrumMachine.html">SimpleDrumMachine</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler</a></li>
     <li class="level2 nav-leaf"><a href="../instruments/PianoSynth.html">PianoSynth</a></li>
-    <li class="level2 nav-leaf"><a href="../instruments/Sampler.html">Sampler - COMING SOON</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/ScalaSynth.html">ScalaSynth</a></li>
+    <li class="level2 nav-leaf"><a href="../instruments/Simple80sDrumMachine.html">Simple80sDrumMachine</a></li>
   </ul>
 
 </nav>
@@ -110,9 +108,11 @@
           <li><code>AtomicMusicalEvent</code> - a single event that can be played</li>
           <li><code>Sequence</code> - a sequence of events that can be played in order</li>
         </ul>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">sealed</span><span> </span><span class="keyword">trait</span><span> </span><span class="type-name">MusicalEvent</span><span>:
-    </span><span class="identifier">enum</span><span> </span><span class="type-name">AtomicMusicalEvent</span><span>(</span><span class="identifier">duration</span><span>: </span><span class="type-name">Duration</span><span>, </span><span class="identifier">velocity</span><span>: </span><span class="type-name">Velocity</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MusicalEvent</span><span>
-    </span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Sequence</span><span>(</span><span class="identifier">head</span><span>: </span><span class="type-name">AtomicMusicalEvent</span><span>, </span><span class="identifier">tail</span><span>: </span><span class="type-name">MusicalEvent</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MusicalEvent</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">sealed</span><span> </span><span class="keyword">trait</span><span> </span><span class="type-name">MusicalEvent</span><span>
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">AtomicMusicalEvent</span><span>(</span><span class="identifier">duration</span><span>: </span><span class="type-name">Duration</span><span>, </span><span class="identifier">velocity</span><span>: </span><span class="type-name">Velocity</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MusicalEvent</span><span>
+
+</span><span class="keyword">final</span><span> </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Sequence</span><span>(</span><span class="identifier">head</span><span>: </span><span class="type-name">AtomicMusicalEvent</span><span>, </span><span class="identifier">tail</span><span>: </span><span class="type-name">MusicalEvent</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MusicalEvent</span></code></pre>
         
         <h3 id="types-of-atomicmusicalevents" class="section"><a class="anchor-link left" href="#types-of-atomicmusicalevents"><i class="icofont-laika link">&#xef71;</i></a>Types of AtomicMusicalEvents</h3>
         <ul>
