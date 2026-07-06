@@ -77,7 +77,7 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
       "org.typelevel" %%% "cats-core" % "2.13.0",
       "org.typelevel" %%% "cats-effect" % "3.7.0",
       "io.kevinlee" %%% "refined4s-core" % "1.16.0",
-      "io.kevinlee" %%% "refined4s-cats" % "1.16.0",
+      "io.kevinlee" %%% "refined4s-cats" % "1.20.0",
       "org.typelevel" %%% "weaver-cats" % "0.13.0" % Test,
     ),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect")
