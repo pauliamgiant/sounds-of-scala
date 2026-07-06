@@ -2,7 +2,7 @@ resolvers += Resolver.sonatypeCentralSnapshots
 
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.21.0")
-addSbtPlugin("com.github.reibitto" % "sbt-welcome" % "0.5.0")
+addSbtPlugin("com.github.reibitto" % "sbt-welcome" % "0.6.0")
 addSbtPlugin("org.typelevel" % "sbt-typelevel-settings" % "0.8.6")
 addSbtPlugin("org.typelevel" % "sbt-typelevel-ci-release" % "0.8.6")
 addSbtPlugin("org.typelevel" % "sbt-typelevel-site" % "0.8.6")
