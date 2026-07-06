@@ -28,7 +28,6 @@ import org.soundsofscala.models.Track.resolveTrack
  * behavior.
  *
  *   1. Reads the current Song from a `Ref[IO, Song]`, extracting the track by index.
- *
  *   2. Calculates where to resume playback from.
  *   3. Calculates the beat offset needed for notes of different lengths at resume position. Takes
  *      into acccout looping.

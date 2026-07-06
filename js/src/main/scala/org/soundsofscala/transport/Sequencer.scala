@@ -79,7 +79,6 @@ import org.soundsofscala.models.*
  *
  *   1. Using the AudioContext.currentTime to track the time of the song in minutes, seconds and
  *      milliseconds.
- *
  *   2. Using a custom timekeeping system by beats and sub beats.
  *
  * We have started with the second option and are using a custom timekeeping system by beats and sub

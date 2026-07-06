@@ -27,6 +27,23 @@ inThisBuild(
     tlCiScalafixCheck := true,
     tlJdkRelease := Some(17),
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
+    // sbt-typelevel hardcodes temurin@11 for the generated "validate-steward"
+    // job, but scala-steward 0.39.1+ is compiled for Java 17 and crashes on 11.
+    githubWorkflowGeneratedCI := githubWorkflowGeneratedCI.value.map {
+      case job if job.id == "validate-steward" =>
+        job
+          .withJavas(List(JavaSpec.temurin("17")))
+          .withSteps(job.steps.map {
+            case step: WorkflowStep.Use if step.id.contains("setup-java-temurin-11") =>
+              step
+                .withParams(step.params ++ Map("java-version" -> "17"))
+                .withName(Some("Setup Java (temurin@17)"))
+                .withId(Some("setup-java-temurin-17"))
+                .withCond(Some("matrix.java == 'temurin@17'"))
+            case step => step
+          })
+      case job => job
+    },
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
       tlGitHubDev("noelwelsh", "Noel Welsh"),
