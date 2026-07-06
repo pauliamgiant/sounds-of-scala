@@ -93,7 +93,7 @@ class NoteScheduler(
 
           // this compares the event fetched from the song ref with the original event specified when the song started playing
           if currentEventFromSongRef != context.initialEvent
-            // if the event has changed, we need to apply a live update and call scheduleSequence again
+          // if the event has changed, we need to apply a live update and call scheduleSequence again
           then applyLiveUpdate(context, currentEventFromSongRef, song)
           else playNextNote(context, track, song)
 
@@ -264,9 +264,10 @@ class NoteScheduler(
   private val calculateSwingOffset: Song => SwingOffset =
     (song: Song) =>
       val swingFromTempo = song.swing.amount.value.toDouble / 1000.0 * (60.0 / song.tempo.value)
-      SwingOffset(song.swing.resolution match
-        case SwingResolution.Eighth => swingFromTempo * 20
-        case SwingResolution.Sixteenth => swingFromTempo * 16
+      SwingOffset(
+        song.swing.resolution match
+          case SwingResolution.Eighth => swingFromTempo * 20
+          case SwingResolution.Sixteenth => swingFromTempo * 16
       )
 
   private def calculateNextNoteTime(
@@ -280,8 +281,9 @@ class NoteScheduler(
       if nextBeatPosition.isSwungBeat(song.swing) then calculateSwingOffset(song)
       else SwingOffset.none
     val nextNoteTime = NextNoteTime(
-      currentNoteTime.value + swingOffset.value + previousSwingCompensation.value + event.durationToSeconds(
-        song.tempo))
+      currentNoteTime.value + swingOffset.value + previousSwingCompensation.value +
+        event.durationToSeconds(
+          song.tempo))
     (nextNoteTime, SwingOffset.compensation(swingOffset.value))
 
   private val addNoteDurationToBeatPosition: (BeatPosition, MusicalEvent) => BeatPosition =

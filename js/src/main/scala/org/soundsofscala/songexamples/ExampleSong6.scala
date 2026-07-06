@@ -47,7 +47,8 @@ object ExampleSong6:
       mixer = Mixer(
         Track(
           Title("Laideronnette, impératrice des pagodes"),
-          measureOneTrebleClef + measureTwoTrebleClef + measureThreeTrebleClef + measureFourTrebleClef,
+          measureOneTrebleClef + measureTwoTrebleClef + measureThreeTrebleClef +
+            measureFourTrebleClef,
           violinSynth,
           Playback.OneShot
         )

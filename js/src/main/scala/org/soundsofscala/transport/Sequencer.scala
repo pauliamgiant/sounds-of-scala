@@ -55,8 +55,8 @@ import org.soundsofscala.models.*
  * This serves as the master timeline that other tracks and the UI reference for scheduling,
  * pause/resume, and display.
  *
- * 2. METRONOME - It provides an audible metronome click for the user to play along with / keep
- * time.
+ *   2. METRONOME - It provides an audible metronome click for the user to play along with / keep
+ *      time.
  *
  * ====Live Updates====
  *
@@ -80,7 +80,7 @@ import org.soundsofscala.models.*
  *   1. Using the AudioContext.currentTime to track the time of the song in minutes, seconds and
  *      milliseconds.
  *
- * 2. Using a custom timekeeping system by beats and sub beats.
+ *   2. Using a custom timekeeping system by beats and sub beats.
  *
  * We have started with the second option and are using a custom timekeeping system by beats and sub
  * beats. This allows us to track the location of the song at any point in the song. This is done by

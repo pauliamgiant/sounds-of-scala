@@ -71,10 +71,11 @@ object MusicalEventTest extends SimpleIOSuite:
   test("large song doesn't cause stack overflow"):
     val notes = Seq[MusicalEvent](A1, B1, C1, D1, E1, F1, G1)
     val sizes = List((1000, 1001), (10000, 10001), (50000, 50001))
-    IO.pure(forEach(sizes): (count, expected) =>
-      val testSong =
-        (1 to count).foldLeft[MusicalEvent](C2)((acc, _) => acc.+(notes(Random.nextInt(7))))
-      expect(testSong.noteCount() == expected)
+    IO.pure(
+      forEach(sizes): (count, expected) =>
+        val testSong = (1 to count).foldLeft[MusicalEvent](C2)((acc, _) =>
+          acc.+(notes(Random.nextInt(7))))
+        expect(testSong.noteCount() == expected)
     )
 
   // --- Reverse ---

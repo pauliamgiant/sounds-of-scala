@@ -26,7 +26,7 @@ enum ScheduleStatus:
 
 private object ScheduleStatus:
   def isReadyToSchedule(nextNoteTime: NextNoteTime, scheduleAheadTimeSeconds: ScheduleWindow)(using
-  audioContext: AudioContext): ScheduleStatus =
+      audioContext: AudioContext): ScheduleStatus =
     if nextNoteTime.value < audioContext.currentTime + scheduleAheadTimeSeconds.value then
       Ready
     else Waiting

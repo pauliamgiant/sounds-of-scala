@@ -73,7 +73,9 @@ case class FunctionalAudioPlayer(
       sourceOpt <- sourceNode.get
       gainOpt <- gainNode.get
       _ <- IO.println(
-        s"Calling stopPlayback. Source node is ${if sourceOpt.isDefined then "" else "not"} defined.")
+        s"Calling stopPlayback. Source node is ${
+            if sourceOpt.isDefined then "" else "not"
+          } defined.")
       _ <- gainOpt.traverse { gain =>
         val now = audioContext.currentTime
         IO {
