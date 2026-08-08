@@ -31,8 +31,7 @@ object ClickTrack:
   given Default[Settings] with
     val default: Settings = Settings()
 
-  val pattern: MusicalEvent =
-    (C4.medium.sixteenth + r16) * 8
+  val pattern: MusicalEvent = (C4.medium.sixteenth + r16) * 8
 
   def track(instrument: ClickTrack): Track[Settings] =
     Track(Title("ClickTrack"), pattern, instrument, Playback.Loop)

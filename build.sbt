@@ -27,6 +27,23 @@ inThisBuild(
     tlCiScalafixCheck := true,
     tlJdkRelease := Some(17),
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
+    // sbt-typelevel hardcodes temurin@11 for the generated "validate-steward"
+    // job, but scala-steward 0.39.1+ is compiled for Java 17 and crashes on 11.
+    githubWorkflowGeneratedCI := githubWorkflowGeneratedCI.value.map {
+      case job if job.id == "validate-steward" =>
+        job
+          .withJavas(List(JavaSpec.temurin("17")))
+          .withSteps(job.steps.map {
+            case step: WorkflowStep.Use if step.id.contains("setup-java-temurin-11") =>
+              step
+                .withParams(step.params ++ Map("java-version" -> "17"))
+                .withName(Some("Setup Java (temurin@17)"))
+                .withId(Some("setup-java-temurin-17"))
+                .withCond(Some("matrix.java == 'temurin@17'"))
+            case step => step
+          })
+      case job => job
+    },
     developers := List(
       tlGitHubDev("pauliamgiant", "Paul Matthews"),
       tlGitHubDev("noelwelsh", "Noel Welsh"),
@@ -35,7 +52,7 @@ inThisBuild(
       tlGitHubDev("SabrinaXKL", "Sabrina Konrad-lee")
     ),
     scalafixDependencies ++= List(
-      "com.github.xuwei-k" %% "scalafix-rules" % "0.3.5"
+      "com.github.xuwei-k" %% "scalafix-rules" % "0.6.28"
     ),
     resolvers +=
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
@@ -76,9 +93,9 @@ lazy val sos = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.13.0",
       "org.typelevel" %%% "cats-effect" % "3.7.0",
-      "io.kevinlee" %%% "refined4s-core" % "1.16.0",
-      "io.kevinlee" %%% "refined4s-cats" % "1.16.0",
-      "com.disneystreaming" %%% "weaver-cats" % "0.8.4" % Test,
+      "io.kevinlee" %%% "refined4s-core" % "1.20.0",
+      "io.kevinlee" %%% "refined4s-cats" % "1.20.0",
+      "org.typelevel" %%% "weaver-cats" % "0.13.0" % Test,
     ),
     testFrameworks += new TestFramework("weaver.framework.CatsEffect")
   )

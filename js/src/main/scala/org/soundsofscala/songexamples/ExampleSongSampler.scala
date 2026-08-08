@@ -26,7 +26,8 @@ import org.soundsofscala.syntax.all.*
 object ExampleSongSampler:
 
   val vinylHihat: MusicalEvent =
-    RestEighth + C4.eighth + RestEighth + C4.eighth + RestQuarter + RestSixteenth + C4.sixteenth + RestEighth
+    RestEighth + C4.eighth + RestEighth + C4.eighth + RestQuarter + RestSixteenth + C4.sixteenth +
+      RestEighth
 
   val rhubarbHigh: MusicalEvent =
     C2 + TwoBarRest + TwoBarRest
@@ -44,11 +45,11 @@ object ExampleSongSampler:
     C3 + TwoBarRest + C3 + TwoBarRest
 
   val kickTrack: MusicalEvent =
-    C2.eighth + C2.eighth + RestQuarter + OneBarRest + RestHalf + C2.eighth + RestEighth + RestQuarter + OneBarRest + RestHalf
+    C2.eighth + C2.eighth + RestQuarter + OneBarRest + RestHalf + C2.eighth + RestEighth +
+      RestQuarter + OneBarRest + RestHalf
 
-  val snareTrack: MusicalEvent =
-    (RestQuarter + C2.eighth + RestEighth).repeat(
-      7) + RestSixteenth + C2.sixteenth + RestEighth + C2.eighth + RestEighth
+  val snareTrack: MusicalEvent = (RestQuarter + C2.eighth + RestEighth).repeat(
+    7) + RestSixteenth + C2.sixteenth + RestEighth + C2.eighth + RestEighth
 
   val customSettings: SamplePlayer.Settings =
     SamplePlayer.Settings(

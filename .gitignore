@@ -52,3 +52,6 @@ bin/
 # general
 *.class
 
+# claude
+.claude
+

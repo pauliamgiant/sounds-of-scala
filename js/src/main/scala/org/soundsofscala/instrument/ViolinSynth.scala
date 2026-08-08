@@ -115,9 +115,10 @@ final class ViolinSynth private (
 
         val lfoNew = lfo --> lfoGainNode
 
-        val audioGraph = lfoNew --> (audioParam =>
-          wavetableOsc.copy(frequency =
-            wavetableOsc.frequency + audioParam)) --> filter --> gainNode
+        val audioGraph = lfoNew -->
+          (audioParam =>
+            wavetableOsc.copy(frequency =
+              wavetableOsc.frequency + audioParam)) --> filter --> gainNode
 
         val finalNode = audioGraph.create
 
